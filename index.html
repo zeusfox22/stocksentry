@@ -384,20 +384,105 @@ padding:10px;text-align:center}
 .scstxt{font-size:12px;color:rgba(255,255,255,.5);font-family:var(–mono)}
 .scstxt.ok{color:var(–green)}
 
+/* FAB scan button for mobile inventory */
+.fab{display:none;position:fixed;bottom:76px;right:16px;z-index:150;
+width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#e81c1c,#c41414);
+border:none;color:#fff;font-size:24px;cursor:pointer;
+box-shadow:0 4px 20px rgba(232,28,28,.5);align-items:center;justify-content:center;
+transition:.2s}
+.fab:hover{transform:scale(1.08)}
+@media(max-width:680px){.fab{display:flex}}
+
+/* BOTTOM NAV - hidden on desktop */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;
+background:#111;border-top:1px solid #2a2a2a;
+padding:6px 0 env(safe-area-inset-bottom,6px);
+justify-content:space-around;align-items:center}
+.bni{display:flex;flex-direction:column;align-items:center;gap:3px;
+padding:6px 10px;border-radius:10px;cursor:pointer;
+color:#666;font-size:10px;font-weight:700;font-family:‘Montserrat’,sans-serif;
+transition:.15s;flex:1;text-align:center;position:relative}
+.bni:hover,.bni.on{color:#e81c1c}
+.bni .bico{font-size:20px;line-height:1}
+.bni .bbadge{position:absolute;top:2px;right:12px;background:#e81c1c;color:#fff;
+font-size:9px;font-family:monospace;padding:1px 5px;border-radius:20px;font-weight:800;min-width:16px;text-align:center}
+
+/* TABLET */
 @media(max-width:900px){
-.sb{width:60px}
+.sb{width:64px}
 .sbtop p,.sbtop img,.sbscan .sl,.sbscan .sd,.sbsec,.sbi span:not(.ico),.sbfoot .un,.sbfoot .ur{display:none}
 .sbtop{padding:10px;text-align:center}
 .sbscan{padding:8px 4px;margin:8px 6px} .sbscan .si{margin:0;font-size:18px}
 .sbi{justify-content:center;padding:9px} .ico{width:auto}
-.bmain{margin-left:60px;padding:16px 14px}
+.bmain{margin-left:64px;padding:16px 14px}
 .sgrid{grid-template-columns:repeat(3,1fr)}
 }
-@media(max-width:600px){
-.sgrid{grid-template-columns:repeat(2,1fr)}
+
+/* MOBILE: hide sidebar entirely, show bottom nav */
+@media(max-width:680px){
+/* Hide desktop sidebar completely */
+.sb{display:none}
+.bmain{margin-left:0;padding:12px 12px 90px}
+
+/* Bottom nav bar */
+.bnav{display:flex}
+
+/* Stats grid: 2 cols */
+.sgrid{grid-template-columns:1fr 1fr;gap:10px}
+.sc{padding:14px}
+.sval{font-size:24px}
+
+/* Hide table cols that don’t fit */
+th:nth-child(2),td:nth-child(2),
+th:nth-child(4),td:nth-child(4),
+th:nth-child(6),td:nth-child(6){display:none}
+
+/* Table font smaller */
+th{font-size:9px;padding:9px 8px}
+td{font-size:12px;padding:10px 8px}
+.tdn{font-size:13px}
+.tds{font-size:10px}
+
+/* Action buttons: smaller */
+.ia{width:28px;height:28px;font-size:10px}
+.ract{gap:2px}
+
+/* Toolbar wrap */
+.tb{flex-wrap:wrap;gap:6px}
+.sb2{max-width:100%;min-width:100%}
+.fch{font-size:11px;padding:5px 10px}
+
+/* Page bar stack */
+.pbar{flex-direction:column;gap:8px;margin-bottom:16px;padding-bottom:16px}
+.pacts{flex-wrap:wrap;gap:6px}
+.pacts .btn{font-size:12px;padding:7px 12px}
+.ptitle{font-size:18px}
+
+/* Channel row wrap */
+.chrow{gap:5px}
+.chp{font-size:10px;padding:3px 8px}
+
+/* Sync steps */
 .ssteps{grid-template-columns:1fr}
 .rgrid2{grid-template-columns:1fr}
-th:nth-child(4),td:nth-child(4),th:nth-child(6),td:nth-child(6){display:none}
+
+/* Modal fullscreen on mobile */
+.mover{align-items:flex-end}
+.mbox{border-radius:18px 18px 0 0;max-height:92vh;width:100%;padding:20px}
+.fgrid{grid-template-columns:1fr}
+.ff{grid-column:1}
+
+/* Login */
+.lw{padding:14px}
+.llogo img{width:160px}
+
+/* Alert banner */
+.abanner{flex-wrap:wrap;gap:8px}
+
+/* Fast moving rank col hide on mobile */
+#fm-body tr td:nth-child(4){display:none}
+#v-fast thead th:nth-child(4){display:none}
+#v-fast .sgrid{grid-template-columns:1fr 1fr}
 }
 
 .rank{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
@@ -647,6 +732,53 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
 ```
 
   </main>
+
+<button class="fab" onclick="openScan()" title="Quick Scan">📷</button>
+
+  <!-- MOBILE BOTTOM NAV -->
+
+  <nav class="bnav" id="bnav">
+    <div class="bni on" id="bni-inv" onclick="goTo('inv',null);mobileNav('inv')">
+      <span class="bico">&#128230;</span><span>Stock</span>
+    </div>
+    <div class="bni" id="bni-fast" onclick="goTo('fast',null);mobileNav('fast')">
+      <span class="bico">&#128293;</span><span>Fast</span>
+    </div>
+    <div class="bni" id="bni-flags" onclick="goTo('flags',null);mobileNav('flags')">
+      <span class="bico">&#128276;</span><span>Flags</span>
+      <span class="bbadge" id="bni-fl-badge" style="display:none">0</span>
+    </div>
+    <div class="bni" id="bni-sync" onclick="goTo('sync',null);mobileNav('sync')">
+      <span class="bico">&#128260;</span><span>Sync</span>
+    </div>
+    <div class="bni" id="bni-more" onclick="toggleMobileMore()">
+      <span class="bico">&#8943;</span><span>More</span>
+    </div>
+  </nav>
+
+  <!-- MOBILE MORE MENU -->
+
+  <div id="mobile-more" style="display:none;position:fixed;bottom:70px;right:12px;
+    background:#181818;border:1px solid #2a2a2a;border-radius:14px;z-index:300;
+    padding:8px;min-width:180px;box-shadow:0 -8px 40px rgba(0,0,0,.7)">
+    <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#aaa" onclick="goTo('alerts',null);mobileNav('alerts');closeMobileMore()">
+      <span style="font-size:18px">&#9888;&#65039;</span><span>Alerts</span>
+    </div>
+    <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#aaa" onclick="goTo('hist',null);mobileNav('hist');closeMobileMore()">
+      <span style="font-size:18px">&#128203;</span><span>History</span>
+    </div>
+    <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#aaa" onclick="goTo('rep',null);mobileNav('rep');closeMobileMore()">
+      <span style="font-size:18px">&#128202;</span><span>Reports</span>
+    </div>
+    <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#aaa" onclick="goTo('set',null);mobileNav('set');closeMobileMore()">
+      <span style="font-size:18px">&#9881;&#65039;</span><span>Settings</span>
+    </div>
+    <div style="border-top:1px solid #2a2a2a;margin:4px 0"></div>
+    <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#e81c1c" onclick="doLogout()">
+      <span style="font-size:18px">&#128682;</span><span>Logout</span>
+    </div>
+  </div>
+
 </div>
 </div>
 
@@ -946,6 +1078,9 @@ function updateFBadge(){
   b.textContent=pf; b.className='sbadge'+(pf===0?' z':'');
   var sf=document.getElementById('st-fl');
   if(sf)sf.textContent=pf;
+  // update mobile bottom nav badge
+  var mb=document.getElementById('bni-fl-badge');
+  if(mb){mb.textContent=pf;mb.style.display=pf>0?'':'none';}
 }
 
 // ---- INVENTORY TABLE ----
@@ -1585,6 +1720,37 @@ function renderFast() {
   });
   body.innerHTML = html;
 }
+
+
+function mobileNav(v) {
+  ['inv','fast','flags','sync','more'].forEach(function(x){
+    var el = document.getElementById('bni-'+x);
+    if(el) el.classList.remove('on');
+  });
+  var active = document.getElementById('bni-'+v);
+  if(active) active.classList.add('on');
+  else {
+    var moreEl = document.getElementById('bni-more');
+    if(moreEl) moreEl.classList.add('on');
+  }
+  closeMobileMore();
+}
+function toggleMobileMore() {
+  var m = document.getElementById('mobile-more');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+function closeMobileMore() {
+  var m = document.getElementById('mobile-more');
+  if(m) m.style.display = 'none';
+}
+// Close more menu on outside tap
+document.addEventListener('click', function(e) {
+  var more = document.getElementById('mobile-more');
+  var btn = document.getElementById('bni-more');
+  if(more && btn && !more.contains(e.target) && !btn.contains(e.target)) {
+    more.style.display = 'none';
+  }
+});
 
 // ---- TOAST ----
 function toast(msg,type){
