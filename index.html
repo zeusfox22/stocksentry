@@ -801,14 +801,37 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
       <div class="smc on" id="sm-recv" onclick="setStaffMode('recv')"><div class="smci">&#128229;</div><div class="smcn">Receive Stock</div><div class="smcd">Scan incoming items</div></div>
       <div class="smc" id="sm-flag" onclick="setStaffMode('flag')"><div class="smci">&#128681;</div><div class="smcn">Flag Low Stock</div><div class="smcd">Report to boss</div></div>
     </div>
-    <div class="camvp">
-      <video id="sv" playsinline autoplay muted></video>
-      <div class="camframe"><div class="camcorners"><div class="c3"></div><div class="c4"></div><div class="cambeam"></div></div></div>
-      <div class="camst"><div class="camstxt" id="sv-st">Point camera at barcode</div></div>
+    <!-- SCAN BUTTON - opens iPhone camera directly -->
+    <div style="width:100%;margin-bottom:16px">
+      <label for="scan-capture" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+        background:linear-gradient(135deg,#1a0a0a,#2a0808);border:2px solid #e81c1c;border-radius:16px;
+        padding:32px 20px;cursor:pointer;transition:.2s;width:100%;text-align:center">
+        <span style="font-size:64px;margin-bottom:12px">&#128247;</span>
+        <span style="font-size:18px;font-weight:900;color:#e81c1c;margin-bottom:6px">Tap to Scan Barcode</span>
+        <span style="font-size:12px;color:#888;font-family:monospace">Opens your iPhone camera</span>
+      </label>
+      <input type="file" id="scan-capture" accept="image/*" capture="environment" style="display:none" onchange="onPhotoCapture(event)">
     </div>
+    <!-- Status message -->
+    <div id="scan-status" style="width:100%;text-align:center;font-size:13px;color:#888;font-family:monospace;margin-bottom:12px;min-height:20px"></div>
+    <!-- Result panel -->
     <div class="sres2" id="sr"><div id="sr-body"></div></div>
-    <button class="smanual" onclick="staffManual()">&#9000;&#65039; Enter barcode manually</button>
-    <div style="font-size:11px;color:#555;text-align:center;margin-top:8px;line-height:1.6;font-family:var(--mono)">Camera not working? Make sure your browser has camera permission.<br>Safari: Settings &rarr; Safari &rarr; Camera &rarr; Allow</div>
+    <div style="width:100%;margin-top:10px">
+      <div style="font-size:10px;color:#555;text-align:center;font-family:monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Bluetooth Scanner / Manual Entry</div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="staff-barcode-input"
+          placeholder="Scan or type barcode here..."
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          style="flex:1;padding:13px 14px;background:#181818;border:2px solid #2a2a2a;border-radius:10px;
+            color:#f0f0f0;font-size:15px;font-family:monospace;outline:none;transition:.15s"
+          oninput="onBarcodeInput(this)"
+          onfocus="this.style.borderColor='#e81c1c'"
+          onblur="this.style.borderColor='#2a2a2a'">
+        <button onclick="triggerStaffScan()" style="padding:13px 16px;background:#e81c1c;color:#fff;
+          border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:900">&#8594;</button>
+      </div>
+      <div style="font-size:10px;color:#444;text-align:center;font-family:monospace;margin-top:5px">Bluetooth scanner will auto-detect &bull; or type and press Enter</div>
+    </div>
   </div>
 </div>
 
@@ -825,11 +848,15 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
         <button class="btn bg" style="padding:5px 9px" onclick="closeScan()">&#10005;</button>
       </div>
     </div>
-    <div class="scvp">
-      <video id="bv" playsinline autoplay muted></video>
-      <div class="scframe"><div class="sccorners"><div class="c3"></div><div class="c4"></div><div class="scbeam"></div></div></div>
-      <div class="scst"><div class="scstxt" id="bv-st">Point camera at barcode</div></div>
-    </div>
+    <label for="boss-scan-capture" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,#0a0a1a,#080828);border:2px solid #e81c1c;border-radius:12px;
+      padding:28px 20px;cursor:pointer;width:100%;text-align:center;margin-bottom:12px">
+      <span style="font-size:52px;margin-bottom:10px">&#128247;</span>
+      <span style="font-size:15px;font-weight:800;color:#e81c1c;margin-bottom:4px">Tap to Open Camera</span>
+      <span style="font-size:11px;color:#888;font-family:monospace">Point at barcode and take photo</span>
+    </label>
+    <input type="file" id="boss-scan-capture" accept="image/*" capture="environment" style="display:none" onchange="onBossPhotoCapture(event)">
+    <div id="boss-scan-status" style="text-align:center;font-size:12px;color:#888;font-family:monospace;margin-bottom:8px;min-height:18px"></div>
     <div id="scan-res" style="margin-bottom:10px"></div>
     <div>
       <label class="flbl" style="margin-bottom:5px;display:block">Or enter barcode manually</label>
@@ -1038,7 +1065,7 @@ renderInv(); updateStats(); updateFBadge();
   } else {
     document.getElementById('pg-staff').style.display='flex';
     document.getElementById('sh-name').textContent=name;
-    showCamPrompt();
+    focusStaffInput();
   }
 }
 function doLogout(){
@@ -1426,31 +1453,11 @@ function openScan(){
   document.getElementById('scan-modal').classList.add('open');
   document.getElementById('scan-res').innerHTML='';
   document.getElementById('b-manual').value='';
-  // Show tap-to-start for boss scanner too (iOS requirement)
-  var st = document.getElementById('bv-st');
-  st.textContent = 'Tap the viewfinder to start camera';
-  var vp = document.getElementById('bv').parentElement;
-  document.getElementById('bv').style.display = 'none';
-  var overlay = document.getElementById('boss-cam-overlay');
-  if(!overlay){
-    overlay = document.createElement('div');
-    overlay.id = 'boss-cam-overlay';
-    overlay.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:10;background:rgba(0,0,0,0.75);border-radius:12px';
-    overlay.innerHTML = '<div style="font-size:44px;margin-bottom:12px">&#128247;</div>'
-      + '<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px">Tap to Start Camera</div>'
-      + '<div style="font-size:11px;color:#aaa;font-family:monospace;text-align:center;padding:0 16px">Tap Allow when prompted</div>';
-    overlay.onclick = startCameraNow;
-    vp.appendChild(overlay);
-  }
-  overlay.style.display = 'flex';
+  var st=document.getElementById('boss-scan-status');
+  if(st) st.textContent='';
 }
-function closeScan(){
-  stopBCam();
-  document.getElementById('scan-modal').classList.remove('open');
-  var o=document.getElementById('boss-cam-overlay');
-  if(o){o.style.display='none';}
-  document.getElementById('bv').style.display='block';
-}
+function closeScan(){ stopBCam(); document.getElementById('scan-modal').classList.remove('open'); }
+
 function setBM(m){
   bmode=m;
   ['look','rest','ded'].forEach(function(x){document.getElementById('bm-'+x).classList.toggle('on',x===m);});
@@ -1492,47 +1499,10 @@ function startCameraNow(){
   startBCam();
 }
 
-function startBCam(){
-  var st=document.getElementById('bv-st');
-  st.textContent='Opening camera...';
-  var vid=document.getElementById('bv');
-  vid.style.display='block';
-  var ov=document.getElementById('boss-cam-overlay');
-  if(ov) ov.style.display='none';
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    st.textContent='Camera not supported'; return;
-  }
-  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})
-  .then(function(stream){
-    bCamStream=stream;
-    vid.srcObject=stream;
-    vid.play().then(function(){
-      st.textContent='Point camera at barcode';
-      bDecTimer=setInterval(function(){
-        if(!vid.videoWidth||vid.paused)return;
-        if(!window.ZXing)return;
-        var r=new ZXing.BrowserMultiFormatReader();
-        r.decodeFromVideoElement(vid).then(function(res){
-          if(bdeb)return;
-          bdeb=setTimeout(function(){bdeb=null;},2500);
-          var code=res.getText();
-          st.textContent='Scanned: '+code;
-          document.getElementById('b-manual').value=code;
-          bResult(code);
-        }).catch(function(){});
-      },600);
-    }).catch(function(){st.textContent='Video error';});
-  }).catch(function(e){
-    if(e.name==='NotAllowedError') st.textContent='Camera blocked - Settings > Safari > Camera > Allow';
-    else st.textContent='Camera error - use manual entry';
-  });
-}
-function stopBCam(){
-  if(bDecTimer){clearInterval(bDecTimer);bDecTimer=null;}
-  try{if(bCamStream){bCamStream.getTracks().forEach(function(t){t.stop();});bCamStream=null;}}catch(e){}
-  var v=document.getElementById('bv'); if(v)v.srcObject=null;
-  bdeb=null;
-}
+function startBCam(){ /* replaced by photo capture */ }
+
+function stopBCam(){ if(bDecTimer){clearInterval(bDecTimer);bDecTimer=null;} try{if(bCamStream){bCamStream.getTracks().forEach(function(t){t.stop();});bCamStream=null;}}catch(e){} }
+
 function setBM(m){
   bmode=m;
   ['look','rest','ded'].forEach(function(x){document.getElementById('bm-'+x).classList.toggle('on',x===m);});
@@ -1703,55 +1673,21 @@ function setStaffMode(m){
   document.getElementById('sr').classList.remove('show');
   sdeb=null;
   if(!sScanner){
-    showCamPrompt();
+    focusStaffInput();
   } else {
     document.getElementById('sv-st').textContent='Point camera at barcode';
     document.getElementById('sv-st').className='camstxt';
   }
 }
 function startStaffCam(){
-  var st=document.getElementById('sv-st');
-  st.className='camstxt';
-  st.textContent='Opening camera...';
-  var vid=document.getElementById('sv');
-  vid.style.display='block';
-  var ov=document.getElementById('cam-tap-overlay');
-  if(ov) ov.style.display='none';
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    st.textContent='Camera not supported - tap manual entry'; return;
-  }
-  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})
-  .then(function(stream){
-    sCamStream=stream;
-    vid.srcObject=stream;
-    vid.play().then(function(){
-      st.textContent='Point camera at barcode';
-      sDecTimer=setInterval(function(){
-        if(!vid.videoWidth||vid.paused)return;
-        if(!window.ZXing)return;
-        var r=new ZXing.BrowserMultiFormatReader();
-        r.decodeFromVideoElement(vid).then(function(res){
-          if(sdeb)return;
-          sdeb=setTimeout(function(){sdeb=null;},2500);
-          var code=res.getText();
-          st.textContent='Scanned!';
-          st.className='camstxt ok';
-          onScan(code);
-        }).catch(function(){});
-      },600);
-    }).catch(function(){st.textContent='Video error - tap manual entry';});
-  }).catch(function(e){
-    if(e.name==='NotAllowedError') st.textContent='Camera blocked - Settings > Safari > Camera > Allow';
-    else st.textContent='Camera error - tap manual entry below';
-  });
+  // Photo capture handles scanning - this is just a placeholder
+  var st=document.getElementById('scan-status');
+  if(st) st.textContent='Tap the camera button above to scan';
 }
-function stopSCam(){
-  if(sDecTimer){clearInterval(sDecTimer);sDecTimer=null;}
-  try{if(sCamStream){sCamStream.getTracks().forEach(function(t){t.stop();});sCamStream=null;}}catch(e){}
-  var v=document.getElementById('sv'); if(v)v.srcObject=null;
-  sdeb=null;
-}
-function staffManual(){var c=prompt('Enter barcode / SKU:');if(c&&c.trim())onScan(c.trim());}
+
+function stopSCam(){ if(sDecTimer){clearInterval(sDecTimer);sDecTimer=null;} try{if(sCamStream){sCamStream.getTracks().forEach(function(t){t.stop();});sCamStream=null;}}catch(e){} }
+
+function staffManual(){ var inp=document.getElementById('staff-barcode-input'); if(inp){ inp.focus(); inp.select(); } }
 function onScan(code){
   sscanCode=code;
   var item=inv.find(function(i){return i.sku===code;});
@@ -1979,6 +1915,120 @@ document.addEventListener('click', function(e) {
   }
 });
 
+
+// ---- PHOTO-BASED BARCODE SCANNING ----
+function onPhotoCapture(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var status = document.getElementById('scan-status');
+  status.textContent = 'Reading barcode...';
+  status.style.color = '#888';
+  decodeImageFile(file, function(code){
+    if(code){
+      status.textContent = 'Found: ' + code;
+      status.style.color = '#22c55e';
+      onScan(code);
+    } else {
+      status.textContent = 'No barcode found — try again or use manual entry';
+      status.style.color = '#f97316';
+    }
+    e.target.value = '';
+  });
+}
+
+function onBossPhotoCapture(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var status = document.getElementById('boss-scan-status');
+  status.textContent = 'Reading barcode...';
+  decodeImageFile(file, function(code){
+    if(code){
+      status.textContent = 'Found: ' + code;
+      status.style.color = '#22c55e';
+      document.getElementById('b-manual').value = code;
+      bResult(code);
+    } else {
+      status.textContent = 'No barcode found — try again or enter manually';
+      status.style.color = '#f97316';
+    }
+    e.target.value = '';
+  });
+}
+
+function decodeImageFile(file, callback){
+  if(window.Html5Qrcode){
+    // Use html5-qrcode scanFile - works on iOS Safari
+    var scanner = new Html5Qrcode('__temp_decode__', {verbose:false});
+    scanner.scanFile(file, true).then(function(code){
+      callback(code);
+    }).catch(function(err){
+      // Try BarcodeDetector as fallback (Chrome/Android)
+      if(window.BarcodeDetector){
+        var canvas = document.createElement('canvas');
+        var img = new Image();
+        var url = URL.createObjectURL(file);
+        img.onload = function(){
+          canvas.width=img.width; canvas.height=img.height;
+          canvas.getContext('2d').drawImage(img,0,0);
+          URL.revokeObjectURL(url);
+          new BarcodeDetector().detect(canvas).then(function(r){
+            callback(r.length ? r[0].rawValue : null);
+          }).catch(function(){ callback(null); });
+        };
+        img.src = url;
+      } else {
+        callback(null);
+      }
+    });
+    return;
+  }
+  callback(null);
+}
+
+
+
+
+// ---- BLUETOOTH SCANNER INPUT ----
+var barcodeBuffer = '';
+var barcodeTimer = null;
+
+function onBarcodeInput(input){
+  // Bluetooth scanners type fast then send Enter
+  // This handles both manual typing and scanner input
+  clearTimeout(barcodeTimer);
+  barcodeTimer = setTimeout(function(){
+    // auto-submit after 100ms of no typing (scanner fires all at once)
+  }, 100);
+}
+
+function triggerStaffScan(){
+  var input = document.getElementById('staff-barcode-input');
+  var val = input.value.trim();
+  if(!val) return;
+  input.value = '';
+  input.focus();
+  onScan(val);
+}
+
+// Auto-focus input when staff page is shown
+function focusStaffInput(){
+  setTimeout(function(){
+    var inp = document.getElementById('staff-barcode-input');
+    if(inp) inp.focus();
+  }, 300);
+}
+
+// Global keydown listener - catch scanner input anywhere on staff page
+document.addEventListener('keydown', function(e){
+  if(role !== 'staff') return;
+  var inp = document.getElementById('staff-barcode-input');
+  if(!inp) return;
+  if(e.key === 'Enter'){
+    var val = inp.value.trim();
+    if(val){ inp.value=''; onScan(val); }
+  }
+});
+
 // ---- TOAST ----
 function toast(msg,type){
   type=type||'ok';
@@ -1997,5 +2047,6 @@ document.getElementById('sh-logo').src='data:image/jpeg;base64,/9j/4AAQSkZJRgABA
 renderInv();
 </script>
 
+<div id="__temp_decode__" style="display:none"></div>
 </body>
 </html>
