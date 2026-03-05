@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>GwiraPack Stock Manager</title>
-<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -883,7 +883,7 @@ var nid  = Math.max.apply(null,[0].concat(inv.map(function(i){return i.id;})))+1
 var editId=null, filt='all', pimp=null, fmRange=7;
 var usr=null, role=null;
 var bmode='look', smode='recv', sftype='low';
-var breader=null, sreader=null, bdeb=null, sdeb=null, bCamStream=null, sCamStream=null;
+var bScanner=null, sScanner=null, bdeb=null, sdeb=null;
 var sqty=1, bscanCode='', sscanCode='';
 
 function save(){
@@ -1023,7 +1023,7 @@ renderInv(); updateStats(); updateFBadge();
   } else {
     document.getElementById('pg-staff').style.display='flex';
     document.getElementById('sh-name').textContent=name;
-    startStaffCam();
+    showCamPrompt();
   }
 }
 function doLogout(){
@@ -1034,6 +1034,13 @@ function doLogout(){
   document.getElementById('pg-login').style.display='flex';
   document.getElementById('l-pin').value='';
   document.getElementById('sr').classList.remove('show');
+  // Reset overlays
+  var so=document.getElementById('cam-tap-overlay');
+  if(so) so.style.display='none';
+  var bo=document.getElementById('boss-cam-overlay');
+  if(bo) bo.style.display='none';
+  document.getElementById('sv').style.display='block';
+  document.getElementById('bv').style.display='block';
 }
 
 // Enter key on PIN
@@ -1404,9 +1411,31 @@ function openScan(){
   document.getElementById('scan-modal').classList.add('open');
   document.getElementById('scan-res').innerHTML='';
   document.getElementById('b-manual').value='';
-  startBCam();
+  // Show tap-to-start for boss scanner too (iOS requirement)
+  var st = document.getElementById('bv-st');
+  st.textContent = 'Tap the viewfinder to start camera';
+  var vp = document.getElementById('bv').parentElement;
+  document.getElementById('bv').style.display = 'none';
+  var overlay = document.getElementById('boss-cam-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'boss-cam-overlay';
+    overlay.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:10;background:rgba(0,0,0,0.75);border-radius:12px';
+    overlay.innerHTML = '<div style="font-size:44px;margin-bottom:12px">&#128247;</div>'
+      + '<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px">Tap to Start Camera</div>'
+      + '<div style="font-size:11px;color:#aaa;font-family:monospace;text-align:center;padding:0 16px">Tap Allow when prompted</div>';
+    overlay.onclick = startCameraNow;
+    vp.appendChild(overlay);
+  }
+  overlay.style.display = 'flex';
 }
-function closeScan(){stopBCam();document.getElementById('scan-modal').classList.remove('open');}
+function closeScan(){
+  stopBCam();
+  document.getElementById('scan-modal').classList.remove('open');
+  var o=document.getElementById('boss-cam-overlay');
+  if(o){o.style.display='none';}
+  document.getElementById('bv').style.display='block';
+}
 function setBM(m){
   bmode=m;
   ['look','rest','ded'].forEach(function(x){document.getElementById('bm-'+x).classList.toggle('on',x===m);});
@@ -1416,6 +1445,119 @@ function bManual(){
   if(c)bResult(c);
 }
 document.getElementById('b-manual').addEventListener('keydown',function(e){if(e.key==='Enter')bManual();});
+
+function showCamPrompt(){
+  // Show tap-to-start overlay instead of auto-starting
+  var st = document.getElementById('sv-st');
+  st.textContent = 'Tap below to start camera';
+  st.className = 'camstxt';
+  var vp = document.querySelector('.camvp');
+  // Show tap overlay on the camera viewport
+  var overlay = document.getElementById('cam-tap-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'cam-tap-overlay';
+    overlay.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:10;background:rgba(0,0,0,0.7);border-radius:14px';
+    overlay.innerHTML = '<div style="font-size:52px;margin-bottom:16px">&#128247;</div>'
+      + '<div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:6px">Tap to Start Camera</div>'
+      + '<div style="font-size:12px;color:#aaa;font-family:monospace;text-align:center;padding:0 20px">You may be asked to allow<br>camera access — tap Allow</div>';
+    overlay.onclick = function(){
+      overlay.style.display = 'none';
+      startStaffCam();
+    };
+    vp.appendChild(overlay);
+  }
+  overlay.style.display = 'flex';
+}
+
+function startCameraNow(){
+  // Called by explicit user tap in boss scanner
+  var overlay = document.getElementById('boss-cam-overlay');
+  if(overlay) overlay.style.display = 'none';
+  startBCam();
+}
+
+function startBCam(){
+  var st = document.getElementById('bv-st');
+  st.textContent = 'Starting camera...';
+  var vp = document.getElementById('bv').parentElement;
+  document.getElementById('bv').style.display = 'none';
+  var div = document.getElementById('b-scan-div');
+  if(!div){
+    div = document.createElement('div');
+    div.id = 'b-scan-div';
+    div.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;overflow:hidden;border-radius:12px';
+    vp.appendChild(div);
+  }
+  div.style.display = 'block';
+  try{
+    bScanner = new Html5Qrcode('b-scan-div');
+    bScanner.start(
+      {facingMode:'environment'},
+      {fps:10, qrbox:{width:200,height:150}, aspectRatio:1.33},
+      function(code){
+        if(bdeb) return;
+        bdeb = setTimeout(function(){bdeb=null;},2500);
+        st.textContent = 'Scanned!';
+        document.getElementById('b-manual').value = code;
+        bResult(code);
+      },
+      function(){}
+    ).then(function(){ st.textContent='Point camera at barcode'; })
+     .catch(function(e){
+       var msg = typeof e==='string'?e:(e.message||'');
+       st.textContent = msg.indexOf('ermission')>=0 ? 'Camera blocked — allow in browser settings' : 'Camera error — use manual entry';
+     });
+  }catch(e){ st.textContent='Camera unavailable — use manual entry'; }
+}
+function stopBCam(){
+  try{ if(bScanner){ bScanner.stop().catch(function(){}); bScanner=null; }}catch(e){}
+  var div=document.getElementById('b-scan-div');
+  if(div) div.style.display='none';
+  document.getElementById('bv').style.display='block';
+  bdeb=null;
+}
+function setBM(m){
+  bmode=m;
+  ['look','rest','ded'].forEach(function(x){document.getElementById('bm-'+x).classList.toggle('on',x===m);});
+}
+function bManual(){
+  var c=document.getElementById('b-manual').value.trim();
+  if(c)bResult(c);
+}
+document.getElementById('b-manual').addEventListener('keydown',function(e){if(e.key==='Enter')bManual();});
+
+function showCamPrompt(){
+  // Show tap-to-start overlay instead of auto-starting
+  var st = document.getElementById('sv-st');
+  st.textContent = 'Tap below to start camera';
+  st.className = 'camstxt';
+  var vp = document.querySelector('.camvp');
+  // Show tap overlay on the camera viewport
+  var overlay = document.getElementById('cam-tap-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'cam-tap-overlay';
+    overlay.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:10;background:rgba(0,0,0,0.7);border-radius:14px';
+    overlay.innerHTML = '<div style="font-size:52px;margin-bottom:16px">&#128247;</div>'
+      + '<div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:6px">Tap to Start Camera</div>'
+      + '<div style="font-size:12px;color:#aaa;font-family:monospace;text-align:center;padding:0 20px">You may be asked to allow<br>camera access — tap Allow</div>';
+    overlay.onclick = function(){
+      overlay.style.display = 'none';
+      startStaffCam();
+    };
+    vp.appendChild(overlay);
+  }
+  overlay.style.display = 'flex';
+}
+
+function startCameraNow(){
+  // Called by explicit user tap in boss scanner
+  var overlay = document.getElementById('boss-cam-overlay');
+  if(overlay) overlay.style.display = 'none';
+  startBCam();
+}
+
 function startBCam(){
   var statusEl = document.getElementById('bv-st');
   var videoEl  = document.getElementById('bv');
@@ -1544,66 +1686,54 @@ function setStaffMode(m){
   ['recv','flag'].forEach(function(x){document.getElementById('sm-'+x).classList.toggle('on',x===m);});
   document.getElementById('sr').classList.remove('show');
   sdeb=null;
-  document.getElementById('sv-st').textContent='Point camera at barcode';
-  document.getElementById('sv-st').className='camstxt';
+  if(!sScanner){
+    showCamPrompt();
+  } else {
+    document.getElementById('sv-st').textContent='Point camera at barcode';
+    document.getElementById('sv-st').className='camstxt';
+  }
 }
 function startStaffCam(){
-  var statusEl = document.getElementById('sv-st');
-  var videoEl  = document.getElementById('sv');
-  statusEl.textContent = 'Starting camera...';
-  statusEl.className = 'camstxt';
-
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    statusEl.textContent = 'Camera not supported — tap manual entry below';
-    return;
+  var st = document.getElementById('sv-st');
+  st.textContent = 'Starting camera...';
+  st.className = 'camstxt';
+  var vp = document.querySelector('.camvp');
+  document.getElementById('sv').style.display = 'none';
+  var div = document.getElementById('s-scan-div');
+  if(!div){
+    div = document.createElement('div');
+    div.id = 's-scan-div';
+    div.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;overflow:hidden;border-radius:14px';
+    vp.appendChild(div);
   }
-
-  var constraints = {
-    video: {
-      facingMode: { ideal: 'environment' },
-      width:  { ideal: 1280 },
-      height: { ideal: 720 }
-    }
-  };
-
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then(function(stream){
-      videoEl.srcObject = stream;
-      sCamStream = stream;
-      videoEl.play();
-      statusEl.textContent = 'Point camera at barcode';
-
-      if(window.ZXing){
-        try{
-          sreader = new ZXing.BrowserMultiFormatReader();
-          sreader.decodeFromVideoElement(videoEl, function(res, err){
-            if(res){
-              if(sdeb) return;
-              sdeb = setTimeout(function(){ sdeb = null; }, 2500);
-              onScan(res.getText());
-            }
-          });
-        }catch(e){
-          statusEl.textContent = 'Camera on — tap manual entry to enter barcode';
-        }
-      } else {
-        statusEl.textContent = 'Camera on — tap manual entry to enter barcode';
-      }
-    })
-    .catch(function(e){
-      if(e.name === 'NotAllowedError'){
-        statusEl.textContent = 'Camera blocked — go to browser Settings and allow camera access';
-      } else if(e.name === 'NotFoundError'){
-        statusEl.textContent = 'No camera found — tap manual entry';
-      } else {
-        statusEl.textContent = 'Camera error — tap manual entry below';
-      }
-    });
+  div.style.display = 'block';
+  try{
+    sScanner = new Html5Qrcode('s-scan-div');
+    sScanner.start(
+      {facingMode:'environment'},
+      {fps:10, qrbox:{width:200,height:200}, aspectRatio:1.0},
+      function(code){
+        if(sdeb) return;
+        sdeb = setTimeout(function(){sdeb=null;},2500);
+        st.textContent = 'Scanned!';
+        st.className = 'camstxt ok';
+        onScan(code);
+      },
+      function(){}
+    ).then(function(){ st.textContent='Point camera at barcode'; })
+     .catch(function(e){
+       var msg = typeof e==='string'?e:(e.message||'');
+       st.textContent = msg.indexOf('ermission')>=0
+         ? 'Camera blocked — Settings > Safari > Camera > Allow'
+         : 'Camera error — tap manual entry below';
+     });
+  }catch(e){ st.textContent='Camera unavailable — tap manual entry below'; }
 }
 function stopSCam(){
-  try{ if(sreader){ sreader.reset(); sreader=null; } }catch(e){}
-  try{ if(sCamStream){ sCamStream.getTracks().forEach(function(t){t.stop();}); sCamStream=null; } }catch(e){}
-  var v=document.getElementById('sv'); if(v){ v.srcObject=null; }
+  try{ if(sScanner){ sScanner.stop().catch(function(){}); sScanner=null; }}catch(e){}
+  var div=document.getElementById('s-scan-div');
+  if(div) div.style.display='none';
+  document.getElementById('sv').style.display='block';
   sdeb=null;
 }
 function staffManual(){var c=prompt('Enter barcode / SKU:');if(c&&c.trim())onScan(c.trim());}
