@@ -78,9 +78,9 @@ cursor:pointer;text-align:center;transition:.2s}
 .sbsec{font-size:9px;color:var(–t3);letter-spacing:2px;text-transform:uppercase;
 font-family:var(–mono);padding:10px 6px 4px}
 .sbi{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;
-cursor:pointer;color:var(–t2);font-size:13px;font-weight:600;margin-bottom:1px;
+cursor:pointer;color:#888;font-size:13px;font-weight:600;margin-bottom:1px;
 border:1px solid transparent;transition:.15s}
-.sbi:hover{color:var(–t1);background:rgba(255,255,255,.04)}
+.sbi:hover{color:#f0f0f0;background:rgba(255,255,255,.04)}
 .sbi.on{color:var(–red);background:var(–rdim);border-color:rgba(232,28,28,.2)}
 .sbi .ico{width:18px;text-align:center;font-size:14px}
 .sbadge{margin-left:auto;font-size:10px;font-family:var(–mono);padding:2px 6px;
@@ -99,7 +99,7 @@ display:flex;align-items:center;justify-content:center;transition:.15s}
 margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(–b1);flex-wrap:wrap;gap:10px}
 .ptitle{font-size:22px;font-weight:900;letter-spacing:-.4px}
 .ptitle .hl{color:var(–red)}
-.pmeta{font-size:11px;color:var(–t2);margin-top:3px;font-family:var(–mono)}
+.pmeta{font-size:11px;color:#888;margin-top:3px;font-family:var(–mono)}
 .rline{width:36px;height:3px;background:linear-gradient(90deg,var(–red),transparent);
 border-radius:2px;margin:5px 0 0}
 .pacts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -111,8 +111,8 @@ align-items:center;gap:5px;white-space:nowrap}
 .br{background:linear-gradient(135deg,var(–red),var(–red2));color:#fff;
 box-shadow:0 2px 10px var(–rglow)}
 .br:hover{transform:translateY(-1px)}
-.bg{background:transparent;color:var(–t2);border:1px solid var(–b1)}
-.bg:hover{color:var(–t1);border-color:var(–b2);background:var(–s2)}
+.bg{background:#1a1a1a;color:#aaa;border:1px solid #2a2a2a}
+.bg:hover{color:#f0f0f0;border-color:#3a3a3a;background:#222}
 .bgreen{background:var(–gdim);color:var(–green);border:1px solid rgba(34,197,94,.2)}
 .bgreen:hover{background:rgba(34,197,94,.18)}
 .borange{background:var(–odim);color:var(–orange);border:1px solid rgba(249,115,22,.2)}
@@ -132,10 +132,10 @@ font-size:11px;font-family:var(–mono);font-weight:500;white-space:nowrap}
 .sc{background:var(–s1);border:1px solid var(–b1);border-radius:10px;
 padding:16px 18px;position:relative;overflow:hidden;transition:.2s}
 .sc:hover{transform:translateY(-2px);border-color:var(–b2)}
-.slbl{font-size:10px;color:var(–t2);text-transform:uppercase;letter-spacing:1.5px;
+.slbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1.5px;
 font-family:var(–mono);margin-bottom:6px}
 .sval{font-size:30px;font-weight:900;line-height:1;letter-spacing:-1px}
-.ssub{font-size:11px;color:var(–t2);margin-top:3px}
+.ssub{font-size:11px;color:#888;margin-top:3px}
 .sr .sval{color:var(–red)} .so .sval{color:var(–orange)} .sgr .sval{color:var(–green)}
 .sbl .sval{color:var(–blue)} .sgo .sval{color:var(–gold)}
 
@@ -168,10 +168,10 @@ cursor:pointer;transition:.15s;white-space:nowrap}
 /* TABLE */
 .tc{background:var(–s1);border:1px solid var(–b1);border-radius:12px;overflow:hidden}
 table{width:100%;border-collapse:collapse}
-thead tr{background:var(–s2);border-bottom:1px solid var(–b1)}
-th{padding:11px 13px;text-align:left;font-size:10px;color:var(–t2);
+thead tr{background:#181818;border-bottom:1px solid #2a2a2a}
+th{padding:11px 13px;text-align:left;font-size:10px;color:#888;
 font-family:var(–mono);letter-spacing:1.2px;text-transform:uppercase;font-weight:500}
-td{padding:12px 13px;font-size:13px;border-bottom:1px solid rgba(42,42,42,.6);vertical-align:middle}
+td{padding:12px 13px;font-size:13px;border-bottom:1px solid rgba(42,42,42,.6);vertical-align:middle;color:#f0f0f0}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(255,255,255,.012)}
 .tdn{font-weight:700} .tds{font-family:var(–mono);font-size:11px;color:var(–t2);margin-top:2px}
@@ -182,11 +182,11 @@ tr:hover td{background:rgba(255,255,255,.012)}
 .sbf{height:100%;border-radius:2px;transition:width .5s}
 .sbn{font-family:var(–mono);font-size:12px;font-weight:600;min-width:28px;text-align:right}
 .ract{display:flex;gap:3px}
-.ia{width:26px;height:26px;border-radius:6px;border:1px solid var(–b1);
-background:transparent;cursor:pointer;color:var(–t2);font-size:11px;
-display:flex;align-items:center;justify-content:center;transition:.15s}
-.ia:hover{background:var(–s2);color:var(–t1)}
-.ia.add:hover{color:var(–green);border-color:var(–green)}
+.ia{width:32px;height:28px;border-radius:6px;border:1px solid #3a3a3a;
+background:#222;cursor:pointer;color:#aaa;font-size:11px;font-weight:700;
+display:flex;align-items:center;justify-content:center;transition:.15s;font-family:‘Montserrat’,sans-serif}
+.ia:hover{background:#2a2a2a;color:#f0f0f0}
+.ia.add:hover{color:#22c55e;border-color:var(–green)}
 .ia.sub:hover{color:var(–orange);border-color:var(–orange)}
 .ia.edt:hover{color:var(–red);border-color:var(–red)}
 .empty{text-align:center;padding:50px;color:var(–t2)}
@@ -494,9 +494,11 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
     <div><div class="ptitle">Inventory <span class="hl">Overview</span></div><div class="rline"></div><div class="pmeta" id="inv-meta">Loading...</div></div>
     <div class="pacts">
       <button class="btn bg" onclick="openScan()">&#128247; Scan</button>
+      <button class="btn" style="background:#1a3a1a;color:#22c55e;border:1px solid rgba(34,197,94,.3);font-weight:700" onclick="triggerACImport()">&#8679; Import from AutoCount</button>
       <button class="btn bg" onclick="exportAdj()">&#8595; AC Export</button>
       <button class="btn br" onclick="openItem()">+ Add Item</button>
     </div>
+    <input type="file" id="ac-quick-import" accept=".xlsx,.xls,.csv" style="display:none" onchange="acQuickImport(event)">
   </div>
   <div class="abanner hide" id="ab">
     <span style="font-size:18px">&#128680;</span>
@@ -804,6 +806,80 @@ function doLogin(){
     document.getElementById('pg-boss').style.display='block';
     document.getElementById('sb-user').textContent=name;
     
+
+function triggerACImport() {
+  document.getElementById('ac-quick-import').click();
+}
+function acQuickImport(e) {
+  var file = e.target.files[0];
+  if(!file) return;
+  toast('Reading AutoCount file...', 'info');
+  var ext = file.name.split('.').pop().toLowerCase();
+  var rd = new FileReader();
+  rd.onload = function(ev) {
+    try {
+      var rows = [];
+      if(ext === 'csv') {
+        var lines = ev.target.result.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+        var hdrs = lines[0].split(',').map(function(h){return h.replace(/"/g,'').trim();});
+        rows = lines.slice(1).map(function(l){
+          var v = l.split(',').map(function(x){return x.replace(/"/g,'').trim();});
+          var o = {}; hdrs.forEach(function(h,i){o[h]=v[i]||'';});
+          return o;
+        });
+      } else {
+        var wb = XLSX.read(ev.target.result, {type:'binary'});
+        rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
+      }
+      var samp = rows[0] || {};
+      var keys = Object.keys(samp);
+      function fc() {
+        var args = Array.prototype.slice.call(arguments);
+        return keys.find(function(k){return args.some(function(c){return k.toLowerCase().indexOf(c.toLowerCase())>=0;});});
+      }
+      var cCode = fc('Item Code','Code','SKU','Barcode','item code');
+      var cName = fc('Description','Item Name','Name','description');
+      var cStk  = fc('Balance','Stock','Qty','Quantity','balance');
+      var cCost = fc('Unit Cost','Cost','Price','unit cost');
+      var cThr  = fc('Reorder','Min Qty','Threshold','reorder');
+      if(!cCode || !cName) {
+        toast('Could not detect AutoCount columns. Try the AC Sync tab for manual mapping.', 'err');
+        document.getElementById('ac-quick-import').value = '';
+        return;
+      }
+      var updated = 0, added = 0;
+      rows.forEach(function(r) {
+        var sku = String(r[cCode]||'').trim(); if(!sku) return;
+        var name = String(r[cName]||'').trim(); if(!name) return;
+        var stk  = cStk  ? (parseFloat(r[cStk])||0)  : undefined;
+        var cost = cCost ? (parseFloat(r[cCost])||0) : undefined;
+        var thr  = cThr  ? (parseFloat(r[cThr])||cfg.low) : cfg.low;
+        var ex = inv.find(function(i){return i.sku===sku;});
+        if(ex) {
+          if(stk  !== undefined) ex.stk  = stk;
+          if(cost !== undefined) ex.cost = cost;
+          ex.thr = thr;
+          ex.name = name;
+          updated++;
+        } else {
+          inv.push({id:nid++,name:name,sku:sku,cat:'pack',
+            stk:stk||0,thr:thr,cost:cost||0,reo:50,note:'AutoCount import'});
+          added++;
+        }
+      });
+      adjs = [];
+      save(); renderInv(); updateStats();
+      document.getElementById('ac-quick-import').value = '';
+      toast('AutoCount import done: ' + updated + ' updated, ' + added + ' new items added.', 'ok');
+    } catch(err) {
+      toast('Error reading file: ' + err.message, 'err');
+      document.getElementById('ac-quick-import').value = '';
+    }
+  };
+  if(ext === 'csv') rd.readAsText(file);
+  else rd.readAsBinaryString(file);
+}
+
 function doScanRestock(){setBM('rest');bResult(bscanCode);}
 function doScanDeduct(){setBM('ded');bResult(bscanCode);}
 function doScanLookup(){setBM('look');bResult(bscanCode);}
@@ -896,8 +972,8 @@ function renderInv(){
     html+='<td><div class="ract">';
     html+='<button class="ia add" title="Restock" onclick="qAdj('+item.id+',1)">+</button>';
     html+='<button class="ia sub" title="Deduct" onclick="qAdj('+item.id+',-1)">&minus;</button>';
-    html+='<button class="ia edt" title="Edit" onclick="openItem('+item.id+')">&#9998;</button>';
-    html+='<button class="ia" title="Delete" onclick="delItem('+item.id+')">&#10005;</button>';
+    html+='<button class="ia edt" title="Edit" onclick="openItem('+item.id+')">Edit</button>';
+    html+='<button class="ia" title="Delete" onclick="delItem('+item.id+')">Del</button>';
     html+='</div></td></tr>';
   });
   tb.innerHTML=html;
