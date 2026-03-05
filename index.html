@@ -399,6 +399,20 @@ padding:10px;text-align:center}
 .rgrid2{grid-template-columns:1fr}
 th:nth-child(4),td:nth-child(4),th:nth-child(6),td:nth-child(6){display:none}
 }
+
+.rank{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
+.r1{background:linear-gradient(135deg,#f5c842,#e6a800);color:#000}
+.r2{background:linear-gradient(135deg,#aaa,#888);color:#000}
+.r3{background:linear-gradient(135deg,#cd7f32,#a05a20);color:#fff}
+.rn{background:var(–s3);color:var(–t2)}
+.vel{display:flex;flex-direction:column;gap:3px}
+.vbar{height:6px;border-radius:3px;background:linear-gradient(90deg,var(–red),var(–orange))}
+.vnum{font-size:12px;font-weight:700;font-family:var(–mono);color:var(–red)}
+.dout-ok{color:var(–green);font-weight:700;font-family:var(–mono);font-size:13px}
+.dout-warn{color:var(–orange);font-weight:700;font-family:var(–mono);font-size:13px}
+.dout-crit{color:var(–red);font-weight:700;font-family:var(–mono);font-size:13px;animation:blink 1.5s infinite}
+.dout-na{color:var(–t3);font-family:var(–mono);font-size:12px}
 </style>
 
 </head>
@@ -458,6 +472,7 @@ th:nth-child(4),td:nth-child(4),th:nth-child(6),td:nth-child(6){display:none}
       <div class="sbsec">Main</div>
       <div class="sbi on" id="nav-inv" onclick="goTo('inv',this)"><span class="ico">&#128230;</span><span>Inventory</span><span class="sbadge z" id="ab-badge">0</span></div>
       <div class="sbi" id="nav-flags" onclick="goTo('flags',this)"><span class="ico">&#128276;</span><span>Staff Flags</span><span class="sbadge z" id="fl-badge">0</span></div>
+      <div class="sbi" id="nav-fast" onclick="goTo('fast',this)"><span class="ico">&#128293;</span><span>Fast Moving</span></div>
       <div class="sbi" id="nav-alerts" onclick="goTo('alerts',this)"><span class="ico">&#9888;&#65039;</span><span>Alerts</span></div>
       <div class="sbsec">AutoCount</div>
       <div class="sbi" id="nav-sync" onclick="goTo('sync',this)"><span class="ico">&#128260;</span><span>AC Sync</span></div>
@@ -560,6 +575,41 @@ th:nth-child(4),td:nth-child(4),th:nth-child(6),td:nth-child(6){display:none}
   </div>
 </div>
 
+
+<div id="v-fast" style="display:none">
+  <div class="pbar">
+    <div>
+      <div class="ptitle">Fast <span class="hl">Moving</span></div>
+      <div class="rline"></div>
+      <div class="pmeta" id="fm-meta">Top items by units sold</div>
+    </div>
+    <div class="pacts">
+      <span class="fch on" id="fm-7" onclick="setFMRange(7,this)">7 days</span>
+      <span class="fch" id="fm-14" onclick="setFMRange(14,this)">14 days</span>
+      <span class="fch" id="fm-30" onclick="setFMRange(30,this)">30 days</span>
+    </div>
+  </div>
+  <div class="sgrid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+    <div class="sc sr"><div class="slbl">Top Mover</div><div class="sval" id="fm-top" style="font-size:16px;letter-spacing:0;line-height:1.3">—</div><div class="ssub" id="fm-top-u"></div></div>
+    <div class="sc so"><div class="slbl">Total Units Moved</div><div class="sval" id="fm-total">0</div><div class="ssub">in period</div></div>
+    <div class="sc sgr"><div class="slbl">Items Tracked</div><div class="sval" id="fm-count">0</div><div class="ssub">with activity</div></div>
+  </div>
+  <div class="tc">
+    <table>
+      <thead><tr>
+        <th>#</th>
+        <th>Item</th>
+        <th>Units Moved</th>
+        <th>Restock Freq</th>
+        <th>Days Until Stockout</th>
+        <th>Current Stock</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="fm-body"></tbody>
+    </table>
+    <div class="empty" id="fm-empty" style="display:none"><div class="eico">&#128293;</div><p>No movement data yet. Start scanning items to track velocity.</p></div>
+  </div>
+</div>
 <div id="v-hist" style="display:none">
   <div class="pbar"><div><div class="ptitle">Movement <span class="hl">History</span></div><div class="rline"></div></div></div>
   <div class="tc"><table><thead><tr><th>Time</th><th>Item</th><th>Action</th><th>By</th><th>Change</th><th>New Stock</th><th>Note</th></tr></thead>
@@ -695,7 +745,7 @@ var cfg  = JSON.parse(localStorage.getItem('gw_cfg') || 'null') || {low:20,crit:
 var adjs = JSON.parse(localStorage.getItem('gw_adjs') || '[]');
 var nid  = Math.max.apply(null,[0].concat(inv.map(function(i){return i.id;})))+1;
 
-var editId=null, filt='all', pimp=null;
+var editId=null, filt='all', pimp=null, fmRange=7;
 var usr=null, role=null;
 var bmode='look', smode='recv', sftype='low';
 var breader=null, sreader=null, bdeb=null, sdeb=null;
@@ -783,7 +833,7 @@ document.getElementById('l-pin').addEventListener('keydown',function(e){
 });
 
 // ---- BOSS NAV ----
-var views=['inv','flags','alerts','sync','hist','rep','set'];
+var views=['inv','flags','alerts','fast','sync','hist','rep','set'];
 function goTo(v,el){
   views.forEach(function(x){document.getElementById('v-'+x).style.display=x===v?'':'none';});
   document.querySelectorAll('.sbi').forEach(function(e){e.classList.remove('on');});
@@ -1360,6 +1410,104 @@ function doFlag(iid){
 function flagUnknown(){
   flgs.unshift({id:Date.now(),t:new Date().toLocaleString(),iid:null,name:'Unknown',sku:sscanCode,type:'out',stk:0,by:usr,note:'Unknown barcode',res:false});
   save();updateFBadge();toast('Boss notified.','ok');sClear();
+}
+
+
+// ---- FAST MOVING ----
+function setFMRange(days, el) {
+  fmRange = days;
+  document.querySelectorAll('#fm-7,#fm-14,#fm-30').forEach(function(e){e.classList.remove('on');});
+  if(el) el.classList.add('on');
+  renderFast();
+}
+
+function renderFast() {
+  var now = new Date();
+  var cutoff = new Date(now.getTime() - fmRange * 24 * 60 * 60 * 1000);
+
+  // Filter history: only deductions and staff receives in period
+  var period = hist.filter(function(h) {
+    var t = new Date(h.t);
+    return t >= cutoff && (h.act === 'Deduct' || h.act === 'Staff Receive' || h.act === 'Restock');
+  });
+
+  // Aggregate by item
+  var map = {};
+  period.forEach(function(h) {
+    if (!map[h.iid]) {
+      var item = inv.find(function(i){return i.id === h.iid;});
+      map[h.iid] = {
+        id: h.iid, name: h.name,
+        sku: item ? item.sku : '?',
+        stk: item ? item.stk : 0,
+        thr: item ? item.thr : 0,
+        unitsMoved: 0, restocks: 0, txns: 0
+      };
+    }
+    if (h.act === 'Deduct') { map[h.iid].unitsMoved += Math.abs(h.delta); map[h.iid].txns++; }
+    if (h.act === 'Staff Receive' || h.act === 'Restock') { map[h.iid].restocks++; }
+    map[h.iid].txns++;
+  });
+
+  var items = Object.values(map).filter(function(x){return x.unitsMoved > 0;});
+  items.sort(function(a,b){return b.unitsMoved - a.unitsMoved;});
+
+  var body = document.getElementById('fm-body');
+  var emp = document.getElementById('fm-empty');
+  var totalMoved = items.reduce(function(s,x){return s+x.unitsMoved;},0);
+  var topItem = items[0];
+
+  document.getElementById('fm-meta').textContent = 'Top items by units sold — last ' + fmRange + ' days';
+  document.getElementById('fm-total').textContent = totalMoved;
+  document.getElementById('fm-count').textContent = items.length;
+  if(topItem){
+    document.getElementById('fm-top').textContent = topItem.name;
+    document.getElementById('fm-top-u').textContent = topItem.unitsMoved + ' units';
+  } else {
+    document.getElementById('fm-top').textContent = '—';
+    document.getElementById('fm-top-u').textContent = '';
+  }
+
+  if(!items.length){ body.innerHTML=''; emp.style.display=''; return; }
+  emp.style.display = 'none';
+
+  var maxMoved = items[0].unitsMoved || 1;
+
+  var html = '';
+  items.forEach(function(item, idx) {
+    var rank = idx+1;
+    var rankCls = rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
+    var velPct = Math.round((item.unitsMoved / maxMoved) * 100);
+
+    // Days until stockout
+    var dailyRate = item.unitsMoved / fmRange;
+    var daysOut, doutHtml;
+    if(dailyRate <= 0 || item.stk <= 0){
+      doutHtml = '<span class="dout-na">N/A</span>';
+    } else {
+      daysOut = Math.floor(item.stk / dailyRate);
+      if(daysOut <= 3) doutHtml = '<span class="dout-crit">&#128308; ' + daysOut + ' days</span>';
+      else if(daysOut <= 10) doutHtml = '<span class="dout-warn">&#128993; ' + daysOut + ' days</span>';
+      else doutHtml = '<span class="dout-ok">&#128994; ' + daysOut + ' days</span>';
+    }
+
+    // Restock frequency label
+    var restockLabel = item.restocks === 0 ? '<span style="color:var(--t3);font-size:12px">None</span>'
+      : '<span style="font-family:var(--mono);font-weight:700;color:var(--blue)">'+item.restocks+'x</span> <span style="font-size:11px;color:var(--t2)">in period</span>';
+
+    var s = stat(inv.find(function(i){return i.id===item.id;})||{stk:item.stk,thr:item.thr,cost:0});
+
+    html += '<tr>';
+    html += '<td><span class="rank '+rankCls+'">'+rank+'</span></td>';
+    html += '<td><div class="tdn">'+item.name+'</div><div class="tds">'+item.sku+'</div></td>';
+    html += '<td><div class="vel"><div class="vbar" style="width:'+velPct+'%;max-width:120px"></div><div class="vnum">'+item.unitsMoved+' units</div></div></td>';
+    html += '<td>'+restockLabel+'</td>';
+    html += '<td>'+doutHtml+'</td>';
+    html += '<td>'+sbar(inv.find(function(i){return i.id===item.id;})||{stk:item.stk,thr:item.thr,cost:0})+'</td>';
+    html += '<td>'+spill(s)+'</td>';
+    html += '</tr>';
+  });
+  body.innerHTML = html;
 }
 
 // ---- TOAST ----
