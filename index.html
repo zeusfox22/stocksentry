@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>GwiraPack Stock Manager</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.19.1/zxing.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -801,6 +801,7 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
     </div>
     <div class="sres2" id="sr"><div id="sr-body"></div></div>
     <button class="smanual" onclick="staffManual()">&#9000;&#65039; Enter barcode manually</button>
+    <div style="font-size:11px;color:#555;text-align:center;margin-top:8px;line-height:1.6;font-family:var(--mono)">Camera not working? Make sure your browser has camera permission.<br>Safari: Settings &rarr; Safari &rarr; Camera &rarr; Allow</div>
   </div>
 </div>
 
@@ -882,7 +883,7 @@ var nid  = Math.max.apply(null,[0].concat(inv.map(function(i){return i.id;})))+1
 var editId=null, filt='all', pimp=null, fmRange=7;
 var usr=null, role=null;
 var bmode='look', smode='recv', sftype='low';
-var breader=null, sreader=null, bdeb=null, sdeb=null;
+var breader=null, sreader=null, bdeb=null, sdeb=null, bCamStream=null, sCamStream=null;
 var sqty=1, bscanCode='', sscanCode='';
 
 function save(){
@@ -1416,26 +1417,67 @@ function bManual(){
 }
 document.getElementById('b-manual').addEventListener('keydown',function(e){if(e.key==='Enter')bManual();});
 function startBCam(){
-  if(!window.ZXing){document.getElementById('bv-st').textContent='Camera unavailable — use manual entry';return;}
-  try{
-    breader=new ZXing.BrowserMultiFormatReader();
-    breader.listVideoInputDevices().then(function(devs){
-      var back=devs.find(function(d){return /back|rear|environment/i.test(d.label);})||devs[devs.length-1];
-      return breader.decodeFromVideoDevice(back?back.deviceId:undefined,'bv',function(res){
-        if(res){
-          if(bdeb)return;
-          bdeb=setTimeout(function(){bdeb=null;},2200);
-          document.getElementById('bv-st').textContent='Found: '+res.getText();
-          document.getElementById('b-manual').value=res.getText();
-          bResult(res.getText());
+  var statusEl = document.getElementById('bv-st');
+  var videoEl  = document.getElementById('bv');
+  statusEl.textContent = 'Starting camera...';
+
+  // Constraints: prefer back camera on mobile
+  var constraints = {
+    video: {
+      facingMode: { ideal: 'environment' },
+      width:  { ideal: 1280 },
+      height: { ideal: 720 }
+    }
+  };
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    statusEl.textContent = 'Camera not supported on this browser';
+    return;
+  }
+
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(function(stream){
+      videoEl.srcObject = stream;
+      bCamStream = stream;
+      videoEl.play();
+      statusEl.textContent = 'Point camera at barcode';
+
+      // Start ZXing decoding if available
+      if(window.ZXing){
+        try{
+          breader = new ZXing.BrowserMultiFormatReader();
+          breader.decodeFromVideoElement(videoEl, function(res, err){
+            if(res){
+              if(bdeb) return;
+              bdeb = setTimeout(function(){ bdeb = null; }, 2500);
+              statusEl.textContent = 'Scanned: ' + res.getText();
+              document.getElementById('b-manual').value = res.getText();
+              bResult(res.getText());
+            }
+          });
+        }catch(e){
+          statusEl.textContent = 'Camera on — enter barcode manually';
         }
-      });
-    }).catch(function(e){
-      document.getElementById('bv-st').textContent=e.name==='NotAllowedError'?'Camera denied':'Camera unavailable';
+      } else {
+        statusEl.textContent = 'Camera on — enter barcode manually';
+      }
+    })
+    .catch(function(e){
+      if(e.name === 'NotAllowedError'){
+        statusEl.textContent = 'Camera access denied — allow camera in browser settings';
+      } else if(e.name === 'NotFoundError'){
+        statusEl.textContent = 'No camera found on this device';
+      } else {
+        statusEl.textContent = 'Camera error: ' + e.message;
+      }
     });
-  }catch(e){document.getElementById('bv-st').textContent='Camera unavailable';}
 }
-function stopBCam(){try{if(breader){breader.reset();breader=null;}}catch(e){}bdeb=null;}
+function stopBCam(){
+  try{ if(breader){ breader.reset(); breader=null; } }catch(e){}
+  try{ if(bCamStream){ bCamStream.getTracks().forEach(function(t){t.stop();}); bCamStream=null; } }catch(e){}
+  var v=document.getElementById('bv'); if(v){ v.srcObject=null; }
+  bdeb=null;
+}
 function bResult(code){
   bscanCode=code;
   var item=inv.find(function(i){return i.sku===code;});
@@ -1506,24 +1548,64 @@ function setStaffMode(m){
   document.getElementById('sv-st').className='camstxt';
 }
 function startStaffCam(){
-  if(!window.ZXing){document.getElementById('sv-st').textContent='Camera unavailable — use manual entry';return;}
-  try{
-    sreader=new ZXing.BrowserMultiFormatReader();
-    sreader.listVideoInputDevices().then(function(devs){
-      var back=devs.find(function(d){return /back|rear|environment/i.test(d.label);})||devs[devs.length-1];
-      return sreader.decodeFromVideoDevice(back?back.deviceId:undefined,'sv',function(res){
-        if(res){
-          if(sdeb)return;
-          sdeb=setTimeout(function(){sdeb=null;},2200);
-          onScan(res.getText());
+  var statusEl = document.getElementById('sv-st');
+  var videoEl  = document.getElementById('sv');
+  statusEl.textContent = 'Starting camera...';
+  statusEl.className = 'camstxt';
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    statusEl.textContent = 'Camera not supported — tap manual entry below';
+    return;
+  }
+
+  var constraints = {
+    video: {
+      facingMode: { ideal: 'environment' },
+      width:  { ideal: 1280 },
+      height: { ideal: 720 }
+    }
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(function(stream){
+      videoEl.srcObject = stream;
+      sCamStream = stream;
+      videoEl.play();
+      statusEl.textContent = 'Point camera at barcode';
+
+      if(window.ZXing){
+        try{
+          sreader = new ZXing.BrowserMultiFormatReader();
+          sreader.decodeFromVideoElement(videoEl, function(res, err){
+            if(res){
+              if(sdeb) return;
+              sdeb = setTimeout(function(){ sdeb = null; }, 2500);
+              onScan(res.getText());
+            }
+          });
+        }catch(e){
+          statusEl.textContent = 'Camera on — tap manual entry to enter barcode';
         }
-      });
-    }).catch(function(e){
-      document.getElementById('sv-st').textContent=e.name==='NotAllowedError'?'Camera denied — tap manual entry':'Camera unavailable — tap manual entry';
+      } else {
+        statusEl.textContent = 'Camera on — tap manual entry to enter barcode';
+      }
+    })
+    .catch(function(e){
+      if(e.name === 'NotAllowedError'){
+        statusEl.textContent = 'Camera blocked — go to browser Settings and allow camera access';
+      } else if(e.name === 'NotFoundError'){
+        statusEl.textContent = 'No camera found — tap manual entry';
+      } else {
+        statusEl.textContent = 'Camera error — tap manual entry below';
+      }
     });
-  }catch(e){document.getElementById('sv-st').textContent='Camera unavailable — tap manual entry';}
 }
-function stopSCam(){try{if(sreader){sreader.reset();sreader=null;}}catch(e){}sdeb=null;}
+function stopSCam(){
+  try{ if(sreader){ sreader.reset(); sreader=null; } }catch(e){}
+  try{ if(sCamStream){ sCamStream.getTracks().forEach(function(t){t.stop();}); sCamStream=null; } }catch(e){}
+  var v=document.getElementById('sv'); if(v){ v.srcObject=null; }
+  sdeb=null;
+}
 function staffManual(){var c=prompt('Enter barcode / SKU:');if(c&&c.trim())onScan(c.trim());}
 function onScan(code){
   sscanCode=code;
