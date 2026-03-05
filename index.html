@@ -3,6 +3,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GwiraPack">
+<meta name="theme-color" content="#0a0a0a">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>GwiraPack Stock Manager</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -535,6 +539,7 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
       </div>
       <button class="lbtn" id="l-btn" onclick="doLogin()">Enter Dashboard &#8594;</button>
       <div class="lerr" id="l-err"></div>
+<div id="pwa-banner" style="display:none;margin-top:14px;background:rgba(232,28,28,.08);border:1px solid rgba(232,28,28,.2);border-radius:10px;padding:12px 14px;text-align:center"><div style="font-size:13px;font-weight:800;color:#e81c1c;margin-bottom:5px">&#128640; Install as iPhone App</div><div style="font-size:11px;color:#888;line-height:1.7">Tap <strong style="color:#f0f0f0">Share &#10505;</strong> in Safari<br>then <strong style="color:#f0f0f0">Add to Home Screen</strong></div></div>
     </div>
   </div>
 </div>
@@ -577,11 +582,13 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
 <div id="v-inv">
   <div class="pbar">
     <div><div class="ptitle">Inventory <span class="hl">Overview</span></div><div class="rline"></div><div class="pmeta" id="inv-meta">Loading...</div></div>
-    <div class="pacts">
-      <button class="btn bg" onclick="openScan()">&#128247; Scan</button>
-      <button class="btn" style="background:#1a3a1a;color:#22c55e;border:1px solid rgba(34,197,94,.3);font-weight:700" onclick="triggerACImport()">&#8679; Import from AutoCount</button>
-      <button class="btn bg" onclick="exportAdj()">&#8595; AC Export</button>
-      <button class="btn br" onclick="openItem()">+ Add Item</button>
+    <div>
+      <button onclick="triggerACImport()" style="width:100%;padding:13px;margin-bottom:10px;font-size:14px;font-weight:800;font-family:'Montserrat',sans-serif;background:#0d2e0d;color:#22c55e;border:1.5px solid rgba(34,197,94,.35);border-radius:10px;cursor:pointer">&#8679; Import All Items from AutoCount</button>
+      <div class="pacts">
+        <button class="btn bg" onclick="openScan()">&#128247; Scan</button>
+        <button class="btn bg" onclick="exportAdj()">&#8595; Export</button>
+        <button class="btn br" onclick="openItem()">+ Add Item</button>
+      </div>
     </div>
     <input type="file" id="ac-quick-import" accept=".xlsx,.xls,.csv" style="display:none" onchange="acQuickImport(event)">
   </div>
@@ -1001,7 +1008,15 @@ function acQuickImport(e) {
         }
       });
       adjs = [];
-      save(); renderInv(); updateStats();
+      save(); (function(){
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(isIOS&&!window.navigator.standalone){
+    var b=document.getElementById('pwa-banner');
+    if(b)b.style.display='block';
+  }
+})();
+
+renderInv(); updateStats();
       document.getElementById('ac-quick-import').value = '';
       toast('AutoCount import done: ' + updated + ' updated, ' + added + ' new items added.', 'ok');
     } catch(err) {
@@ -1478,43 +1493,44 @@ function startCameraNow(){
 }
 
 function startBCam(){
-  var st = document.getElementById('bv-st');
-  st.textContent = 'Starting camera...';
-  var vp = document.getElementById('bv').parentElement;
-  document.getElementById('bv').style.display = 'none';
-  var div = document.getElementById('b-scan-div');
-  if(!div){
-    div = document.createElement('div');
-    div.id = 'b-scan-div';
-    div.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;overflow:hidden;border-radius:12px';
-    vp.appendChild(div);
+  var st=document.getElementById('bv-st');
+  st.textContent='Opening camera...';
+  var vid=document.getElementById('bv');
+  vid.style.display='block';
+  var ov=document.getElementById('boss-cam-overlay');
+  if(ov) ov.style.display='none';
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    st.textContent='Camera not supported'; return;
   }
-  div.style.display = 'block';
-  try{
-    bScanner = new Html5Qrcode('b-scan-div');
-    bScanner.start(
-      {facingMode:'environment'},
-      {fps:10, qrbox:{width:200,height:150}, aspectRatio:1.33},
-      function(code){
-        if(bdeb) return;
-        bdeb = setTimeout(function(){bdeb=null;},2500);
-        st.textContent = 'Scanned!';
-        document.getElementById('b-manual').value = code;
-        bResult(code);
-      },
-      function(){}
-    ).then(function(){ st.textContent='Point camera at barcode'; })
-     .catch(function(e){
-       var msg = typeof e==='string'?e:(e.message||'');
-       st.textContent = msg.indexOf('ermission')>=0 ? 'Camera blocked — allow in browser settings' : 'Camera error — use manual entry';
-     });
-  }catch(e){ st.textContent='Camera unavailable — use manual entry'; }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})
+  .then(function(stream){
+    bCamStream=stream;
+    vid.srcObject=stream;
+    vid.play().then(function(){
+      st.textContent='Point camera at barcode';
+      bDecTimer=setInterval(function(){
+        if(!vid.videoWidth||vid.paused)return;
+        if(!window.ZXing)return;
+        var r=new ZXing.BrowserMultiFormatReader();
+        r.decodeFromVideoElement(vid).then(function(res){
+          if(bdeb)return;
+          bdeb=setTimeout(function(){bdeb=null;},2500);
+          var code=res.getText();
+          st.textContent='Scanned: '+code;
+          document.getElementById('b-manual').value=code;
+          bResult(code);
+        }).catch(function(){});
+      },600);
+    }).catch(function(){st.textContent='Video error';});
+  }).catch(function(e){
+    if(e.name==='NotAllowedError') st.textContent='Camera blocked - Settings > Safari > Camera > Allow';
+    else st.textContent='Camera error - use manual entry';
+  });
 }
 function stopBCam(){
-  try{ if(bScanner){ bScanner.stop().catch(function(){}); bScanner=null; }}catch(e){}
-  var div=document.getElementById('b-scan-div');
-  if(div) div.style.display='none';
-  document.getElementById('bv').style.display='block';
+  if(bDecTimer){clearInterval(bDecTimer);bDecTimer=null;}
+  try{if(bCamStream){bCamStream.getTracks().forEach(function(t){t.stop();});bCamStream=null;}}catch(e){}
+  var v=document.getElementById('bv'); if(v)v.srcObject=null;
   bdeb=null;
 }
 function setBM(m){
@@ -1694,46 +1710,45 @@ function setStaffMode(m){
   }
 }
 function startStaffCam(){
-  var st = document.getElementById('sv-st');
-  st.textContent = 'Starting camera...';
-  st.className = 'camstxt';
-  var vp = document.querySelector('.camvp');
-  document.getElementById('sv').style.display = 'none';
-  var div = document.getElementById('s-scan-div');
-  if(!div){
-    div = document.createElement('div');
-    div.id = 's-scan-div';
-    div.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;overflow:hidden;border-radius:14px';
-    vp.appendChild(div);
+  var st=document.getElementById('sv-st');
+  st.className='camstxt';
+  st.textContent='Opening camera...';
+  var vid=document.getElementById('sv');
+  vid.style.display='block';
+  var ov=document.getElementById('cam-tap-overlay');
+  if(ov) ov.style.display='none';
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    st.textContent='Camera not supported - tap manual entry'; return;
   }
-  div.style.display = 'block';
-  try{
-    sScanner = new Html5Qrcode('s-scan-div');
-    sScanner.start(
-      {facingMode:'environment'},
-      {fps:10, qrbox:{width:200,height:200}, aspectRatio:1.0},
-      function(code){
-        if(sdeb) return;
-        sdeb = setTimeout(function(){sdeb=null;},2500);
-        st.textContent = 'Scanned!';
-        st.className = 'camstxt ok';
-        onScan(code);
-      },
-      function(){}
-    ).then(function(){ st.textContent='Point camera at barcode'; })
-     .catch(function(e){
-       var msg = typeof e==='string'?e:(e.message||'');
-       st.textContent = msg.indexOf('ermission')>=0
-         ? 'Camera blocked — Settings > Safari > Camera > Allow'
-         : 'Camera error — tap manual entry below';
-     });
-  }catch(e){ st.textContent='Camera unavailable — tap manual entry below'; }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})
+  .then(function(stream){
+    sCamStream=stream;
+    vid.srcObject=stream;
+    vid.play().then(function(){
+      st.textContent='Point camera at barcode';
+      sDecTimer=setInterval(function(){
+        if(!vid.videoWidth||vid.paused)return;
+        if(!window.ZXing)return;
+        var r=new ZXing.BrowserMultiFormatReader();
+        r.decodeFromVideoElement(vid).then(function(res){
+          if(sdeb)return;
+          sdeb=setTimeout(function(){sdeb=null;},2500);
+          var code=res.getText();
+          st.textContent='Scanned!';
+          st.className='camstxt ok';
+          onScan(code);
+        }).catch(function(){});
+      },600);
+    }).catch(function(){st.textContent='Video error - tap manual entry';});
+  }).catch(function(e){
+    if(e.name==='NotAllowedError') st.textContent='Camera blocked - Settings > Safari > Camera > Allow';
+    else st.textContent='Camera error - tap manual entry below';
+  });
 }
 function stopSCam(){
-  try{ if(sScanner){ sScanner.stop().catch(function(){}); sScanner=null; }}catch(e){}
-  var div=document.getElementById('s-scan-div');
-  if(div) div.style.display='none';
-  document.getElementById('sv').style.display='block';
+  if(sDecTimer){clearInterval(sDecTimer);sDecTimer=null;}
+  try{if(sCamStream){sCamStream.getTracks().forEach(function(t){t.stop();});sCamStream=null;}}catch(e){}
+  var v=document.getElementById('sv'); if(v)v.srcObject=null;
   sdeb=null;
 }
 function staffManual(){var c=prompt('Enter barcode / SKU:');if(c&&c.trim())onScan(c.trim());}
