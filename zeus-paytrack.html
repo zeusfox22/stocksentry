@@ -757,16 +757,43 @@ function renderWa(){
   var el=document.getElementById('remWa');
   if(!el)return;
   var enriched=getEnriched();
-  var custsWithOS=state.customers.filter(function(c){return enriched.some(function(i){return i.customerId===c.id&&i.displayStatus!=='paid';});});
+  var search=(el.querySelector('#waSearch')?el.querySelector('#waSearch').value:'').toLowerCase();
+  var custsWithOS=state.customers.filter(function(c){
+    var hasOS=enriched.some(function(i){return i.customerId===c.id&&i.displayStatus!=='paid';});
+    if(!hasOS)return false;
+    if(search)return c.name.toLowerCase().indexOf(search)!==-1||(c.phone&&c.phone.indexOf(search)!==-1)||(c.contact&&c.contact.toLowerCase().indexOf(search)!==-1);
+    return true;
+  });
   var waStats=getWaStats();
-  var html='<div class="card mb16 p14" style="background:linear-gradient(90deg,#0a1a0f,#111827)">'
+  var allCustsWithOS=state.customers.filter(function(c){return enriched.some(function(i){return i.customerId===c.id&&i.displayStatus!=='paid';});});
+
+  var html='<div class="card mb12 p14" style="background:linear-gradient(90deg,#0a1a0f,#111827)">'
     +'<div class="fw7 fs15 mb4" style="color:#25d366">💬 WhatsApp Reminder Generator</div>'
-    +'<div class="fs13 text-mut">Tap a customer to generate & send a personalised reminder.</div>'
+    +'<div class="fs13 text-mut">Search a customer and send a personalised reminder.</div>'
+    +'</div>'
+    // Search bar
+    +'<input id="waSearch" class="inp mb12" placeholder="🔍 Search customer name or phone…" oninput="renderWa()" value="'+esc(search)+'"/>'
+    // Stats row
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">'
+      +'<div style="background:#111827;border:1px solid #1e2d4a;border-radius:12px;padding:10px 12px;text-align:center"><div class="fw7 fs18" style="color:#60a5fa">'+allCustsWithOS.length+'</div><div class="fs11 text-mut">Customers</div></div>'
+      +'<div style="background:#111827;border:1px solid #991b1b;border-radius:12px;padding:10px 12px;text-align:center"><div class="fw7 fs18 text-red">'+allCustsWithOS.filter(function(c){return enriched.some(function(i){return i.customerId===c.id&&i.displayStatus==='overdue';});}).length+'</div><div class="fs11 text-mut">Overdue</div></div>'
+      +'<div style="background:#111827;border:1px solid #166534;border-radius:12px;padding:10px 12px;text-align:center"><div class="fw7 fs18" style="color:#25d366">'+Object.keys(waStats).length+'</div><div class="fs11 text-mut">Reminded</div></div>'
     +'</div>'
     +'<div class="form-group"><label class="lbl">Your Company Name</label><input class="inp" value="'+esc(state.company)+'" oninput="state.company=this.value;save()"/></div>';
+
   if(custsWithOS.length===0){
-    html+='<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🎉</div><div class="fw7 text-grn">No outstanding invoices!</div></div>';
+    html+=search
+      ?'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🔍</div><div class="fw7 text-mut fs14">No customer found for "'+esc(search)+'"</div></div>'
+      :'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🎉</div><div class="fw7 text-grn">No outstanding invoices!</div></div>';
   }else{
+    // Sort: overdue first, then by days overdue
+    custsWithOS.sort(function(a,b){
+      var aHasOD=enriched.some(function(i){return i.customerId===a.id&&i.displayStatus==='overdue';});
+      var bHasOD=enriched.some(function(i){return i.customerId===b.id&&i.displayStatus==='overdue';});
+      if(aHasOD&&!bHasOD)return -1;
+      if(!aHasOD&&bHasOD)return 1;
+      return 0;
+    });
     custsWithOS.forEach(function(cust){
       var custInvs=enriched.filter(function(i){return i.customerId===cust.id&&i.displayStatus!=='paid';});
       var totalOS=custInvs.reduce(function(s,i){return s+i.outstanding;},0);
@@ -786,20 +813,34 @@ function renderWa(){
       html+='<div class="card mb12" style="border-left:4px solid '+borderCol+'">'
         +'<div class="p14">'
           +'<div class="flex-between mb12">'
-            +'<div class="flex1"><div class="fw7 fs15 text-ellipsis">'+esc(cust.name)+'</div><div class="fs12 text-mut mt2">'+(cust.contact||'—')+' · '+(cust.phone||'No phone')+'</div></div>'
-            +'<div style="text-align:right;flex-shrink:0;margin-left:10px"><div class="fw7 fs15" style="color:'+(hasOD?'#f87171':'#fbbf24')+'">'+fmyr(totalOS)+'</div><div class="fs12 text-mut">'+custInvs.length+' invoice'+(custInvs.length!==1?'s':'')+'</div></div>'
+            +'<div class="flex1">'
+              +'<div class="fw7 fs15 text-ellipsis">'+esc(cust.name)+'</div>'
+              +'<div class="fs12 text-mut" style="margin-top:2px">'+(cust.contact||'—')+' · '+(cust.phone||'<span style="color:#f87171">No phone</span>')+'</div>'
+            +'</div>'
+            +'<div style="text-align:right;flex-shrink:0;margin-left:10px">'
+              +'<div class="fw7 fs15" style="color:'+(hasOD?'#f87171':'#fbbf24')+'">'+fmyr(totalOS)+'</div>'
+              +'<div class="fs12 text-mut">'+custInvs.length+' invoice'+(custInvs.length!==1?'s':'')+'</div>'
+            +'</div>'
           +'</div>'
           +'<div class="flex gap8 mb12" style="flex-wrap:wrap">'+tags+'</div>'
           +'<div class="wa-msg">'+esc(genWaMsg(cust.id))+'</div>'
           +'<div class="btn-row">'
-            +'<button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="copyWa('+cust.id+',this)">📋 Copy Text</button>'
-            +(cust.phone?'<button class="btn btn-wa" style="flex:1;font-size:13px" onclick="openWa('+cust.id+')">📱 Open WhatsApp</button>':'')
+            +'<button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="copyWa('+cust.id+',this)">📋 Copy</button>'
+            +(cust.phone?'<button class="btn btn-wa" style="flex:1;font-size:13px" onclick="openWa('+cust.id+')">📱 Send WA</button>':'<button class="btn btn-ghost" style="flex:1;font-size:13px;color:#f87171" onclick="addPhonePrompt('+cust.id+')">📞 Add Phone</button>')
           +'</div>'
         +'</div>'
       +'</div>';
     });
   }
   el.innerHTML=html;
+  // Restore focus to search if was searching
+  if(search){var s=el.querySelector('#waSearch');if(s){s.focus();s.setSelectionRange(s.value.length,s.value.length);}}
+}
+function addPhonePrompt(cid){
+  var phone=prompt('Enter phone number for this customer (e.g. 012-3456789):');
+  if(!phone)return;
+  state.customers=state.customers.map(function(c){return c.id===cid?Object.assign({},c,{phone:phone}):c;});
+  save();renderWa();
 }
 
 // ── REPORTS ───────────────────────────────────────────────────
