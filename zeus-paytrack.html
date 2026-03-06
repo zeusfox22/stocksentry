@@ -904,7 +904,7 @@ function readFile(file){
     r.onload=function(e){
       try{
         var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:false});
-        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:false,dateNF:'yyyy-mm-dd'});
+        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:false,dateNF:'dd/mm/yyyy'});
         parseAutocountRows(raw);
       }catch(err){alert('Could not read Excel: '+err.message);renderImport();}
     };
@@ -977,7 +977,15 @@ function doImport(invoices){
     var cust=nc.find(function(c){return c.name.toLowerCase()===row.custName.toLowerCase();});
     if(!cust){cust={id:Date.now()+Math.random(),name:row.custName,creditTerm:0,contact:'',phone:'',email:''};nc.push(cust);custCreated++;}
     var ex=ni.find(function(i){return i.invoiceNo===row.invNo;});
-    if(ex){Object.assign(ex,{amount:row.amount,paidAmount:row.paid,status:row.status,invoiceDate:row.invDate||ex.invoiceDate,dueDate:row.dueDate||ex.dueDate});updated++;}
+    if(ex){
+      // Always overwrite dates — fixes previously bad imported dates
+      ex.amount=row.amount;
+      ex.paidAmount=row.paid;
+      ex.status=row.status;
+      ex.invoiceDate=row.invDate;
+      ex.dueDate=row.dueDate;
+      updated++;
+    }
     else{ni.push({id:Date.now()+Math.random(),customerId:cust.id,invoiceNo:row.invNo,amount:row.amount,invoiceDate:row.invDate||new Date().toISOString().split('T')[0],dueDate:row.dueDate||'',paidAmount:row.paid,status:row.status,notes:'Imported'});added++;}
   });
   state.customers=nc;state.invoices=ni;save();
