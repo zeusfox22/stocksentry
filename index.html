@@ -563,6 +563,8 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
       <div class="sbi on" id="nav-inv" onclick="goTo('inv',this)"><span class="ico">&#128230;</span><span>Inventory</span><span class="sbadge z" id="ab-badge">0</span></div>
       <div class="sbi" id="nav-flags" onclick="goTo('flags',this)"><span class="ico">&#128276;</span><span>Staff Flags</span><span class="sbadge z" id="fl-badge">0</span></div>
       <div class="sbi" id="nav-fast" onclick="goTo('fast',this)"><span class="ico">&#128293;</span><span>Fast Moving</span></div>
+      <div class="sbi" id="nav-st" onclick="goTo('st',this)"><span class="ico">&#128203;</span><span>Stock Take</span></div>
+      <div class="sbi" id="nav-adj" onclick="goTo('adj',this)"><span class="ico">&#9881;&#65039;</span><span>Stock Adjust</span><span class="sbadge z" id="adj-badge">0</span></div>
       <div class="sbi" id="nav-alerts" onclick="goTo('alerts',this)"><span class="ico">&#9888;&#65039;</span><span>Alerts</span></div>
       <div class="sbsec">AutoCount</div>
       <div class="sbi" id="nav-sync" onclick="goTo('sync',this)"><span class="ico">&#128260;</span><span>AC Sync</span></div>
@@ -635,6 +637,82 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
   <div class="pbar"><div><div class="ptitle">Stock <span class="hl">Alerts</span></div><div class="rline"></div><div class="pmeta">Items needing attention</div></div></div>
   <div id="alerts-body"></div>
   <div class="empty" id="alerts-empty" style="display:none"><div class="eico">&#9989;</div><p>All stocks healthy!</p></div>
+</div>
+
+
+<!-- STOCK TAKE VIEW -->
+<div id="v-st" style="display:none">
+  <div class="pbar">
+    <div>
+      <div class="ptitle">Stock <span class="hl">Take</span></div>
+      <div class="rline"></div>
+      <div class="pmeta">Physical count &bull; scan or search each item</div>
+    </div>
+    <div class="pacts">
+      <button class="btn bg" onclick="exportStockTake()">&#8595; Export CSV</button>
+      <button class="btn bg" onclick="resetStockTake()" style="color:#e81c1c">Reset</button>
+      <button class="btn br" onclick="finishStockTake()">&#10003; Finish &amp; Apply</button>
+    </div>
+  </div>
+  <div id="st-no-session" style="text-align:center;padding:60px 20px">
+    <div style="font-size:64px;margin-bottom:16px">&#128203;</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:8px">Start Your Stock Take</div>
+    <div style="font-size:13px;color:#888;max-width:400px;margin:0 auto 24px;line-height:1.7">Boss starts the session. Staff scan each item and enter the real physical count. Apply at the end to update all quantities.</div>
+    <button class="btn br" onclick="startStockTake()" style="font-size:15px;padding:14px 32px">&#128203; Start Stock Take</button>
+    <div id="st-completed" style="display:none;margin-top:24px;background:#0d2e0d;border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:16px;max-width:400px;margin:24px auto 0">
+      <div style="font-size:13px;font-weight:800;color:#22c55e;margin-bottom:4px">&#10003; Last Stock Take Completed</div>
+      <div style="font-size:12px;color:#888" id="st-comp-summary"></div>
+    </div>
+  </div>
+  <div id="st-active-session" style="display:none">
+    <div style="background:#181818;border:1px solid #2a2a2a;border-radius:12px;padding:16px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700" id="st-progress-txt">0 / 0 items counted</div>
+      </div>
+      <div style="background:#111;border-radius:20px;height:10px;overflow:hidden">
+        <div id="st-progress-bar" style="height:100%;background:linear-gradient(90deg,#e81c1c,#f97316);border-radius:20px;width:0%;transition:.4s"></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+      <div class="sc"><div class="slbl">Counted</div><div class="sval" id="st-cnt-counted">0</div></div>
+      <div class="sc"><div class="slbl">Differences</div><div class="sval" style="color:#f97316" id="st-cnt-diff">0</div></div>
+      <div class="sc"><div class="slbl">Exact</div><div class="sval" style="color:#22c55e" id="st-cnt-exact">0</div></div>
+      <div class="sc"><div class="slbl">Remaining</div><div class="sval" style="color:#666" id="st-cnt-remaining">0</div></div>
+    </div>
+    <div style="position:relative;margin-bottom:16px">
+      <input id="st-search" type="text" placeholder="Search item name or SKU to count..."
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        oninput="stSearch(this.value)"
+        style="width:100%;padding:12px 14px;background:#181818;border:2px solid #2a2a2a;border-radius:10px;color:#f0f0f0;font-size:14px;outline:none;box-sizing:border-box">
+      <div id="st-search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:0 0 10px 10px;z-index:100;max-height:300px;overflow-y:auto"></div>
+    </div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden">
+      <div id="st-items-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STOCK ADJUSTMENT VIEW -->
+<div id="v-adj" style="display:none">
+  <div class="pbar">
+    <div>
+      <div class="ptitle">Stock <span class="hl">Adjustment</span></div>
+      <div class="rline"></div>
+      <div class="pmeta">Record corrections with boss approval</div>
+    </div>
+    <div class="pacts">
+      <select id="adj-filter" onchange="renderAdj()" style="padding:7px 12px;background:#181818;border:1.5px solid #2a2a2a;border-radius:8px;color:#f0f0f0;font-size:12px;cursor:pointer">
+        <option value="all">All</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <button class="btn bg" onclick="exportAdjReport()">&#8595; Export</button>
+      <button class="btn br" onclick="openAdjModal()">+ New Adjustment</button>
+    </div>
+  </div>
+  <div id="adj-body"></div>
+  <div class="empty" id="adj-empty"><div class="eico">&#9881;&#65039;</div><p>No adjustments yet.<br>Tap New Adjustment to record a stock correction.</p></div>
 </div>
 
 <div id="v-sync" style="display:none">
@@ -868,6 +946,77 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
   </div>
 </div>
 
+<!-- STOCK TAKE COUNT MODAL -->
+
+<div class="mover" id="st-count-modal">
+  <div class="mbox">
+    <div class="mttl" id="stc-name">Count Item</div>
+    <div class="msub" id="stc-sku" style="font-family:monospace;color:#666"></div>
+    <div style="background:#111;border-radius:10px;padding:14px;margin:16px 0;display:flex;gap:20px;align-items:center">
+      <div><div style="font-size:10px;color:#555;font-family:monospace;text-transform:uppercase;margin-bottom:3px">System Qty</div><div style="font-size:32px;font-weight:900;color:#666" id="stc-prev">—</div></div>
+      <div style="font-size:24px;color:#333">&#8594;</div>
+      <div style="flex:1">
+        <div style="font-size:10px;color:#e81c1c;font-family:monospace;text-transform:uppercase;margin-bottom:6px;font-weight:700">Physical Count</div>
+        <input type="number" id="stc-qty" min="0" placeholder="0"
+          style="width:100%;padding:14px;background:#181818;border:2px solid #e81c1c;border-radius:10px;color:#f0f0f0;font-size:28px;font-weight:800;outline:none;text-align:center;box-sizing:border-box"
+          onkeydown="if(event.key==='Enter')submitSTCount()">
+      </div>
+    </div>
+    <div style="font-size:11px;color:#555;text-align:center;font-family:monospace;margin-bottom:16px" id="stc-already"></div>
+    <input type="hidden" id="stc-item-id">
+    <div class="mfoot">
+      <button class="btn bg" onclick="document.getElementById('st-count-modal').classList.remove('open')">Cancel</button>
+      <button class="btn br" onclick="submitSTCount()" style="font-size:15px;padding:12px 28px">&#10003; Save Count</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADJUSTMENT MODAL -->
+
+<div class="mover" id="adj-modal">
+  <div class="mbox">
+    <div class="mttl">New Stock Adjustment</div>
+    <div class="msub">Requires boss approval before stock is updated.</div>
+    <div style="display:grid;gap:12px">
+      <div class="fgrp"><label class="flbl">Item *</label>
+        <select class="finp" id="adj-item-sel" onchange="onAdjItemChange()"><option value="">-- Select item --</option></select>
+      </div>
+      <div id="adj-preview" style="display:none;background:#111;border-radius:8px;padding:12px">
+        <div style="font-size:12px;color:#888;margin-bottom:6px">Current stock: <strong id="adj-cur-name" style="color:#f0f0f0"></strong></div>
+        <div style="display:flex;gap:20px;align-items:center">
+          <div><div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase">Current</div><div style="font-size:26px;font-weight:900" id="adj-cur-stk">—</div></div>
+          <div style="font-size:18px;color:#444">&#8594;</div>
+          <div><div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase">After</div><div style="font-size:26px;font-weight:900" id="adj-new-stk">—</div></div>
+          <div><div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase">Change</div><div style="font-size:22px;font-weight:800" id="adj-delta">—</div></div>
+        </div>
+      </div>
+      <div class="fgrp"><label class="flbl">Type *</label>
+        <select class="finp" id="adj-type" onchange="updateAdjPreview()">
+          <option value="damage">Damage (reduce stock)</option>
+          <option value="lost">Lost / Missing (reduce stock)</option>
+          <option value="recount">Recount (set exact qty)</option>
+          <option value="return_sup">Return to Supplier</option>
+          <option value="received">Extra Stock Received</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="fgrp"><label class="flbl">Quantity *</label>
+        <input class="finp" type="number" id="adj-qty" placeholder="Enter quantity" min="0" oninput="updateAdjPreview()">
+      </div>
+      <div class="fgrp"><label class="flbl">Reason *</label>
+        <input class="finp" type="text" id="adj-reason" placeholder="e.g. Dropped and damaged during unloading">
+      </div>
+      <div class="fgrp"><label class="flbl">Notes</label>
+        <input class="finp" type="text" id="adj-note" placeholder="Optional extra details">
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bg" onclick="document.getElementById('adj-modal').classList.remove('open')">Cancel</button>
+      <button class="btn br" onclick="submitAdj()">Submit for Approval</button>
+    </div>
+  </div>
+</div>
+
 <!-- ITEM MODAL -->
 
 <div class="mover" id="item-modal">
@@ -912,6 +1061,8 @@ var hist = JSON.parse(localStorage.getItem('gw_hist') || '[]');
 var flgs = JSON.parse(localStorage.getItem('gw_flags') || '[]');
 var cfg  = JSON.parse(localStorage.getItem('gw_cfg') || 'null') || {low:20,crit:5,bp:'1234',sp:'0000'};
 var adjs = JSON.parse(localStorage.getItem('gw_adjs') || '[]');
+var adjReqs = JSON.parse(localStorage.getItem('gw_adjreqs') || '[]');
+var stSession = JSON.parse(localStorage.getItem('gw_st') || 'null');
 var nid  = Math.max.apply(null,[0].concat(inv.map(function(i){return i.id;})))+1;
 
 var editId=null, filt='all', pimp=null, fmRange=7;
@@ -926,6 +1077,8 @@ function save(){
   localStorage.setItem('gw_flags',JSON.stringify(flgs));
   localStorage.setItem('gw_cfg',JSON.stringify(cfg));
   localStorage.setItem('gw_adjs',JSON.stringify(adjs));
+  localStorage.setItem('gw_adjreqs',JSON.stringify(adjReqs));
+  if(stSession) localStorage.setItem('gw_st',JSON.stringify(stSession));
 }
 
 // ---- STATUS ----
@@ -1091,7 +1244,7 @@ document.getElementById('l-pin').addEventListener('keydown',function(e){
 });
 
 // ---- BOSS NAV ----
-var views=['inv','flags','alerts','fast','sync','hist','rep','set'];
+var views=['inv','flags','alerts','fast','st','adj','sync','hist','rep','set'];
 function goTo(v,el){
   views.forEach(function(x){document.getElementById('v-'+x).style.display=x===v?'':'none';});
   document.querySelectorAll('.sbi').forEach(function(e){e.classList.remove('on');});
@@ -1100,6 +1253,9 @@ function goTo(v,el){
   if(v==='flags')renderFlags();
   if(v==='alerts')renderAlerts();
   if(v==='hist')renderHist();
+  if(v==='st')renderST();
+  if(v==='adj')renderAdj();
+  if(v==='fast')renderFast();
   if(v==='set'){document.getElementById('set-low').value=cfg.low;document.getElementById('set-crit').value=cfg.crit;}
 }
 
@@ -2028,6 +2184,309 @@ document.addEventListener('keydown', function(e){
     if(val){ inp.value=''; onScan(val); }
   }
 });
+
+
+// ============================================================
+// STOCK ADJUSTMENT MODULE
+// ============================================================
+var adjEditId = null;
+
+function openAdjModal(itemId){
+  var sel = document.getElementById('adj-item-sel');
+  sel.innerHTML = '<option value="">-- Select item --</option>';
+  inv.slice().sort(function(a,b){return a.name.localeCompare(b.name);}).forEach(function(item){
+    var opt = document.createElement('option');
+    opt.value = item.id;
+    opt.textContent = item.name + ' (' + item.sku + ')';
+    if(itemId && item.id===itemId) opt.selected=true;
+    sel.appendChild(opt);
+  });
+  adjEditId = itemId||null;
+  var item = itemId ? inv.find(function(i){return i.id===itemId;}) : null;
+  document.getElementById('adj-type').value='damage';
+  document.getElementById('adj-qty').value='';
+  document.getElementById('adj-reason').value='';
+  document.getElementById('adj-note').value='';
+  if(item) populateAdjItem(item);
+  else document.getElementById('adj-preview').style.display='none';
+  document.getElementById('adj-modal').classList.add('open');
+}
+function populateAdjItem(item){
+  document.getElementById('adj-cur-stk').textContent=item.stk;
+  document.getElementById('adj-cur-name').textContent=item.name;
+  document.getElementById('adj-preview').style.display='';
+}
+function onAdjItemChange(){
+  var id=parseInt(document.getElementById('adj-item-sel').value);
+  var item=inv.find(function(i){return i.id===id;});
+  if(item) populateAdjItem(item); else document.getElementById('adj-preview').style.display='none';
+  updateAdjPreview();
+}
+function updateAdjPreview(){
+  var id=parseInt(document.getElementById('adj-item-sel').value);
+  var item=inv.find(function(i){return i.id===id;});
+  if(!item) return;
+  var type=document.getElementById('adj-type').value;
+  var qty=parseInt(document.getElementById('adj-qty').value)||0;
+  var newStk=type==='recount'?qty:(type==='damage'||type==='lost'||type==='return_sup'?item.stk-qty:item.stk+qty);
+  newStk=Math.max(0,newStk);
+  var delta=newStk-item.stk;
+  var el=document.getElementById('adj-new-stk'); if(el){el.textContent=newStk;el.style.color=delta<0?'#e81c1c':delta>0?'#22c55e':'#888';}
+  var dl=document.getElementById('adj-delta'); if(dl){dl.textContent=(delta>=0?'+':'')+delta;dl.style.color=delta<0?'#e81c1c':delta>0?'#22c55e':'#888';}
+}
+function submitAdj(){
+  var id=parseInt(document.getElementById('adj-item-sel').value);
+  var item=inv.find(function(i){return i.id===id;});
+  if(!item){toast('Select an item.','err');return;}
+  var type=document.getElementById('adj-type').value;
+  var qty=parseInt(document.getElementById('adj-qty').value)||0;
+  if(!qty||qty<=0){toast('Enter a valid quantity.','err');return;}
+  var reason=document.getElementById('adj-reason').value.trim();
+  var note=document.getElementById('adj-note').value.trim();
+  if(!reason){toast('Enter a reason.','err');return;}
+  var newStk=type==='recount'?qty:(type==='damage'||type==='lost'||type==='return_sup'?item.stk-qty:item.stk+qty);
+  newStk=Math.max(0,newStk);
+  var delta=newStk-item.stk;
+  var req={id:Date.now(),t:new Date().toLocaleString(),iid:item.id,name:item.name,sku:item.sku,
+    type:type,qty:qty,delta:delta,oldStk:item.stk,newStk:newStk,reason:reason,note:note,
+    by:usr||'?',status:'pending'};
+  adjReqs.unshift(req);
+  save();
+  document.getElementById('adj-modal').classList.remove('open');
+  updateAdjBadge();
+  toast('Adjustment submitted for approval.','ok');
+  goTo('adj');renderAdj();
+}
+function approveAdj(id){
+  var req=adjReqs.find(function(r){return r.id===id;});
+  if(!req) return;
+  var item=inv.find(function(i){return i.id===req.iid;});
+  if(!item){toast('Item not found.','err');return;}
+  req.status='approved'; req.approvedBy=usr; req.approvedAt=new Date().toLocaleString();
+  item.stk=req.newStk;
+  addHist(item.id,item.name,'Stock Adj',req.delta,req.newStk,req.by,req.reason+(req.note?' | '+req.note:''));
+  save(); renderInv(); renderAdj(); updateAdjBadge();
+  toast('Adjustment approved and applied.','ok');
+}
+function rejectAdj(id){
+  var req=adjReqs.find(function(r){return r.id===id;});
+  if(!req) return;
+  req.status='rejected'; req.rejectedBy=usr; req.rejectedAt=new Date().toLocaleString();
+  save(); renderAdj(); updateAdjBadge();
+  toast('Adjustment rejected.','warn');
+}
+function updateAdjBadge(){
+  var pending=adjReqs.filter(function(r){return r.status==='pending';}).length;
+  var b=document.getElementById('adj-badge'); if(b){b.textContent=pending;b.className='sbadge'+(pending===0?' z':'');}
+}
+function renderAdj(){
+  var body=document.getElementById('adj-body');
+  var emp=document.getElementById('adj-empty');
+  if(!body) return;
+  var filter=document.getElementById('adj-filter')?document.getElementById('adj-filter').value:'all';
+  var list=adjReqs.filter(function(r){return filter==='all'||r.status===filter;});
+  if(!list.length){body.innerHTML='';if(emp)emp.style.display='';return;}
+  if(emp)emp.style.display='none';
+  var typeLabels={damage:'Damage',lost:'Lost/Missing',recount:'Recount',return_sup:'Return to Supplier',received:'Extra Received',other:'Other'};
+  var statusColors={pending:'#f97316',approved:'#22c55e',rejected:'#e81c1c'};
+  var h='';
+  list.forEach(function(r){
+    var sc=statusColors[r.status]||'#888';
+    h+='<div style="background:#181818;border:1px solid #2a2a2a;border-radius:12px;padding:16px;margin-bottom:10px;border-left:3px solid '+sc+'">';
+    h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">';
+    h+='<div><div style="font-weight:800;font-size:14px">'+r.name+'</div>';
+    h+='<div style="font-size:11px;color:#888;font-family:monospace">'+r.sku+' &bull; '+r.t+' &bull; By: '+r.by+'</div></div>';
+    h+='<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+sc+'22;color:'+sc+'">'+r.status.toUpperCase()+'</span></div>';
+    h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:#111;border-radius:8px;padding:10px;margin-bottom:10px">';
+    h+='<div><div style="font-size:9px;color:#666;font-family:monospace;text-transform:uppercase">Type</div><div style="font-size:13px;font-weight:700;color:#f97316">'+(typeLabels[r.type]||r.type)+'</div></div>';
+    h+='<div><div style="font-size:9px;color:#666;font-family:monospace;text-transform:uppercase">Qty</div><div style="font-size:13px;font-weight:700">'+r.qty+'</div></div>';
+    h+='<div><div style="font-size:9px;color:#666;font-family:monospace;text-transform:uppercase">Old</div><div style="font-size:13px;font-weight:700">'+r.oldStk+'</div></div>';
+    h+='<div><div style="font-size:9px;color:#666;font-family:monospace;text-transform:uppercase">New</div><div style="font-size:13px;font-weight:700;color:'+(r.delta<0?'#e81c1c':'#22c55e')+'">'+r.newStk+'</div></div></div>';
+    h+='<div style="font-size:12px;color:#aaa;margin-bottom:10px"><strong style="color:#f0f0f0">Reason:</strong> '+r.reason+(r.note?' &bull; '+r.note:'')+'</div>';
+    if(r.status==='pending'&&role==='boss'){
+      h+='<div style="display:flex;gap:8px">';
+      h+='<button onclick="approveAdj('+r.id+')" style="flex:1;padding:10px;background:#0d2e0d;color:#22c55e;border:1px solid rgba(34,197,94,.3);border-radius:8px;font-weight:800;cursor:pointer">Approve &amp; Apply</button>';
+      h+='<button onclick="rejectAdj('+r.id+')" style="padding:10px 14px;background:#1a0808;color:#e81c1c;border:1px solid rgba(232,28,28,.3);border-radius:8px;font-weight:800;cursor:pointer">Reject</button>';
+      h+='</div>';
+    } else if(r.status==='approved'){
+      h+='<div style="font-size:11px;color:#22c55e;font-family:monospace">Approved by '+r.approvedBy+' at '+r.approvedAt+'</div>';
+    } else if(r.status==='rejected'){
+      h+='<div style="font-size:11px;color:#e81c1c;font-family:monospace">Rejected by '+r.rejectedBy+'</div>';
+    }
+    h+='</div>';
+  });
+  body.innerHTML=h;
+}
+function exportAdjReport(){
+  var approved=adjReqs.filter(function(r){return r.status==='approved';});
+  if(!approved.length){toast('No approved adjustments to export.','warn');return;}
+  var rows=[['Date','Item Code','Description','Adj Type','Qty','Old Stock','New Stock','Change','Reason','Note','By','Approved By']];
+  approved.forEach(function(r){rows.push([r.t,r.sku,r.name,r.type,r.qty,r.oldStk,r.newStk,(r.delta>=0?'+':'')+r.delta,r.reason,r.note||'',r.by,r.approvedBy||'']);});
+  dlCSV(rows,'GwiraPack_StockAdj_'+ds()+'.csv');
+  toast('Stock Adjustment report exported.','ok');
+}
+
+// ============================================================
+// STOCK TAKE MODULE
+// ============================================================
+function startStockTake(){
+  if(stSession&&stSession.status==='active'){goTo('st');renderST();return;}
+  stSession={id:Date.now(),started:new Date().toLocaleString(),startedBy:usr,status:'active',items:{}};
+  localStorage.setItem('gw_st',JSON.stringify(stSession));
+  goTo('st');renderST();
+  toast('Stock take started! Search or scan items to count.','ok');
+}
+function finishStockTake(){
+  if(!stSession) return;
+  var counted=Object.keys(stSession.items).length;
+  if(!counted){toast('No items counted yet.','err');return;}
+  if(!confirm('Apply physical counts for '+counted+' items? This will update all stock quantities.')) return;
+  var applied=0;
+  Object.values(stSession.items).forEach(function(entry){
+    var item=inv.find(function(i){return i.id===entry.iid;});
+    if(!item) return;
+    var delta=entry.counted-item.stk;
+    item.stk=entry.counted;
+    addHist(item.id,item.name,'Stock Take',delta,entry.counted,entry.countedBy,'Physical count');
+    applied++;
+  });
+  stSession.status='completed';stSession.completed=new Date().toLocaleString();
+  stSession.completedBy=usr;stSession.applied=applied;
+  localStorage.setItem('gw_st',JSON.stringify(stSession));
+  save();renderInv();updateStats();renderST();
+  toast('Stock take complete! '+applied+' items updated.','ok');
+}
+function resetStockTake(){
+  if(!confirm('Clear stock take and start fresh?')) return;
+  stSession=null;localStorage.removeItem('gw_st');renderST();
+  toast('Stock take cleared.','warn');
+}
+function exportStockTake(){
+  if(!stSession||!Object.keys(stSession.items).length){toast('No data to export.','warn');return;}
+  var rows=[['Item Code','Description','System Qty','Physical Count','Difference','Counted By','Time']];
+  Object.values(stSession.items).forEach(function(e){
+    rows.push([e.sku,e.name,e.prevStk,e.counted,e.counted-e.prevStk,e.countedBy,e.countedAt]);
+  });
+  inv.forEach(function(item){
+    if(!stSession.items[item.sku]) rows.push([item.sku,item.name,item.stk,'','','','']);
+  });
+  dlCSV(rows,'GwiraPack_StockTake_'+ds()+'.csv');
+  toast('Stock take exported.','ok');
+}
+function stScanItem(code){
+  if(!stSession||stSession.status!=='active'){toast('No active stock take.','err');return;}
+  var item=inv.find(function(i){return i.sku===code||i.name.toLowerCase()===code.toLowerCase();});
+  if(!item){toast('Item not found: '+code,'err');return;}
+  showSTCount(item);
+}
+function showSTCount(item){
+  var already=stSession&&stSession.items[item.sku];
+  document.getElementById('stc-name').textContent=item.name;
+  document.getElementById('stc-sku').textContent=item.sku;
+  document.getElementById('stc-prev').textContent=item.stk;
+  document.getElementById('stc-already').textContent=already?'Previously counted: '+already.counted:'';
+  document.getElementById('stc-qty').value=already?already.counted:'';
+  document.getElementById('stc-item-id').value=item.id;
+  document.getElementById('st-count-modal').classList.add('open');
+  setTimeout(function(){document.getElementById('stc-qty').focus();document.getElementById('stc-qty').select();},200);
+}
+function submitSTCount(){
+  var iid=parseInt(document.getElementById('stc-item-id').value);
+  var qty=parseFloat(document.getElementById('stc-qty').value);
+  if(isNaN(qty)||qty<0){toast('Enter a valid quantity.','err');return;}
+  var item=inv.find(function(i){return i.id===iid;});
+  if(!item) return;
+  stSession.items[item.sku]={iid:item.id,name:item.name,sku:item.sku,prevStk:item.stk,counted:qty,countedBy:usr,countedAt:new Date().toLocaleString()};
+  localStorage.setItem('gw_st',JSON.stringify(stSession));
+  document.getElementById('st-count-modal').classList.remove('open');
+  renderST();
+  var diff=qty-item.stk;
+  toast(item.name+': counted '+qty+' (was '+item.stk+', diff '+(diff>=0?'+':'')+diff+')','ok');
+}
+function updateSTProgress(){
+  if(!stSession) return;
+  var counted=Object.keys(stSession.items).length;
+  var total=inv.length;
+  var pct=total?Math.round(counted/total*100):0;
+  var bar=document.getElementById('st-progress-bar'); if(bar)bar.style.width=pct+'%';
+  var txt=document.getElementById('st-progress-txt'); if(txt)txt.textContent=counted+' / '+total+' items counted ('+pct+'%)';
+}
+function renderST(){
+  var noSess=document.getElementById('st-no-session');
+  var actSess=document.getElementById('st-active-session');
+  if(!stSession||stSession.status!=='active'){
+    if(noSess)noSess.style.display='';
+    if(actSess)actSess.style.display='none';
+    var comp=document.getElementById('st-completed');
+    if(comp)comp.style.display=(stSession&&stSession.status==='completed')?'':'none';
+    if(stSession&&stSession.status==='completed'&&document.getElementById('st-comp-summary'))
+      document.getElementById('st-comp-summary').textContent=stSession.applied+' items updated on '+stSession.completed+' by '+stSession.completedBy;
+    return;
+  }
+  if(noSess)noSess.style.display='none';
+  if(actSess)actSess.style.display='';
+  updateSTProgress();
+  var counted=Object.values(stSession.items);
+  var withDiff=counted.filter(function(e){return e.counted!==e.prevStk;});
+  var exact=counted.filter(function(e){return e.counted===e.prevStk;});
+  var uncounted=inv.filter(function(i){return !stSession.items[i.sku];});
+  var c=document.getElementById('st-cnt-counted'); if(c)c.textContent=counted.length;
+  var d=document.getElementById('st-cnt-diff'); if(d)d.textContent=withDiff.length;
+  var e2=document.getElementById('st-cnt-exact'); if(e2)e2.textContent=exact.length;
+  var r=document.getElementById('st-cnt-remaining'); if(r)r.textContent=uncounted.length;
+  var h='';
+  if(withDiff.length){
+    h+='<div style="font-size:11px;color:#f97316;font-family:monospace;text-transform:uppercase;letter-spacing:1px;padding:12px 14px 6px">Differences ('+withDiff.length+')</div>';
+    withDiff.forEach(function(e){h+=renderSTRow(e);});
+  }
+  if(exact.length){
+    h+='<div style="font-size:11px;color:#22c55e;font-family:monospace;text-transform:uppercase;letter-spacing:1px;padding:12px 14px 6px">Matches ('+exact.length+')</div>';
+    exact.forEach(function(e){h+=renderSTRow(e);});
+  }
+  if(uncounted.length){
+    h+='<div style="font-size:11px;color:#555;font-family:monospace;text-transform:uppercase;letter-spacing:1px;padding:12px 14px 6px">Not Counted ('+uncounted.length+')</div>';
+    uncounted.slice(0,30).forEach(function(item){
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #1a1a1a">';
+      h+='<div><div style="font-size:13px;color:#888">'+item.name+'</div><div style="font-size:10px;color:#444;font-family:monospace">'+item.sku+'</div></div>';
+      h+='<button onclick="showSTCount(inv.find(function(ii){return ii.id==='+item.id+'}))" style="padding:6px 12px;background:#1a1a1a;color:#888;border:1px solid #2a2a2a;border-radius:6px;cursor:pointer;font-size:11px">Count</button>';
+      h+='</div>';
+    });
+    if(uncounted.length>30) h+='<div style="text-align:center;padding:12px;color:#444;font-size:12px;font-family:monospace">...and '+(uncounted.length-30)+' more</div>';
+  }
+  document.getElementById('st-items-body').innerHTML=h;
+}
+function renderSTRow(e){
+  var diff=e.counted-e.prevStk;
+  var dc=diff<0?'#e81c1c':diff>0?'#22c55e':'#888';
+  var h='<div style="display:grid;grid-template-columns:1fr repeat(3,60px);gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid #1a1a1a">';
+  h+='<div><div style="font-size:13px;font-weight:600">'+e.name+'</div><div style="font-size:10px;color:#555;font-family:monospace">'+e.sku+'</div></div>';
+  h+='<div style="text-align:center"><div style="font-size:9px;color:#555;font-family:monospace">WAS</div><div style="font-size:14px;font-weight:700;color:#888">'+e.prevStk+'</div></div>';
+  h+='<div style="text-align:center"><div style="font-size:9px;color:#555;font-family:monospace">COUNT</div><div style="font-size:14px;font-weight:800">'+e.counted+'</div></div>';
+  h+='<div style="text-align:center"><div style="font-size:9px;color:#555;font-family:monospace">DIFF</div><div style="font-size:14px;font-weight:800;color:'+dc+'">'+(diff>=0?'+':'')+diff+'</div></div>';
+  h+='</div>';
+  return h;
+}
+function stSearch(val){
+  if(!val||val.length<2){document.getElementById('st-search-results').style.display='none';return;}
+  var results=inv.filter(function(i){return i.sku.toLowerCase().indexOf(val.toLowerCase())>=0||i.name.toLowerCase().indexOf(val.toLowerCase())>=0;}).slice(0,6);
+  var list=document.getElementById('st-search-results');
+  if(!results.length){list.innerHTML='';list.style.display='none';return;}
+  list.style.display='block';
+  list.innerHTML=results.map(function(item){
+    var done=stSession&&stSession.items[item.sku];
+    var h='<div onclick="stPickItem('+item.id+')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center">';
+    h+='<div><div style="font-size:13px;font-weight:600">'+item.name+'</div><div style="font-size:10px;color:#666;font-family:monospace">'+item.sku+'</div></div>';
+    h+=done?'<span style="font-size:11px;color:#22c55e;font-weight:700">Done: '+stSession.items[item.sku].counted+'</span>':'<span style="font-size:11px;color:#555">Not counted</span>';
+    h+='</div>';
+    return h;
+  }).join('');
+}
+function stPickItem(iid){
+  var item=inv.find(function(i){return i.id===iid;});
+  document.getElementById('st-search-results').style.display='none';
+  document.getElementById('st-search').value='';
+  if(item) showSTCount(item);
+}
 
 // ---- TOAST ----
 function toast(msg,type){
