@@ -995,7 +995,7 @@ function acQuickImport(e) {
           return o;
         });
       } else {
-        var wb = XLSX.read(ev.target.result, {type:'binary'});
+        var wb = XLSX.read(ev.target.result, {type:'array'});
         rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
       }
       var samp = rows[0] || {};
@@ -1052,7 +1052,7 @@ renderInv(); updateStats();
     }
   };
   if(ext === 'csv') rd.readAsText(file);
-  else rd.readAsBinaryString(file);
+  else rd.readAsArrayBuffer(file);
 }
 
 function doScanRestock(){setBM('rest');bResult(bscanCode);}
@@ -1378,7 +1378,7 @@ function procFile(file){
       toast('Found '+rows.length+' items. Confirm to import.','info');
     }catch(err){toast('Error: '+err.message,'err');}
   };
-  if(ext==='csv')rd.readAsText(file);else rd.readAsBinaryString(file);
+  if(ext==='csv')rd.readAsText(file);else rd.readAsArrayBuffer(file);
 }
 function doImport(){
   if(!pimp)return;
