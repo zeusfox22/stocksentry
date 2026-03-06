@@ -904,10 +904,7 @@ function readFile(file){
     r.onload=function(e){
       try{
         var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:false});
-        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:false});
-        // DEBUG: show first invoice row date values
-        var firstInv=raw.find(function(r){return r&&r[4]&&String(r[4]).trim()==='IN'&&r[7]&&r[17];});
-        if(firstInv){alert('DEBUG - First invoice:\nInvNo: '+firstInv[7]+'\ncol0 (invDate): '+JSON.stringify(firstInv[0])+'\ncol29 (dueDate): '+JSON.stringify(firstInv[29]));}
+        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:false,dateNF:'yyyy-mm-dd'});
         parseAutocountRows(raw);
       }catch(err){alert('Could not read Excel: '+err.message);renderImport();}
     };
@@ -916,17 +913,15 @@ function readFile(file){
 }
 function parseMYDate(val){
   if(!val)return'';
-  // With raw:false, SheetJS formats date cells using Excel's own format = dd/MM/yyyy
-  // So "16/12/2025" = 16 Dec 2025 (DD/MM/YYYY) — Malaysian format ✓
   var s=String(val).trim();
-  // DD/MM/YYYY or D/M/YYYY
-  var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(m){
-    var d=m[1].padStart(2,'0'),mo=m[2].padStart(2,'0'),y=m[3];
-    return y+'-'+mo+'-'+d;
-  }
-  // Already YYYY-MM-DD
+  // YYYY-MM-DD (from dateNF:'yyyy-mm-dd') — perfect, use directly
   if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  // DD/MM/YYYY fallback
+  var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+  // MM/DD/YYYY fallback — should not happen but handle anyway
+  var m2=s.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+  if(m2)return m2[3]+'-'+m2[1].padStart(2,'0')+'-'+m2[2].padStart(2,'0');
   return'';
 }
 function parseAutocountRows(raw){
