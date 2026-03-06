@@ -903,8 +903,8 @@ function readFile(file){
     var r=new FileReader();
     r.onload=function(e){
       try{
-        var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
-        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:true});
+        var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:false});
+        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:false});
         parseAutocountRows(raw);
       }catch(err){alert('Could not read Excel: '+err.message);renderImport();}
     };
@@ -913,20 +913,17 @@ function readFile(file){
 }
 function parseMYDate(val){
   if(!val)return'';
-  // JS Date object from SheetJS — use LOCAL methods (Malaysia UTC+8, UTC causes day shift)
-  if(typeof val==='object'&&val.getFullYear){
-    var y=val.getFullYear(),mo=val.getMonth()+1,d=val.getDate();
-    return y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-  }
+  // With raw:false, SheetJS formats date cells using Excel's own format = dd/MM/yyyy
+  // So "16/12/2025" = 16 Dec 2025 (DD/MM/YYYY) — Malaysian format ✓
   var s=String(val).trim();
+  // DD/MM/YYYY or D/M/YYYY
+  var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){
+    var d=m[1].padStart(2,'0'),mo=m[2].padStart(2,'0'),y=m[3];
+    return y+'-'+mo+'-'+d;
+  }
   // Already YYYY-MM-DD
   if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
-  // DD/MM/YYYY — Malaysian format
-  var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(m){return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');}
-  // Try parsing any date string and extract local date
-  var d2=new Date(s);
-  if(!isNaN(d2)){return d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');}
   return'';
 }
 function parseAutocountRows(raw){
