@@ -260,8 +260,8 @@ function load(){
 // ── HELPERS ───────────────────────────────────────────────────
 function fmyr(n){return'RM '+Number(n||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fshort(n){var v=Number(n||0);if(v>=1000000)return'RM '+(v/1000000).toFixed(1)+'M';if(v>=1000)return'RM '+(v/1000).toFixed(1)+'K';return'RM '+v.toFixed(0);}
-function fdate(d){if(!d)return'-';try{var dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return'-';}}
-function fdshort(d){if(!d)return'-';try{var dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-MY',{day:'2-digit',month:'short'});}catch(e){return'-';}}
+function fdate(d){if(!d||d===''||d==='undefined')return'—';try{var dt=new Date(d+'T00:00:00');if(isNaN(dt))return'—';return dt.toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return'—';}}
+function fdshort(d){if(!d||d===''||d==='undefined')return'—';try{var dt=new Date(d+'T00:00:00');if(isNaN(dt))return'—';return dt.toLocaleDateString('en-MY',{day:'2-digit',month:'short'});}catch(e){return'—';}}
 function mKey(ds){if(!ds)return'?';var p=ds.split('-');return p[0]+'-'+p[1];}
 function mLabel(k){if(!k||k==='?')return'Unknown';var p=k.split('-');return new Date(Number(p[0]),Number(p[1])-1,1).toLocaleDateString('en-MY',{month:'long',year:'numeric'});}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -284,7 +284,9 @@ function parseMYDate(val){
 }
 
 function getDueDate(invDate,term){
+  if(!invDate)return null;
   var d=new Date(invDate+'T00:00:00');
+  if(isNaN(d))return null;
   d.setDate(d.getDate()+Number(term||0));
   return d;
 }
@@ -299,10 +301,11 @@ function enrichInv(inv){
   var cust=state.customers.find(function(c){return c.id===inv.customerId;});
   if(!cust)return Object.assign({},inv,{customer:null,dueDate:null,daysOverdue:0,outstanding:inv.amount-inv.paidAmount,displayStatus:inv.status||'unpaid',aging:'current'});
   var dueDate=getDueDate(inv.invoiceDate,cust.creditTerm);
-  var daysOverdue=getDaysOverdue(dueDate);
+  var daysOverdue=dueDate?getDaysOverdue(dueDate):0;
   var outstanding=inv.amount-inv.paidAmount;
   var ds;
   if(inv.status==='paid') ds='paid';
+  else if(!dueDate) ds='current';
   else if(daysOverdue>0) ds='overdue';
   else if(inv.status==='partial') ds='partial';
   else if(daysOverdue>-7) ds='due-soon';
@@ -870,17 +873,20 @@ function readFile(file){
 }
 function parseMYDate(val){
   if(!val)return'';
-  // JS Date object from SheetJS — use UTC to avoid timezone shift
+  // JS Date object from SheetJS — use LOCAL methods (Malaysia UTC+8, UTC causes day shift)
   if(typeof val==='object'&&val.getFullYear){
-    var y=val.getUTCFullYear(),mo=val.getUTCMonth()+1,d=val.getUTCDate();
+    var y=val.getFullYear(),mo=val.getMonth()+1,d=val.getDate();
     return y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
   }
   var s=String(val).trim();
   // Already YYYY-MM-DD
   if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
-  // DD/MM/YYYY — Malaysian format (only if string slips through)
+  // DD/MM/YYYY — Malaysian format
   var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if(m){return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');}
+  // Try parsing any date string and extract local date
+  var d2=new Date(s);
+  if(!isNaN(d2)){return d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');}
   return'';
 }
 function parseAutocountRows(raw){
