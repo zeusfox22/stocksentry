@@ -861,7 +861,7 @@ function readFile(file){
     r.onload=function(e){
       try{
         var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
-        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:false});
+        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:true});
         parseAutocountRows(raw);
       }catch(err){alert('Could not read Excel: '+err.message);renderImport();}
     };
@@ -870,17 +870,17 @@ function readFile(file){
 }
 function parseMYDate(val){
   if(!val)return'';
-  // SheetJS Date object
+  // JS Date object from SheetJS — use UTC to avoid timezone shift
   if(typeof val==='object'&&val.getFullYear){
-    var y=val.getFullYear(),mo=val.getMonth()+1,d=val.getDate();
+    var y=val.getUTCFullYear(),mo=val.getUTCMonth()+1,d=val.getUTCDate();
     return y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
   }
   var s=String(val).trim();
-  // DD/MM/YYYY — Malaysian format
+  // Already YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  // DD/MM/YYYY — Malaysian format (only if string slips through)
   var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if(m){return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');}
-  // YYYY-MM-DD already good
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
   return'';
 }
 function parseAutocountRows(raw){
