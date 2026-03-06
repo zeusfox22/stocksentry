@@ -2,1060 +2,685 @@
 
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="Zeus PayTrack"/>
-  <title>⚡ Zeus PayTrack</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { background: #0d0f14; overflow-x: hidden; }
-    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #111827; } ::-webkit-scrollbar-thumb { background: #1e2d4a; border-radius: 4px; }
-    select, input, button { font-family: inherit; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Zeus PayTrack"/>
+<title>⚡ Zeus PayTrack</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0d0f14;color:#e2e8f0;font-family:'DM Sans','Segoe UI',sans-serif;overflow-x:hidden}
+input,select,button{font-family:inherit}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#111827}::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:4px}
+</style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef, useCallback } = React;
-    const XLSX_LIB = window.XLSX;
-    const XLSX = { read: XLSX_LIB.read, utils: XLSX_LIB.utils };
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+'use strict';
+const h=React.createElement;
+const {useState,useEffect,useMemo,useRef,useCallback}=React;
+const SK="paytrack-v7";
 
-const STORAGE_KEY = “paytrack-v5”;
-
-const DEMO_CUSTOMERS = [
-{ id: 1, name: “ABC Trading Sdn Bhd”, creditTerm: 30, contact: “Ahmad”, phone: “012-3456789”, email: “ahmad@abc.com” },
-{ id: 2, name: “XYZ Retail Bhd”, creditTerm: 60, contact: “Siti”, phone: “016-9876543”, email: “siti@xyz.com” },
-{ id: 3, name: “Golden Supply Co”, creditTerm: 14, contact: “Tan Wei”, phone: “011-2233445”, email: “tan@golden.com” },
+const DC=[
+{id:1,name:“ABC Trading Sdn Bhd”,creditTerm:30,contact:“Ahmad”,phone:“012-3456789”,email:“ahmad@abc.com”},
+{id:2,name:“XYZ Retail Bhd”,creditTerm:60,contact:“Siti”,phone:“016-9876543”,email:“siti@xyz.com”},
+{id:3,name:“Golden Supply Co”,creditTerm:14,contact:“Tan Wei”,phone:“011-2233445”,email:“tan@golden.com”},
 ];
-const DEMO_INVOICES = [
-{ id: 1, customerId: 1, invoiceNo: “INV-2025-001”, amount: 12500, invoiceDate: “2026-01-15”, paidAmount: 0, status: “unpaid”, notes: “” },
-{ id: 2, customerId: 1, invoiceNo: “INV-2025-002”, amount: 8750.5, invoiceDate: “2026-02-01”, paidAmount: 0, status: “unpaid”, notes: “” },
-{ id: 3, customerId: 2, invoiceNo: “INV-2025-003”, amount: 23000, invoiceDate: “2026-01-20”, paidAmount: 23000, status: “paid”, notes: “Paid via TT” },
-{ id: 4, customerId: 2, invoiceNo: “INV-2025-004”, amount: 15400, invoiceDate: “2026-02-10”, paidAmount: 5000, status: “partial”, notes: “” },
-{ id: 5, customerId: 3, invoiceNo: “INV-2025-005”, amount: 4200, invoiceDate: “2026-02-20”, paidAmount: 0, status: “unpaid”, notes: “” },
+const DI=[
+{id:1,customerId:1,invoiceNo:“INV-2025-001”,amount:12500,invoiceDate:“2026-01-15”,paidAmount:0,status:“unpaid”,notes:””},
+{id:2,customerId:1,invoiceNo:“INV-2025-002”,amount:8750.5,invoiceDate:“2026-02-01”,paidAmount:0,status:“unpaid”,notes:””},
+{id:3,customerId:2,invoiceNo:“INV-2025-003”,amount:23000,invoiceDate:“2026-01-20”,paidAmount:23000,status:“paid”,notes:“Paid via TT”},
+{id:4,customerId:2,invoiceNo:“INV-2025-004”,amount:15400,invoiceDate:“2026-02-10”,paidAmount:5000,status:“partial”,notes:””},
+{id:5,customerId:3,invoiceNo:“INV-2025-005”,amount:4200,invoiceDate:“2026-02-20”,paidAmount:0,status:“unpaid”,notes:””},
 ];
-const DEMO_PAYMENTS = [
-{ id: 1, invoiceId: 3, customerId: 2, invoiceNo: “INV-2025-003”, customerName: “XYZ Retail Bhd”, amount: 23000, date: “2026-02-15”, note: “Full payment via TT” },
-{ id: 2, invoiceId: 4, customerId: 2, invoiceNo: “INV-2025-004”, customerName: “XYZ Retail Bhd”, amount: 5000, date: “2026-02-20”, note: “Partial payment” },
+const DP=[
+{id:1,invoiceId:3,customerId:2,invoiceNo:“INV-2025-003”,customerName:“XYZ Retail Bhd”,amount:23000,date:“2026-02-15”,note:“Full payment via TT”},
+{id:2,invoiceId:4,customerId:2,invoiceNo:“INV-2025-004”,customerName:“XYZ Retail Bhd”,amount:5000,date:“2026-02-20”,note:“Partial payment”},
 ];
 
-// ── helpers ──────────────────────────────────────────────────────────────────
-const COL_ALIASES = {
-customerName: [“customer name”,“debtor name”,“company name”,“name”,“customer”,“debtor”,“acc name”,“account name”],
-invoiceNo:    [“invoice no”,“inv no”,“doc no”,“document no”,“invoice number”,“ref no”,“bill no”],
-invoiceDate:  [“invoice date”,“inv date”,“doc date”,“date”,“bill date”,“transaction date”],
-amount:       [“amount”,“invoice amount”,“total amount”,“original amount”,“gross amount”,“total”,“amt”],
-outstanding:  [“outstanding”,“balance”,“outstanding amount”,“balance due”,“o/s amount”,“outstanding bal”,“o/s”,“bal”],
-paidAmount:   [“paid”,“paid amount”,“payment”,“amount paid”,“paid to date”],
-creditTerm:   [“credit term”,“terms”,“payment term”,“credit days”,“days”],
+const COL_ALIASES={
+customerName:[“customer name”,“debtor name”,“company name”,“name”,“customer”,“debtor”,“acc name”,“account name”],
+invoiceNo:[“invoice no”,“inv no”,“doc no”,“document no”,“invoice number”,“ref no”,“bill no”],
+invoiceDate:[“invoice date”,“inv date”,“doc date”,“date”,“bill date”,“transaction date”],
+amount:[“amount”,“invoice amount”,“total amount”,“original amount”,“gross amount”,“total”,“amt”],
+outstanding:[“outstanding”,“balance”,“outstanding amount”,“balance due”,“o/s amount”,“outstanding bal”,“o/s”,“bal”],
+paidAmount:[“paid”,“paid amount”,“payment”,“amount paid”,“paid to date”],
+creditTerm:[“credit term”,“terms”,“payment term”,“credit days”,“days”],
 };
-function guessMapping(headers) {
-const map = {};
-const lc = headers.map(h => (h||””).toString().toLowerCase().trim());
-Object.entries(COL_ALIASES).forEach(([field, aliases]) => {
-const idx = lc.findIndex(h => aliases.includes(h));
-if (idx !== -1) map[field] = headers[idx];
-});
+function guessMapping(headers){
+const map={};const lc=headers.map(x=>(x||””).toString().toLowerCase().trim());
+Object.entries(COL_ALIASES).forEach(([f,al])=>{const i=lc.findIndex(x=>al.includes(x));if(i!==-1)map[f]=headers[i];});
 return map;
 }
-function parseExcelDate(val) {
-if (!val) return null;
-if (val instanceof Date) return val.toISOString().split(“T”)[0];
-if (typeof val === “number”) { const d = new Date(Math.round((val-25569)*86400*1000)); return d.toISOString().split(“T”)[0]; }
-if (typeof val === “string”) {
-const dmy = val.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,"0")}-${dmy[1].padStart(2,"0")}`;
-const ymd = val.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);
-if (ymd) return `${ymd[1]}-${ymd[2].padStart(2,"0")}-${ymd[3].padStart(2,"0")}`;
-const d = new Date(val); if (!isNaN(d)) return d.toISOString().split(“T”)[0];
+function parseExcelDate(val){
+if(!val)return null;
+if(val instanceof Date)return val.toISOString().split(“T”)[0];
+if(typeof val===“number”){const d=new Date(Math.round((val-25569)*86400*1000));return d.toISOString().split(“T”)[0];}
+if(typeof val===“string”){
+const a=val.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);if(a)return a[3]+”-”+a[2].padStart(2,“0”)+”-”+a[1].padStart(2,“0”);
+const b=val.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);if(b)return b[1]+”-”+b[2].padStart(2,“0”)+”-”+b[3].padStart(2,“0”);
+const d=new Date(val);if(!isNaN(d))return d.toISOString().split(“T”)[0];
 }
 return null;
 }
-function getDueDate(invoiceDate, creditTerm) { const d = new Date(invoiceDate); d.setDate(d.getDate()+creditTerm); return d; }
-function getDaysOverdue(due) { const t=new Date(); t.setHours(0,0,0,0); const d=new Date(due); d.setHours(0,0,0,0); return Math.floor((t-d)/86400000); }
-function ageBucket(d) { if(d<=0)return”current”; if(d<=30)return”1-30”; if(d<=60)return”31-60”; if(d<=90)return”61-90”; return”90+”; }
-function fmyr(n) { return “RM “+Number(n||0).toLocaleString(“en-MY”,{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function fshort(n) { const v=Number(n||0); if(v>=1000000)return”RM “+(v/1000000).toFixed(1)+“M”; if(v>=1000)return”RM “+(v/1000).toFixed(1)+“K”; return”RM “+v.toFixed(0); }
-function fdate(d) { if(!d)return”-”; try { return new Date(d).toLocaleDateString(“en-MY”,{day:“2-digit”,month:“short”,year:“numeric”}); } catch(e) { return”-”; } }
-function fdshort(d) { if(!d)return”-”; try { return new Date(d).toLocaleDateString(“en-MY”,{day:“2-digit”,month:“short”}); } catch(e) { return”-”; } }
-function monthKey(ds) { if(!ds)return”?”; const d=new Date(ds); return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; }
-function monthLabel(k) { if(!k||k===”?”)return”Unknown”; const [y,m]=k.split(”-”); return new Date(Number(y),Number(m)-1,1).toLocaleDateString(“en-MY”,{month:“long”,year:“numeric”}); }
+function getDueDate(inv,term){const d=new Date(inv);d.setDate(d.getDate()+Number(term));return d;}
+function getDaysOverdue(due){const t=new Date();t.setHours(0,0,0,0);const d=new Date(due);d.setHours(0,0,0,0);return Math.floor((t-d)/86400000);}
+function ageBucket(d){if(d<=0)return”current”;if(d<=30)return”1-30”;if(d<=60)return”31-60”;if(d<=90)return”61-90”;return”90+”;}
+function fmyr(n){return”RM “+Number(n||0).toLocaleString(“en-MY”,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fshort(n){const v=Number(n||0);if(v>=1000000)return”RM “+(v/1000000).toFixed(1)+“M”;if(v>=1000)return”RM “+(v/1000).toFixed(1)+“K”;return”RM “+v.toFixed(0);}
+function fdate(d){if(!d)return”-”;try{return new Date(d).toLocaleDateString(“en-MY”,{day:“2-digit”,month:“short”,year:“numeric”});}catch(e){return”-”;}}
+function fdshort(d){if(!d)return”-”;try{return new Date(d).toLocaleDateString(“en-MY”,{day:“2-digit”,month:“short”});}catch(e){return”-”;}}
+function mKey(ds){if(!ds)return”?”;const d=new Date(ds);return d.getFullYear()+”-”+String(d.getMonth()+1).padStart(2,“0”);}
+function mLabel(k){if(!k||k===”?”)return”Unknown”;const p=k.split(”-”);return new Date(Number(p[0]),Number(p[1])-1,1).toLocaleDateString(“en-MY”,{month:“long”,year:“numeric”});}
 
-const SCFG = {
-current:    {label:“Current”,  bg:”#1a3a2a”,color:”#4ade80”,border:”#166534”},
-“due-soon”: {label:“Due Soon”, bg:”#3a2a0a”,color:”#fbbf24”,border:”#92400e”},
-overdue:    {label:“Overdue”,  bg:”#3a0a0a”,color:”#f87171”,border:”#991b1b”},
-paid:       {label:“Paid”,     bg:”#0a1a2a”,color:”#60a5fa”,border:”#1e40af”},
-partial:    {label:“Partial”,  bg:”#2a1a3a”,color:”#c084fc”,border:”#7e22ce”},
+const SCFG={
+current:{label:“Current”,bg:”#1a3a2a”,color:”#4ade80”,border:”#166534”},
+“due-soon”:{label:“Due Soon”,bg:”#3a2a0a”,color:”#fbbf24”,border:”#92400e”},
+overdue:{label:“Overdue”,bg:”#3a0a0a”,color:”#f87171”,border:”#991b1b”},
+paid:{label:“Paid”,bg:”#0a1a2a”,color:”#60a5fa”,border:”#1e40af”},
+partial:{label:“Partial”,bg:”#2a1a3a”,color:”#c084fc”,border:”#7e22ce”},
 };
-const ACLR = {current:”#4ade80”,“1-30”:”#a3e635”,“31-60”:”#fbbf24”,“61-90”:”#fb923c”,“90+”:”#f87171”};
-const SCLR = {overdue:”#f87171”,“due-soon”:”#fbbf24”,current:”#4ade80”,partial:”#c084fc”,paid:”#60a5fa”};
+const ACLR={current:”#4ade80”,“1-30”:”#a3e635”,“31-60”:”#fbbf24”,“61-90”:”#fb923c”,“90+”:”#f87171”};
+const SCLR={overdue:”#f87171”,“due-soon”:”#fbbf24”,current:”#4ade80”,partial:”#c084fc”,paid:”#60a5fa”};
+const C={bg:”#0d0f14”,card:”#111827”,bdr:”#1e2d4a”,txt:”#e2e8f0”,mut:”#64748b”,sub:”#94a3b8”,blue:”#60a5fa”,red:”#f87171”,grn:”#4ade80”,yel:”#fbbf24”,pur:”#c084fc”,wa:”#25d366”};
 
-function useIsMobile() {
-const [m,setM] = useState(window.innerWidth<768);
-useEffect(()=>{ const f=()=>setM(window.innerWidth<768); window.addEventListener(“resize”,f); return()=>window.removeEventListener(“resize”,f); },[]);
-return m;
+function useIsMob(){const[m,setM]=useState(window.innerWidth<768);useEffect(()=>{const f=()=>setM(window.innerWidth<768);window.addEventListener(“resize”,f);return()=>window.removeEventListener(“resize”,f);},[]);return m;}
+
+function inpS(x){return Object.assign({background:C.card,border:“1px solid “+C.bdr,borderRadius:“10px”,padding:“12px 14px”,color:C.txt,fontSize:“15px”,width:“100%”,outline:“none”,boxSizing:“border-box”},x||{});}
+const lblS={fontSize:“12px”,color:C.mut,marginBottom:“6px”,display:“block”,fontWeight:“600”,textTransform:“uppercase”,letterSpacing:“0.4px”};
+const cardS={background:C.card,border:“1px solid “+C.bdr,borderRadius:“14px”,overflow:“hidden”};
+const moutS={position:“fixed”,inset:0,background:“rgba(0,0,0,.85)”,display:“flex”,alignItems:“flex-end”,justifyContent:“center”,zIndex:1000,backdropFilter:“blur(6px)”};
+const minS={background:C.card,borderRadius:“20px 20px 0 0”,padding:“24px”,width:“100%”,maxWidth:“520px”,maxHeight:“92vh”,overflowY:“auto”,boxSizing:“border-box”};
+const dragS={width:“40px”,height:“4px”,background:C.bdr,borderRadius:“4px”,margin:“0 auto 20px”};
+function bdgS(cfg){return{display:“inline-flex”,alignItems:“center”,padding:“3px 9px”,borderRadius:“20px”,fontSize:“11px”,fontWeight:“700”,background:cfg.bg,color:cfg.color,border:“1px solid “+cfg.border};}
+function btnS(v,mob,x){
+const V={primary:{background:”#1d4ed8”,color:”#fff”,border:“none”},success:{background:”#14532d”,color:”#86efac”,border:“none”},danger:{background:”#7f1d1d”,color:”#fca5a5”,border:“none”},ghost:{background:“transparent”,color:C.sub,border:“1px solid “+C.bdr},wa:{background:”#128c3e”,color:”#fff”,border:“none”}};
+return Object.assign({},(V[v]||V.ghost),{padding:mob?“12px 16px”:“9px 16px”,borderRadius:“10px”,cursor:“pointer”,fontSize:mob?“14px”:“13px”,fontWeight:“600”,transition:“all .15s”,display:“flex”,alignItems:“center”,justifyContent:“center”,gap:“6px”,whiteSpace:“nowrap”},x||{});
 }
 
-// ── component ─────────────────────────────────────────────────────────────────
-function ZeusPayTrack() {
-const mob = useIsMobile();
+function App(){
+const mob=useIsMob();
+const[customers,setCustomers]=useState([]);
+const[invoices,setInvoices]=useState([]);
+const[payments,setPayments]=useState([]);
+const[waLog,setWaLog]=useState([]);
+const[company,setCompany]=useState(“G Wira Trading (M) Sdn Bhd”);
+const[tab,setTab]=useState(“dashboard”);
+const[subTab,setSubTab]=useState(“alerts”);
+const[dismissed,setDismissed]=useState([]);
+const[fStatus,setFStatus]=useState(“all”);
+const[fSearch,setFSearch]=useState(””);
+const[selInv,setSelInv]=useState(null);
+const[payModal,setPayModal]=useState(null);
+const[payAmt,setPayAmt]=useState(””);
+const[payNote,setPayNote]=useState(””);
+const[showInv,setShowInv]=useState(false);
+const[showCust,setShowCust]=useState(false);
+const[newInv,setNewInv]=useState({customerId:””,invoiceNo:””,amount:””,invoiceDate:new Date().toISOString().split(“T”)[0],paidAmount:“0”,notes:””});
+const[newCust,setNewCust]=useState({name:””,creditTerm:30,contact:””,phone:””,email:””});
+const[waCopied,setWaCopied]=useState({});
+const[hSearch,setHSearch]=useState(””);
+const[rMonth,setRMonth]=useState(””);
+const[iStage,setIStage]=useState(“idle”);
+const[iRows,setIRows]=useState([]);
+const[iHeaders,setIHeaders]=useState([]);
+const[iMap,setIMap]=useState({});
+const[iPrev,setIPrev]=useState([]);
+const[iMode,setIMode]=useState(“merge”);
+const[iStats,setIStats]=useState(null);
+const[iFile,setIFile]=useState(””);
+const[dragOver,setDragOver]=useState(false);
+const fileRef=useRef();
 
-// data
-const [customers, setCustomers] = useState([]);
-const [invoices,  setInvoices]  = useState([]);
-const [payments,  setPayments]  = useState([]);
-const [waLog,     setWaLog]     = useState([]);
-const [company,   setCompany]   = useState(“G Wira Trading (M) Sdn Bhd”);
-
-// ui
-const [tab,       setTab]       = useState(“dashboard”);
-const [subTab,    setSubTab]    = useState(“alerts”);   // reminders: alerts | whatsapp  |  reports: monthly | history | walog
-const [dismissed, setDismissed] = useState([]);
-const [fStatus,   setFStatus]   = useState(“all”);
-const [fSearch,   setFSearch]   = useState(””);
-const [selInv,    setSelInv]    = useState(null);
-const [payModal,  setPayModal]  = useState(null);
-const [payAmt,    setPayAmt]    = useState(””);
-const [payNote,   setPayNote]   = useState(””);
-const [showInv,   setShowInv]   = useState(false);
-const [showCust,  setShowCust]  = useState(false);
-const [newInv,    setNewInv]    = useState({customerId:””,invoiceNo:””,amount:””,invoiceDate:new Date().toISOString().split(“T”)[0],paidAmount:“0”,notes:””});
-const [newCust,   setNewCust]   = useState({name:””,creditTerm:30,contact:””,phone:””,email:””});
-const [waCopied,  setWaCopied]  = useState({});
-const [hSearch,   setHSearch]   = useState(””);
-const [rMonth,    setRMonth]    = useState(””);
-
-// import
-const [iStage,    setIStage]    = useState(“idle”);
-const [iRows,     setIRows]     = useState([]);
-const [iHeaders,  setIHeaders]  = useState([]);
-const [iMap,      setIMap]      = useState({});
-const [iPrev,     setIPrev]     = useState([]);
-const [iMode,     setIMode]     = useState(“merge”);
-const [iStats,    setIStats]    = useState(null);
-const [iFile,     setIFile]     = useState(””);
-const [dragOver,  setDragOver]  = useState(false);
-const fileRef = useRef();
-
-// ── persist ──
 useEffect(()=>{
-try {
-const s = localStorage.getItem(STORAGE_KEY);
-if (s) {
-const d = JSON.parse(s);
-setCustomers(d.customers||DEMO_CUSTOMERS);
-setInvoices(d.invoices||DEMO_INVOICES);
-setPayments(d.payments||DEMO_PAYMENTS);
-setWaLog(d.waLog||[]);
-setCompany(d.company||“G Wira Trading (M) Sdn Bhd”);
-} else {
-setCustomers(DEMO_CUSTOMERS);
-setInvoices(DEMO_INVOICES);
-setPayments(DEMO_PAYMENTS);
-}
-} catch(e) {
-setCustomers(DEMO_CUSTOMERS);
-setInvoices(DEMO_INVOICES);
-setPayments(DEMO_PAYMENTS);
-}
+try{const s=localStorage.getItem(SK);if(s){const d=JSON.parse(s);setCustomers(d.customers||DC);setInvoices(d.invoices||DI);setPayments(d.payments||DP);setWaLog(d.waLog||[]);setCompany(d.company||“G Wira Trading (M) Sdn Bhd”);}else{setCustomers(DC);setInvoices(DI);setPayments(DP);}}catch(e){setCustomers(DC);setInvoices(DI);setPayments(DP);}
 },[]);
+useEffect(()=>{if(customers.length||invoices.length)localStorage.setItem(SK,JSON.stringify({customers,invoices,payments,waLog,company}));},[customers,invoices,payments,waLog,company]);
 
-useEffect(()=>{
-if (customers.length||invoices.length) {
-localStorage.setItem(STORAGE_KEY, JSON.stringify({customers,invoices,payments,waLog,company}));
-}
-},[customers,invoices,payments,waLog,company]);
-
-// ── enriched invoices ──
-const enrich = useCallback((invs, custs) => invs.map(inv => {
-const cust = custs.find(c => c.id===inv.customerId);
-if (!cust) return {…inv, customer:null, dueDate:null, daysOverdue:0, outstanding:inv.amount-inv.paidAmount, displayStatus:inv.status||“unpaid”, aging:“current”};
-const dueDate     = getDueDate(inv.invoiceDate, cust.creditTerm);
-const daysOverdue = getDaysOverdue(dueDate);
-const outstanding = inv.amount - inv.paidAmount;
-const ds = inv.status===“paid” ? “paid” : daysOverdue>0 ? “overdue” : inv.status===“partial” ? “partial” : daysOverdue>-7 ? “due-soon” : “current”;
-return {…inv, customer:cust, dueDate, daysOverdue, outstanding, displayStatus:ds, aging:ageBucket(daysOverdue)};
+const enrich=useCallback((invs,custs)=>invs.map(inv=>{
+const cust=custs.find(c=>c.id===inv.customerId);
+if(!cust)return{…inv,customer:null,dueDate:null,daysOverdue:0,outstanding:inv.amount-inv.paidAmount,displayStatus:inv.status||“unpaid”,aging:“current”};
+const dueDate=getDueDate(inv.invoiceDate,cust.creditTerm);
+const daysOverdue=getDaysOverdue(dueDate);
+const outstanding=inv.amount-inv.paidAmount;
+const ds=inv.status===“paid”?“paid”:daysOverdue>0?“overdue”:inv.status===“partial”?“partial”:daysOverdue>-7?“due-soon”:“current”;
+return{…inv,customer:cust,dueDate,daysOverdue,outstanding,displayStatus:ds,aging:ageBucket(daysOverdue)};
 }),[]);
 
-const enriched  = useMemo(()=>enrich(invoices,customers),[invoices,customers,enrich]);
-const reminders = useMemo(()=>enriched.filter(i=>(i.displayStatus===“overdue”||i.displayStatus===“due-soon”)&&!dismissed.includes(i.id)).sort((a,b)=>b.daysOverdue-a.daysOverdue),[enriched,dismissed]);
+const enriched=useMemo(()=>enrich(invoices,customers),[invoices,customers,enrich]);
+const reminders=useMemo(()=>enriched.filter(i=>(i.displayStatus===“overdue”||i.displayStatus===“due-soon”)&&!dismissed.includes(i.id)).sort((a,b)=>b.daysOverdue-a.daysOverdue),[enriched,dismissed]);
+const stats=useMemo(()=>{const a=enriched.filter(i=>i.displayStatus!==“paid”);return{totalOut:a.reduce((s,i)=>s+i.outstanding,0),overdue:a.filter(i=>i.displayStatus===“overdue”).reduce((s,i)=>s+i.outstanding,0),dueSoon:a.filter(i=>i.displayStatus===“due-soon”).reduce((s,i)=>s+i.outstanding,0),current:a.filter(i=>i.displayStatus===“current”).reduce((s,i)=>s+i.outstanding,0),overdueN:a.filter(i=>i.displayStatus===“overdue”).length,dueSoonN:a.filter(i=>i.displayStatus===“due-soon”).length};},[enriched]);
+const aging=useMemo(()=>{const b={current:0,“1-30”:0,“31-60”:0,“61-90”:0,“90+”:0};enriched.filter(i=>i.displayStatus!==“paid”).forEach(i=>{b[i.aging]=(b[i.aging]||0)+i.outstanding;});return b;},[enriched]);
+const filtered=useMemo(()=>enriched.filter(i=>{if(fStatus!==“all”&&i.displayStatus!==fStatus)return false;if(fSearch){const q=fSearch.toLowerCase();if(!i.invoiceNo.toLowerCase().includes(q)&&!(i.customer&&i.customer.name.toLowerCase().includes(q)))return false;}return true;}).sort((a,b)=>b.daysOverdue-a.daysOverdue),[enriched,fStatus,fSearch]);
+const custsWithOS=useMemo(()=>customers.filter(c=>enriched.some(i=>i.customerId===c.id&&i.displayStatus!==“paid”)),[customers,enriched]);
+const filteredHistory=useMemo(()=>{if(!hSearch)return payments;const q=hSearch.toLowerCase();return payments.filter(p=>p.customerName.toLowerCase().includes(q)||p.invoiceNo.toLowerCase().includes(q));},[payments,hSearch]);
+const waStats=useMemo(()=>{const s={};waLog.forEach(l=>{if(!s[l.customerId])s[l.customerId]={count:0,lastDate:null};s[l.customerId].count++;if(!s[l.customerId].lastDate||l.date>s[l.customerId].lastDate)s[l.customerId].lastDate=l.date;});return s;},[waLog]);
+const monthlyData=useMemo(()=>{const m={};payments.forEach(p=>{const k=mKey(p.date);if(!m[k])m[k]={key:k,label:mLabel(k),collected:0,payCount:0};m[k].collected+=p.amount;m[k].payCount++;});invoices.forEach(inv=>{const k=mKey(inv.invoiceDate);if(!m[k])m[k]={key:k,label:mLabel(k),collected:0,payCount:0};m[k].invoiced=(m[k].invoiced||0)+inv.amount;});return Object.values(m).sort((a,b)=>b.key.localeCompare(a.key));},[payments,invoices]);
 
-const stats = useMemo(()=>{
-const a = enriched.filter(i=>i.displayStatus!==“paid”);
-return {
-totalOut: a.reduce((s,i)=>s+i.outstanding,0),
-overdue:  a.filter(i=>i.displayStatus===“overdue”).reduce((s,i)=>s+i.outstanding,0),
-dueSoon:  a.filter(i=>i.displayStatus===“due-soon”).reduce((s,i)=>s+i.outstanding,0),
-current:  a.filter(i=>i.displayStatus===“current”).reduce((s,i)=>s+i.outstanding,0),
-overdueN: a.filter(i=>i.displayStatus===“overdue”).length,
-dueSoonN: a.filter(i=>i.displayStatus===“due-soon”).length,
-};
-},[enriched]);
+function daysSinceWa(cid){const last=waStats[cid]&&waStats[cid].lastDate;if(!last)return null;return Math.floor((new Date()-new Date(last))/86400000);}
 
-const aging = useMemo(()=>{
-const b={current:0,“1-30”:0,“31-60”:0,“61-90”:0,“90+”:0};
-enriched.filter(i=>i.displayStatus!==“paid”).forEach(i=>{b[i.aging]=(b[i.aging]||0)+i.outstanding;});
-return b;
-},[enriched]);
+function genWaMsg(cid){
+const cust=customers.find(c=>c.id===Number(cid));if(!cust)return””;
+const invs=enriched.filter(i=>i.customerId===cust.id&&i.displayStatus!==“paid”);if(!invs.length)return””;
+const total=invs.reduce((s,i)=>s+i.outstanding,0);
+const hasOD=invs.some(i=>i.displayStatus===“overdue”);
+const lines=invs.map(i=>”• “+i.invoiceNo+” | Due: “+fdate(i.dueDate)+” | “+fmyr(i.outstanding)+(i.daysOverdue>0?” *(”+i.daysOverdue+” days overdue)*”:””)).join(”\n”);
+const opener=hasOD?“We would like to kindly remind you that the following invoice(s) are now overdue:”:“This is a friendly reminder that the following invoice(s) will be due soon:”;
+return”Dear *”+cust.name+”*,\n\nWe hope this message finds you well.\n\n”+opener+”\n\n”+lines+”\n\n*Total Outstanding: “+fmyr(total)+”*\n\nKindly arrange payment at your earliest convenience. If payment has already been made, please disregard this message.\n\nThank you for your continued support.\n\nBest regards,\n*”+company+”*”;
+}
+function logWa(cid){const cust=customers.find(c=>c.id===Number(cid));setWaLog(p=>[{id:Date.now(),customerId:Number(cid),customerName:cust?cust.name:””,date:new Date().toISOString().split(“T”)[0]},…p]);}
+function copyWa(cid){navigator.clipboard.writeText(genWaMsg(cid)).then(()=>{logWa(cid);setWaCopied(p=>({…p,[cid]:true}));setTimeout(()=>setWaCopied(p=>({…p,[cid]:false})),2500);});}
+function openWa(cid){const cust=customers.find(c=>c.id===Number(cid));const phone=(cust&&cust.phone||””).replace(/[^0-9]/g,””);const intl=phone.startsWith(“0”)?“60”+phone.slice(1):phone;logWa(cid);window.open(“https://wa.me/”+intl+”?text=”+encodeURIComponent(genWaMsg(cid)),”_blank”);}
 
-const filtered = useMemo(()=>enriched.filter(i=>{
-if (fStatus!==“all”&&i.displayStatus!==fStatus) return false;
-if (fSearch) { const q=fSearch.toLowerCase(); if(!i.invoiceNo.toLowerCase().includes(q)&&!i.customer?.name.toLowerCase().includes(q)) return false; }
-return true;
-}).sort((a,b)=>b.daysOverdue-a.daysOverdue),[enriched,fStatus,fSearch]);
+function addInvoice(){if(!newInv.customerId||!newInv.invoiceNo||!newInv.amount)return;const paid=parseFloat(newInv.paidAmount)||0,amt=parseFloat(newInv.amount)||0;setInvoices(p=>[…p,{id:Date.now(),customerId:Number(newInv.customerId),invoiceNo:newInv.invoiceNo,amount:amt,invoiceDate:newInv.invoiceDate,paidAmount:paid,notes:newInv.notes,status:paid>=amt?“paid”:paid>0?“partial”:“unpaid”}]);setNewInv({customerId:””,invoiceNo:””,amount:””,invoiceDate:new Date().toISOString().split(“T”)[0],paidAmount:“0”,notes:””});setShowInv(false);}
+function addCustomer(){if(!newCust.name)return;setCustomers(p=>[…p,{…newCust,id:Date.now(),creditTerm:Number(newCust.creditTerm)}]);setNewCust({name:””,creditTerm:30,contact:””,phone:””,email:””});setShowCust(false);}
+function recordPayment(){const a=parseFloat(payAmt);if(!a||!payModal)return;const cust=customers.find(c=>c.id===payModal.customerId);setPayments(p=>[{id:Date.now(),invoiceId:payModal.id,customerId:payModal.customerId,invoiceNo:payModal.invoiceNo,customerName:cust?cust.name:””,amount:a,date:new Date().toISOString().split(“T”)[0],note:payNote||“Payment recorded”},…p]);setInvoices(p=>p.map(i=>{if(i.id!==payModal.id)return i;const np=Math.min(i.paidAmount+a,i.amount);return{…i,paidAmount:np,status:np>=i.amount?“paid”:“partial”};}));setPayModal(null);setPayAmt(””);setPayNote(””);}
 
-// ── WA stats ──
-const waStats = useMemo(()=>{
-const s={};
-waLog.forEach(l=>{
-if(!s[l.customerId]) s[l.customerId]={count:0,lastDate:null};
-s[l.customerId].count++;
-if(!s[l.customerId].lastDate||l.date>s[l.customerId].lastDate) s[l.customerId].lastDate=l.date;
-});
-return s;
-},[waLog]);
-
-const daysSinceWa = (cid) => {
-const last = waStats[cid]?.lastDate;
-if (!last) return null;
-return Math.floor((new Date()-new Date(last))/86400000);
-};
-
-// ── WA message ──
-const genWaMsg = useCallback((cid)=>{
-const cust = customers.find(c=>c.id===Number(cid));
-if (!cust) return “”;
-const invs = enriched.filter(i=>i.customerId===cust.id&&i.displayStatus!==“paid”);
-if (!invs.length) return “”;
-const total = invs.reduce((s,i)=>s+i.outstanding,0);
-const hasOD = invs.some(i=>i.displayStatus===“overdue”);
-const lines = invs.map(i=>`• ${i.invoiceNo} | Due: ${fdate(i.dueDate)} | ${fmyr(i.outstanding)}${i.daysOverdue>0?` *(${i.daysOverdue} days overdue)*`:""}`).join(”\n”);
-const opener = hasOD ? “We would like to kindly remind you that the following invoice(s) are now overdue:” : “This is a friendly reminder that the following invoice(s) will be due soon:”;
-return `Dear *${cust.name}*,\n\nWe hope this message finds you well.\n\n${opener}\n\n${lines}\n\n*Total Outstanding: ${fmyr(total)}*\n\nKindly arrange payment at your earliest convenience. If payment has already been made, please disregard this message.\n\nThank you for your continued support.\n\nBest regards,\n*${company}*`;
-},[customers,enriched,company]);
-
-const logWa = (cid) => {
-const cust = customers.find(c=>c.id===Number(cid));
-setWaLog(p=>[{id:Date.now(),customerId:Number(cid),customerName:cust?.name||””,date:new Date().toISOString().split(“T”)[0]},…p]);
-};
-const copyWa = (cid) => {
-navigator.clipboard.writeText(genWaMsg(cid)).then(()=>{
-logWa(cid);
-setWaCopied(p=>({…p,[cid]:true}));
-setTimeout(()=>setWaCopied(p=>({…p,[cid]:false})),2500);
-});
-};
-const openWa = (cid) => {
-const cust = customers.find(c=>c.id===Number(cid));
-const phone = (cust?.phone||””).replace(/[^0-9]/g,””);
-const intl  = phone.startsWith(“0”) ? “60”+phone.slice(1) : phone;
-logWa(cid);
-window.open(`https://wa.me/${intl}?text=${encodeURIComponent(genWaMsg(cid))}`,”_blank”);
-};
-
-// ── monthly report ──
-const monthlyData = useMemo(()=>{
-const m={};
-payments.forEach(p=>{
-const k=monthKey(p.date);
-if(!m[k]) m[k]={key:k,label:monthLabel(k),collected:0,payCount:0};
-m[k].collected+=p.amount; m[k].payCount++;
-});
-invoices.forEach(inv=>{
-const k=monthKey(inv.invoiceDate);
-if(!m[k]) m[k]={key:k,label:monthLabel(k),collected:0,payCount:0};
-if(!m[k].invoiced) m[k].invoiced=0;
-m[k].invoiced=(m[k].invoiced||0)+inv.amount;
-});
-return Object.values(m).sort((a,b)=>b.key.localeCompare(a.key));
-},[payments,invoices]);
-
-// ── CRUD ──
-const addInvoice = () => {
-if(!newInv.customerId||!newInv.invoiceNo||!newInv.amount) return;
-const paid=parseFloat(newInv.paidAmount)||0, amt=parseFloat(newInv.amount)||0;
-setInvoices(p=>[…p,{id:Date.now(),customerId:Number(newInv.customerId),invoiceNo:newInv.invoiceNo,amount:amt,invoiceDate:newInv.invoiceDate,paidAmount:paid,notes:newInv.notes,status:paid>=amt?“paid”:paid>0?“partial”:“unpaid”}]);
-setNewInv({customerId:””,invoiceNo:””,amount:””,invoiceDate:new Date().toISOString().split(“T”)[0],paidAmount:“0”,notes:””});
-setShowInv(false);
-};
-const addCustomer = () => {
-if(!newCust.name) return;
-setCustomers(p=>[…p,{…newCust,id:Date.now(),creditTerm:Number(newCust.creditTerm)}]);
-setNewCust({name:””,creditTerm:30,contact:””,phone:””,email:””});
-setShowCust(false);
-};
-const recordPayment = () => {
-const a=parseFloat(payAmt); if(!a||!payModal) return;
-const cust=customers.find(c=>c.id===payModal.customerId);
-setPayments(p=>[{id:Date.now(),invoiceId:payModal.id,customerId:payModal.customerId,invoiceNo:payModal.invoiceNo,customerName:cust?.name||””,amount:a,date:new Date().toISOString().split(“T”)[0],note:payNote||“Payment recorded”},…p]);
-setInvoices(p=>p.map(i=>{ if(i.id!==payModal.id)return i; const np=Math.min(i.paidAmount+a,i.amount); return{…i,paidAmount:np,status:np>=i.amount?“paid”:“partial”}; }));
-setPayModal(null); setPayAmt(””); setPayNote(””);
-};
-
-// ── import ──
-const handleFile = (file) => {
-if(!file) return; setIFile(file.name);
+function handleFile(file){
+if(!file)return;setIFile(file.name);
 const reader=new FileReader();
-reader.onload=(e)=>{
-try {
-const wb=XLSX.read(new Uint8Array(e.target.result),{type:“array”,cellDates:true});
-const ws=wb.Sheets[wb.SheetNames[0]];
-const rows=XLSX.utils.sheet_to_json(ws,{defval:””,raw:false});
-if(!rows.length){alert(“File appears empty.”);return;}
-const headers=Object.keys(rows[0]);
-setIHeaders(headers); setIRows(rows); setIMap(guessMapping(headers));
-setIStage(“mapping”); setTab(“import”);
-} catch(err){alert(“Could not read file: “+err.message);}
-};
+reader.onload=function(e){try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:“array”,cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{defval:””,raw:false});if(!rows.length){alert(“File empty.”);return;}const headers=Object.keys(rows[0]);setIHeaders(headers);setIRows(rows);setIMap(guessMapping(headers));setIStage(“mapping”);setTab(“import”);}catch(err){alert(“Could not read: “+err.message);}};
 reader.readAsArrayBuffer(file);
-};
-const buildPreview = () => {
-if(!iMap.invoiceNo||!iMap.customerName){alert(“Please map Invoice No and Customer Name.”);return;}
-const rows=iRows.map(row=>{
-const invNo=(row[iMap.invoiceNo]||””).toString().trim();
-const custName=(row[iMap.customerName]||””).toString().trim();
-if(!invNo||!custName) return null;
-const amt=parseFloat((row[iMap.amount]||“0”).toString().replace(/[^0-9.-]/g,””))||0;
-const rawOS=iMap.outstanding?parseFloat((row[iMap.outstanding]||“0”).toString().replace(/[^0-9.-]/g,””)):null;
-const rawPd=iMap.paidAmount?parseFloat((row[iMap.paidAmount]||“0”).toString().replace(/[^0-9.-]/g,””)):null;
-const outstanding=rawOS!==null?Math.max(0,rawOS):rawPd!==null?Math.max(0,amt-rawPd):amt;
-const paidAmt=Math.max(0,amt-outstanding);
-const invDate=iMap.invoiceDate?parseExcelDate(row[iMap.invoiceDate]):null;
-const creditTerm=iMap.creditTerm?parseInt((row[iMap.creditTerm]||“30”).toString())||30:30;
-const status=paidAmt>=amt?“paid”:paidAmt>0?“partial”:“unpaid”;
-return{invNo,custName,amt,paidAmt,outstanding,invDate,creditTerm,status};
-}).filter(Boolean);
-setIPrev(rows); setIStage(“preview”);
-};
-const doImport = () => {
-let nc=[…customers], ni=iMode===“replace”?[]:[…invoices];
-let added=0,updated=0,custCreated=0;
-iPrev.forEach(row=>{
-let cust=nc.find(c=>c.name.toLowerCase()===row.custName.toLowerCase());
-if(!cust){cust={id:Date.now()+Math.random(),name:row.custName,creditTerm:row.creditTerm||30,contact:””,phone:””,email:””};nc.push(cust);custCreated++;}
-const ex=ni.find(i=>i.invoiceNo===row.invNo);
-if(ex){Object.assign(ex,{amount:row.amt,paidAmount:row.paidAmt,status:row.status,invoiceDate:row.invDate||ex.invoiceDate});updated++;}
-else{ni.push({id:Date.now()+Math.random(),customerId:cust.id,invoiceNo:row.invNo,amount:row.amt,invoiceDate:row.invDate||new Date().toISOString().split(“T”)[0],paidAmount:row.paidAmt,status:row.status,notes:“Imported”});added++;}
-});
-setCustomers(nc); setInvoices(ni);
-setIStats({added,updated,custCreated,total:iPrev.length});
-setIStage(“done”);
-};
-const resetImport = () => {setIStage(“idle”);setIRows([]);setIHeaders([]);setIMap({});setIPrev([]);setIStats(null);setIFile(””);if(fileRef.current)fileRef.current.value=””;};
+}
+function buildPreview(){
+if(!iMap.invoiceNo||!iMap.customerName){alert(“Map Invoice No and Customer Name first.”);return;}
+const rows=iRows.map(function(row){const invNo=(row[iMap.invoiceNo]||””).toString().trim();const custName=(row[iMap.customerName]||””).toString().trim();if(!invNo||!custName)return null;const amt=parseFloat((row[iMap.amount]||“0”).toString().replace(/[^0-9.-]/g,””))||0;const rawOS=iMap.outstanding?parseFloat((row[iMap.outstanding]||“0”).toString().replace(/[^0-9.-]/g,””)):null;const rawPd=iMap.paidAmount?parseFloat((row[iMap.paidAmount]||“0”).toString().replace(/[^0-9.-]/g,””)):null;const outstanding=rawOS!==null?Math.max(0,rawOS):rawPd!==null?Math.max(0,amt-rawPd):amt;const paidAmt=Math.max(0,amt-outstanding);const invDate=iMap.invoiceDate?parseExcelDate(row[iMap.invoiceDate]):null;const creditTerm=iMap.creditTerm?parseInt((row[iMap.creditTerm]||“30”).toString())||30:30;const status=paidAmt>=amt?“paid”:paidAmt>0?“partial”:“unpaid”;return{invNo,custName,amt,paidAmt,outstanding,invDate,creditTerm,status};}).filter(Boolean);
+setIPrev(rows);setIStage(“preview”);
+}
+function doImport(){let nc=[…customers],ni=iMode===“replace”?[]:[…invoices];let added=0,updated=0,custCreated=0;iPrev.forEach(function(row){let cust=nc.find(c=>c.name.toLowerCase()===row.custName.toLowerCase());if(!cust){cust={id:Date.now()+Math.random(),name:row.custName,creditTerm:row.creditTerm||30,contact:””,phone:””,email:””};nc.push(cust);custCreated++;}const ex=ni.find(i=>i.invoiceNo===row.invNo);if(ex){Object.assign(ex,{amount:row.amt,paidAmount:row.paidAmt,status:row.status,invoiceDate:row.invDate||ex.invoiceDate});updated++;}else{ni.push({id:Date.now()+Math.random(),customerId:cust.id,invoiceNo:row.invNo,amount:row.amt,invoiceDate:row.invDate||new Date().toISOString().split(“T”)[0],paidAmount:row.paidAmt,status:row.status,notes:“Imported”});added++;}});setCustomers(nc);setInvoices(ni);setIStats({added,updated,custCreated,total:iPrev.length});setIStage(“done”);}
+function resetImport(){setIStage(“idle”);setIRows([]);setIHeaders([]);setIMap({});setIPrev([]);setIStats(null);setIFile(””);if(fileRef.current)fileRef.current.value=””;}
 
-// ── styles ──
-const C = {bg:”#0d0f14”,card:”#111827”,bdr:”#1e2d4a”,txt:”#e2e8f0”,mut:”#64748b”,sub:”#94a3b8”,blue:”#60a5fa”,red:”#f87171”,grn:”#4ade80”,yel:”#fbbf24”,pur:”#c084fc”,wa:”#25d366”};
-const INP = {background:C.card,border:`1px solid ${C.bdr}`,borderRadius:“10px”,padding:“12px 14px”,color:C.txt,fontSize:“15px”,width:“100%”,outline:“none”,boxSizing:“border-box”};
-const LBL = {fontSize:“12px”,color:C.mut,marginBottom:“6px”,display:“block”,fontWeight:“600”,textTransform:“uppercase”,letterSpacing:“0.4px”};
-const CARD = {background:C.card,border:`1px solid ${C.bdr}`,borderRadius:“14px”,overflow:“hidden”};
-const MODAL_OUTER = {position:“fixed”,inset:0,background:“rgba(0,0,0,.82)”,display:“flex”,alignItems:“flex-end”,justifyContent:“center”,zIndex:1000,backdropFilter:“blur(6px)”};
-const MODAL_INNER = {background:C.card,borderRadius:mob?“20px 20px 0 0”:“16px”,padding:“24px”,width:“100%”,maxWidth:“500px”,maxHeight:“92vh”,overflowY:“auto”,boxSizing:“border-box”};
-const DRAG_HANDLE = {width:“40px”,height:“4px”,background:C.bdr,borderRadius:“4px”,margin:“0 auto 20px”};
+const TABS=[{id:“dashboard”,icon:“📊”,label:“Summary”},{id:“invoices”,icon:“🧾”,label:“Invoices”},{id:“reminders”,icon:“🔔”,label:“Alerts”,badge:reminders.length},{id:“reports”,icon:“📈”,label:“Reports”},{id:“import”,icon:“📥”,label:“Import”}];
+const IFIELDS=[“customerName”,“invoiceNo”,“amount”,“outstanding”,“invoiceDate”,“paidAmount”,“creditTerm”];
+const IREQ=[“customerName”,“invoiceNo”,“amount”,“outstanding”];
+const ILBL={customerName:“Customer Name”,invoiceNo:“Invoice No.”,amount:“Amount”,outstanding:“Outstanding”,invoiceDate:“Invoice Date”,paidAmount:“Paid Amount”,creditTerm:“Credit Term (Days)”};
 
-const bdg = (cfg) => ({display:“inline-flex”,alignItems:“center”,padding:“3px 9px”,borderRadius:“20px”,fontSize:“11px”,fontWeight:“700”,background:cfg.bg,color:cfg.color,border:`1px solid ${cfg.border}`});
-
-const btn = (v, extra={}) => {
-const V = {
-primary: {background:”#1d4ed8”,color:”#fff”,border:“none”},
-success: {background:”#14532d”,color:”#86efac”,border:“none”},
-danger:  {background:”#7f1d1d”,color:”#fca5a5”,border:“none”},
-ghost:   {background:“transparent”,color:C.sub,border:`1px solid ${C.bdr}`},
-purple:  {background:”#3b0764”,color:”#d8b4fe”,border:“none”},
-wa:      {background:”#128c3e”,color:”#fff”,border:“none”},
-};
-return {
-…(V[v]||V.ghost),
-padding: mob?“12px 16px”:“9px 16px”,
-borderRadius:“10px”, cursor:“pointer”,
-fontSize: mob?“14px”:“13px”,
-fontWeight:“600”, transition:“all .15s”,
-display:“flex”, alignItems:“center”, justifyContent:“center”, gap:“6px”,
-whiteSpace:“nowrap”, …extra
-};
-};
-
-const TABS = [
-{id:“dashboard”, icon:“📊”, label:“Summary”},
-{id:“invoices”,  icon:“🧾”, label:“Invoices”},
-{id:“reminders”, icon:“🔔”, label:“Alerts”,  badge:reminders.length},
-{id:“reports”,   icon:“📈”, label:“Reports”},
-{id:“import”,    icon:“📥”, label:“Import”},
-];
-
-const custsWithOS = useMemo(()=>customers.filter(c=>enriched.some(i=>i.customerId===c.id&&i.displayStatus!==“paid”)),[customers,enriched]);
-
-const filteredHistory = useMemo(()=>{
-if(!hSearch) return payments;
-const q=hSearch.toLowerCase();
-return payments.filter(p=>p.customerName.toLowerCase().includes(q)||p.invoiceNo.toLowerCase().includes(q));
-},[payments,hSearch]);
-
-// ── sub-components ──
-const InvDetail = ({inv}) => (
-<div style={MODAL_OUTER} onClick={()=>setSelInv(null)}>
-<div style={{…MODAL_INNER,maxWidth:“100%”}} onClick={e=>e.stopPropagation()}>
-<div style={DRAG_HANDLE}/>
-<div style={{display:“flex”,justifyContent:“space-between”,alignItems:“flex-start”,marginBottom:“16px”}}>
-<div>
-<div style={{fontWeight:“700”,fontSize:“17px”,color:C.txt,marginBottom:“3px”}}>{inv.invoiceNo}</div>
-<div style={{fontSize:“14px”,color:C.sub}}>{inv.customer?.name}</div>
-</div>
-<span style={bdg(SCFG[inv.displayStatus]||SCFG.current)}>{SCFG[inv.displayStatus]?.label}</span>
-</div>
-{[[“Invoice Date”,fdate(inv.invoiceDate)],[“Due Date”,fdate(inv.dueDate)],[“Credit Term”,`Net ${inv.customer?.creditTerm} days`],[“Invoice Amount”,fmyr(inv.amount)],[“Paid”,fmyr(inv.paidAmount)],[“Outstanding”,fmyr(inv.outstanding)]].map(([l,v])=>(
-<div key={l} style={{display:“flex”,justifyContent:“space-between”,padding:“11px 0”,borderBottom:`1px solid ${C.bdr}`}}>
-<span style={{color:C.mut,fontSize:“14px”}}>{l}</span>
-<span style={{color:C.txt,fontWeight:“600”,fontSize:“14px”}}>{v}</span>
-</div>
-))}
-{inv.daysOverdue>0&&<div style={{marginTop:“12px”,padding:“10px 14px”,background:”#3a0a0a”,borderRadius:“10px”,color:”#fca5a5”,fontSize:“13px”,fontWeight:“600”}}>⚠️ {inv.daysOverdue} days overdue</div>}
-<div style={{display:“flex”,gap:“10px”,marginTop:“16px”}}>
-{inv.displayStatus!==“paid”&&(
-<button style={{…btn(“success”),flex:1}} onClick={()=>{setPayModal(inv);setPayAmt(””);setPayNote(””);setSelInv(null);}}>💰 Record Payment</button>
-)}
-<button style={{…btn(“danger”),flex:1}} onClick={()=>{setInvoices(p=>p.filter(i=>i.id!==inv.id));setSelInv(null);}}>Delete</button>
-</div>
-</div>
-</div>
-);
-
-// ── IMPORT UI ──
-const IFIELDS = [“customerName”,“invoiceNo”,“amount”,“outstanding”,“invoiceDate”,“paidAmount”,“creditTerm”];
-const IREQ    = [“customerName”,“invoiceNo”,“amount”,“outstanding”];
-const ILBL    = {customerName:“Customer Name”,invoiceNo:“Invoice No.”,amount:“Amount”,outstanding:“Outstanding Balance”,invoiceDate:“Invoice Date”,paidAmount:“Paid Amount”,creditTerm:“Credit Term (Days)”};
-
-const ImportUI = () => {
-if (iStage===“done”) return (
-<div style={{…CARD,padding:“32px”,textAlign:“center”,maxWidth:“440px”,margin:“0 auto”}}>
-<div style={{fontSize:“44px”,marginBottom:“12px”}}>🎉</div>
-<div style={{fontSize:“20px”,fontWeight:“700”,color:C.grn,marginBottom:“16px”}}>Import Done!</div>
-<div style={{display:“grid”,gridTemplateColumns:“1fr 1fr”,gap:“10px”,marginBottom:“20px”}}>
-{[[“Added”,iStats?.added,C.blue],[“Updated”,iStats?.updated,C.grn],[“New Customers”,iStats?.custCreated,C.pur],[“Total”,iStats?.total,C.yel]].map(([l,v,col])=>(
-<div key={l} style={{background:C.bg,borderRadius:“10px”,padding:“14px”,border:`1px solid ${col}33`}}>
-<div style={{fontSize:“26px”,fontWeight:“700”,color:col}}>{v}</div>
-<div style={{fontSize:“12px”,color:C.mut}}>{l}</div>
-</div>
-))}
-</div>
-<div style={{display:“flex”,gap:“10px”}}>
-<button style={{…btn(“primary”),flex:1}} onClick={()=>{resetImport();setTab(“dashboard”);}}>View Dashboard</button>
-<button style={{…btn(“ghost”),flex:1}} onClick={resetImport}>Import Again</button>
-</div>
-</div>
-);
-
-```
-if (iStage==="preview") return (
-  <div>
-    <div style={{background:"#0f2a1a",border:"1px solid #166534",borderRadius:"12px",padding:"14px",marginBottom:"14px",fontSize:"13px",color:"#86efac"}}>
-      <strong>🔄 No duplicates:</strong> Same invoice number = update balance only. New = add. Weekly upload is always safe.
-    </div>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px",flexWrap:"wrap",gap:"10px"}}>
-      <div style={{fontWeight:"700",color:C.txt,fontSize:"14px"}}>{iPrev.length} rows · <span style={{color:C.blue}}>{iFile}</span></div>
-      <div style={{display:"flex",gap:"8px",flexWrap:"wrap"}}>
-        <div style={{display:"flex",background:C.bg,borderRadius:"8px",padding:"3px",border:`1px solid ${C.bdr}`}}>
-          {["merge","replace"].map(m=>(
-            <button key={m} onClick={()=>setIMode(m)} style={{...btn(iMode===m?"primary":"ghost"),padding:"6px 12px",fontSize:"12px",border:"none"}}>{m==="merge"?"🔄 Merge":"♻️ Replace"}</button>
-          ))}
-        </div>
-        <button style={btn("ghost")} onClick={()=>setIStage("mapping")}>← Back</button>
-        <button style={btn("success")} onClick={doImport}>✓ Confirm</button>
-      </div>
-    </div>
-    <div style={CARD}>
-      {iPrev.slice(0,50).map((r,i)=>{
-        const ex=invoices.find(inv=>inv.invoiceNo===r.invNo);
-        return (
-          <div key={i} style={{padding:"12px 16px",borderBottom:`1px solid ${C.bdr}`,background:ex?"#0f1f0f":"transparent",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"12px"}}>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontWeight:"600",fontSize:"13px",color:C.txt,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.custName}</div>
-              <div style={{fontSize:"12px",color:C.blue}}>{r.invNo}{ex&&<span style={{color:C.grn,marginLeft:"6px"}}>↑ update</span>}</div>
-            </div>
-            <div style={{textAlign:"right",flexShrink:0}}>
-              <div style={{fontWeight:"700",color:C.txt,fontSize:"13px"}}>{fmyr(r.outstanding)}</div>
-              <span style={bdg(SCFG[r.status]||SCFG.current)}>{SCFG[r.status]?.label}</span>
-            </div>
-          </div>
-        );
-      })}
-      {iPrev.length>50&&<div style={{padding:"12px 16px",textAlign:"center",color:C.mut,fontSize:"12px"}}>…and {iPrev.length-50} more</div>}
-    </div>
-  </div>
-);
-
-if (iStage==="mapping") return (
-  <div>
-    <div style={{fontWeight:"700",color:C.txt,fontSize:"16px",marginBottom:"4px"}}>Map Columns</div>
-    <div style={{fontSize:"13px",color:C.mut,marginBottom:"16px"}}>{iFile} · {iRows.length} rows · {iHeaders.length} columns</div>
-    <div style={{background:C.bg,borderRadius:"10px",padding:"12px",marginBottom:"14px",fontSize:"12px"}}>
-      <div style={{color:C.sub,fontWeight:"600",marginBottom:"6px"}}>Sample data:</div>
-      <div style={{display:"flex",flexWrap:"wrap",gap:"8px"}}>
-        {iHeaders.slice(0,6).map(h=>(
-          <div key={h} style={{background:C.card,padding:"4px 8px",borderRadius:"6px",border:`1px solid ${C.bdr}`}}>
-            <span style={{color:C.blue}}>{h}:</span> <span style={{color:C.mut}}>{String(iRows[0]?.[h]||"—").slice(0,14)}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-    <div style={{display:"flex",flexDirection:"column",gap:"10px",marginBottom:"16px"}}>
-      {IFIELDS.map(field=>(
-        <div key={field}>
-          <label style={{...LBL,color:IREQ.includes(field)?C.yel:C.mut}}>{ILBL[field]}{IREQ.includes(field)&&<span style={{color:C.red}}> *</span>}</label>
-          <select style={INP} value={iMap[field]||""} onChange={e=>setIMap(p=>({...p,[field]:e.target.value||undefined}))}>
-            <option value="">— Not mapped —</option>
-            {iHeaders.map(h=><option key={h} value={h}>{h}</option>)}
-          </select>
-        </div>
-      ))}
-    </div>
-    <div style={{display:"flex",gap:"10px"}}>
-      <button style={{...btn("ghost"),flex:1}} onClick={resetImport}>Cancel</button>
-      <button style={{...btn("primary"),flex:1}} onClick={buildPreview}>Preview →</button>
-    </div>
-  </div>
-);
-
-return (
-  <div>
-    <div style={{fontWeight:"700",color:C.txt,fontSize:"17px",marginBottom:"6px"}}>📥 Import from Autocount</div>
-    <div style={{fontSize:"14px",color:C.sub,marginBottom:"16px",lineHeight:"1.6"}}>Export <strong style={{color:C.yel}}>Debtor Outstanding / Aging Report</strong> from Autocount as Excel (.xlsx), then upload below.</div>
-    <div style={{background:"#0f2a1a",border:"1px solid #166534",borderRadius:"12px",padding:"14px",marginBottom:"20px",fontSize:"13px",color:"#86efac",lineHeight:"1.7"}}>
-      <strong>🔄 Weekly upload is 100% safe!</strong> Same invoice = updated only, never duplicated. New invoice = added fresh. Manual payment notes are never overwritten.
-    </div>
-    <div
-      onDragOver={e=>{e.preventDefault();setDragOver(true);}}
-      onDragLeave={()=>setDragOver(false)}
-      onDrop={e=>{e.preventDefault();setDragOver(false);handleFile(e.dataTransfer.files[0]);}}
-      onClick={()=>fileRef.current?.click()}
-      style={{border:`2px dashed ${dragOver?C.blue:C.bdr}`,borderRadius:"14px",padding:"40px 24px",textAlign:"center",cursor:"pointer",transition:"all .2s",background:dragOver?"#0d1a2a":C.bg}}
-    >
-      <div style={{fontSize:"44px",marginBottom:"12px"}}>📊</div>
-      <div style={{fontWeight:"600",color:C.txt,marginBottom:"4px",fontSize:"16px"}}>Tap or drop file here</div>
-      <div style={{fontSize:"13px",color:C.mut,marginBottom:"20px"}}>.xlsx or .xls from Autocount</div>
-      <button style={{...btn("primary"),display:"inline-flex",padding:"12px 24px"}} onClick={e=>{e.stopPropagation();fileRef.current?.click();}}>Browse File</button>
-      <input ref={fileRef} type="file" accept=".xlsx,.xls" style={{display:"none"}} onChange={e=>handleFile(e.target.files[0])}/>
-    </div>
-    <div style={{marginTop:"20px"}}>
-      {[["1","Open Autocount","Account Receivable → Reports"],["2","Select Report","Debtor Outstanding / Aging Report"],["3","Generate","Set date range → Generate / Preview"],["4","Export","Export → Excel (.xlsx)"],["5","Upload Here","Drop file above"]].map(([n,t,d])=>(
-        <div key={n} style={{display:"flex",gap:"12px",marginBottom:"12px",alignItems:"flex-start"}}>
-          <div style={{width:"26px",height:"26px",borderRadius:"50%",background:"#1e3a5f",color:C.blue,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"12px",fontWeight:"700",flexShrink:0}}>{n}</div>
-          <div><div style={{fontSize:"14px",fontWeight:"600",color:C.txt}}>{t}</div><div style={{fontSize:"12px",color:C.mut}}>{d}</div></div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-```
-
-};
-
-// ── RENDER ──
-return (
-<div style={{minHeight:“100vh”,background:C.bg,color:C.txt,fontFamily:”‘DM Sans’,‘Segoe UI’,sans-serif”,paddingBottom:mob?“80px”:“0”}}>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-
-```
-  {/* HEADER */}
-  <div style={{background:"linear-gradient(135deg,#111827,#1a2035)",borderBottom:`1px solid ${C.bdr}`,padding:mob?"14px 16px":"0 24px",display:"flex",alignItems:"center",justifyContent:"space-between",height:mob?"auto":"60px",position:"sticky",top:0,zIndex:100}}>
-    <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
-      <div style={{width:"34px",height:"34px",background:"linear-gradient(135deg,#f59e0b,#d97706)",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"18px"}}>⚡</div>
-      <div>
-        <div style={{fontSize:mob?"15px":"16px",fontWeight:"700",color:"#f1f5f9"}}>⚡ Zeus PayTrack</div>
-        <div style={{fontSize:"11px",color:C.mut}}>G Wira Trading (M) Sdn Bhd</div>
-      </div>
-    </div>
-    {!mob&&(
-      <div style={{display:"flex",gap:"4px"}}>
-        {TABS.map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"6px 14px",borderRadius:"6px",border:"none",cursor:"pointer",fontSize:"13px",fontWeight:"500",background:tab===t.id?"#1e3a5f":"transparent",color:tab===t.id?C.blue:C.sub,display:"flex",alignItems:"center",gap:"5px"}}>
-            {t.icon} {t.label}
-            {t.badge>0&&<span style={{background:C.red,color:"white",borderRadius:"10px",padding:"1px 6px",fontSize:"10px"}}>{t.badge}</span>}
-          </button>
-        ))}
-      </div>
-    )}
-    <div style={{fontSize:"12px",color:C.mut,display:mob?"none":"block"}}>{new Date().toLocaleDateString("en-MY",{day:"2-digit",month:"short",year:"numeric"})}</div>
-  </div>
-
-  <div style={{padding:mob?"14px":"24px",maxWidth:mob?"100%":"1400px",margin:"0 auto"}}>
-
-    {/* ── DASHBOARD ── */}
-    {tab==="dashboard"&&(
-      <div>
-        {reminders.length>0&&(
-          <div style={{background:"linear-gradient(90deg,#1a0f0a,#2a1500)",border:"1px solid #92400e",borderRadius:"12px",padding:"14px 16px",marginBottom:"16px"}}>
-            <div style={{display:"flex",gap:"10px",alignItems:"flex-start"}}>
-              <span style={{fontSize:"20px"}}>🔔</span>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"700",color:C.yel,marginBottom:"6px",fontSize:"14px"}}>{reminders.length} Payment Reminder{reminders.length>1?"s":""}</div>
-                {reminders.slice(0,2).map(inv=>(
-                  <div key={inv.id} style={{fontSize:"13px",color:"#d97706",marginBottom:"4px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                    <span style={{flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginRight:"8px"}}>• {inv.customer?.name} — {fshort(inv.outstanding)}{inv.daysOverdue>0?` (${inv.daysOverdue}d overdue)`:""}</span>
-                    <button onClick={()=>setDismissed(p=>[...p,inv.id])} style={{background:"none",border:"none",color:"#92400e",cursor:"pointer",fontSize:"13px"}}>✕</button>
-                  </div>
-                ))}
-                {reminders.length>2&&<button onClick={()=>setTab("reminders")} style={{fontSize:"12px",color:"#92400e",background:"none",border:"none",cursor:"pointer",padding:0}}>See all {reminders.length} →</button>}
-              </div>
-            </div>
-          </div>
-        )}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"16px"}}>
-          {[{l:"Outstanding",v:fshort(stats.totalOut),c:C.blue},{l:"Overdue",v:fshort(stats.overdue),s:`${stats.overdueN} inv`,c:C.red},{l:"Due Soon",v:fshort(stats.dueSoon),s:`${stats.dueSoonN} inv`,c:C.yel},{l:"Current",v:fshort(stats.current),c:C.grn}].map((x,i)=>(
-            <div key={i} style={{background:C.card,border:`1px solid ${x.c}22`,borderRadius:"12px",padding:"14px 16px",position:"relative",overflow:"hidden"}}>
-              <div style={{position:"absolute",top:-10,right:-10,width:"60px",height:"60px",background:`radial-gradient(circle,${x.c}20,transparent 70%)`}}/>
-              <div style={{fontSize:"11px",color:C.mut,fontWeight:"600",textTransform:"uppercase",letterSpacing:"0.4px",marginBottom:"4px"}}>{x.l}</div>
-              <div style={{fontSize:"22px",fontWeight:"700",color:x.c}}>{x.v}</div>
-              {x.s&&<div style={{fontSize:"11px",color:C.mut,marginTop:"2px"}}>{x.s}</div>}
-            </div>
-          ))}
-        </div>
-        <div style={{...CARD,marginBottom:"16px"}}>
-          <div style={{padding:"14px 16px",borderBottom:`1px solid ${C.bdr}`}}><span style={{fontWeight:"600",color:C.txt,fontSize:"14px"}}>Aging Analysis</span></div>
-          <div style={{padding:"14px 16px"}}>
-            {[{k:"current",l:"Current"},{k:"1-30",l:"1–30 Days"},{k:"31-60",l:"31–60 Days"},{k:"61-90",l:"61–90 Days"},{k:"90+",l:"90+ Days"}].map(b=>{
-              const v=aging[b.k]||0,max=Math.max(...Object.values(aging),1),pct=(v/max)*100,col=ACLR[b.k];
-              return (
-                <div key={b.k} style={{marginBottom:"10px"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:"4px"}}>
-                    <span style={{fontSize:"12px",color:C.sub}}>{b.l}</span>
-                    <span style={{fontSize:"12px",fontWeight:"700",color:col}}>{fshort(v)}</span>
-                  </div>
-                  <div style={{height:"6px",background:C.bdr,borderRadius:"4px",overflow:"hidden"}}>
-                    <div style={{height:"100%",width:`${pct}%`,background:col,borderRadius:"4px",transition:"width .5s"}}/>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        <div style={CARD}>
-          <div style={{padding:"14px 16px",borderBottom:`1px solid ${C.bdr}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <span style={{fontWeight:"600",color:C.txt,fontSize:"14px"}}>Outstanding Invoices</span>
-            <button onClick={()=>setTab("invoices")} style={{background:"none",border:"none",cursor:"pointer",color:C.blue,fontSize:"13px",fontWeight:"600"}}>View all →</button>
-          </div>
-          {enriched.filter(i=>i.displayStatus!=="paid").slice(0,5).map(inv=>(
-            <div key={inv.id} onClick={()=>setSelInv(inv)} style={{padding:"12px 16px",borderBottom:`1px solid ${C.bdr}`,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"12px",borderLeft:`3px solid ${SCLR[inv.displayStatus]||C.bdr}`}}
-              onMouseEnter={e=>e.currentTarget.style.background="#131c2e"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}
-              onTouchStart={e=>e.currentTarget.style.background="#131c2e"} onTouchEnd={e=>e.currentTarget.style.background="transparent"}>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontWeight:"600",fontSize:"14px",color:C.txt,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{inv.customer?.name}</div>
-                <div style={{fontSize:"12px",color:C.sub}}>{inv.invoiceNo} · Due {fdshort(inv.dueDate)}{inv.daysOverdue>0&&<span style={{color:C.red,marginLeft:"6px",fontWeight:"600"}}>+{inv.daysOverdue}d</span>}</div>
-              </div>
-              <div style={{textAlign:"right",flexShrink:0}}>
-                <div style={{fontWeight:"700",color:inv.daysOverdue>0?C.red:C.txt,fontSize:"14px"}}>{fshort(inv.outstanding)}</div>
-                <span style={bdg(SCFG[inv.displayStatus]||SCFG.current)}>{SCFG[inv.displayStatus]?.label}</span>
-              </div>
-            </div>
-          ))}
-          {enriched.filter(i=>i.displayStatus!=="paid").length===0&&<div style={{padding:"32px",textAlign:"center",color:C.mut}}>All invoices settled 🎉</div>}
-        </div>
-      </div>
-    )}
-
-    {/* ── INVOICES ── */}
-    {tab==="invoices"&&(
-      <div>
-        <div style={{display:"flex",gap:"8px",marginBottom:"10px",flexWrap:"wrap"}}>
-          <input style={{...INP,flex:1,minWidth:"160px",padding:"10px 14px"}} placeholder="🔍 Search…" value={fSearch} onChange={e=>setFSearch(e.target.value)}/>
-          <select style={{...INP,width:mob?"100%":"auto",padding:"10px 14px"}} value={fStatus} onChange={e=>setFStatus(e.target.value)}>
-            <option value="all">All Status</option>
-            <option value="overdue">Overdue</option>
-            <option value="due-soon">Due Soon</option>
-            <option value="current">Current</option>
-            <option value="partial">Partial</option>
-            <option value="paid">Paid</option>
-          </select>
-        </div>
-        <div style={{display:"flex",gap:"8px",marginBottom:"14px",justifyContent:"flex-end"}}>
-          <button style={btn("ghost")} onClick={()=>setShowCust(true)}>+ Customer</button>
-          <button style={btn("primary")} onClick={()=>setShowInv(true)}>+ Invoice</button>
-        </div>
-        <div style={CARD}>
-          {filtered.map(inv=>(
-            <div key={inv.id} onClick={()=>setSelInv(inv)} style={{padding:"14px 16px",borderBottom:`1px solid ${C.bdr}`,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"12px",borderLeft:`3px solid ${SCLR[inv.displayStatus]||C.bdr}`}}
-              onMouseEnter={e=>e.currentTarget.style.background="#131c2e"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}
-              onTouchStart={e=>e.currentTarget.style.background="#131c2e"} onTouchEnd={e=>e.currentTarget.style.background="transparent"}>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontWeight:"700",fontSize:"14px",color:C.txt,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:"3px"}}>{inv.customer?.name}</div>
-                <div style={{fontSize:"12px",color:C.blue,marginBottom:"2px"}}>{inv.invoiceNo}</div>
-                <div style={{fontSize:"12px",color:C.mut}}>Due {fdshort(inv.dueDate)} · Net {inv.customer?.creditTerm}{inv.displayStatus!=="paid"&&inv.daysOverdue>0&&<span style={{color:C.red,marginLeft:"6px",fontWeight:"600"}}>▲{inv.daysOverdue}d late</span>}{inv.displayStatus!=="paid"&&inv.daysOverdue<=0&&inv.daysOverdue>-7&&<span style={{color:C.yel,marginLeft:"6px"}}>⚡{Math.abs(inv.daysOverdue)}d left</span>}</div>
-              </div>
-              <div style={{textAlign:"right",flexShrink:0}}>
-                <div style={{fontWeight:"700",color:inv.outstanding>0&&inv.daysOverdue>0?C.red:C.txt,fontSize:"15px",marginBottom:"4px"}}>{fshort(inv.outstanding)}</div>
-                <span style={bdg(SCFG[inv.displayStatus]||SCFG.current)}>{SCFG[inv.displayStatus]?.label}</span>
-              </div>
-            </div>
-          ))}
-          {filtered.length===0&&<div style={{padding:"40px",textAlign:"center",color:C.mut}}>No invoices found</div>}
-        </div>
-      </div>
-    )}
-
-    {/* ── REMINDERS (Alerts + WhatsApp) ── */}
-    {tab==="reminders"&&(
-      <div>
-        <div style={{display:"flex",gap:"4px",background:C.card,borderRadius:"12px",padding:"4px",border:`1px solid ${C.bdr}`,marginBottom:"16px"}}>
-          {[{id:"alerts",label:"🔔 Alerts"},{id:"whatsapp",label:"💬 WhatsApp"}].map(s=>(
-            <button key={s.id} onClick={()=>setSubTab(s.id)} style={{...btn(subTab===s.id?"primary":"ghost"),flex:1,border:"none",padding:"10px"}}>{s.label}</button>
-          ))}
-        </div>
-
-        {subTab==="alerts"&&(
-          <div>
-            {reminders.length===0
-              ?<div style={{...CARD,padding:"48px",textAlign:"center"}}><div style={{fontSize:"32px",marginBottom:"8px"}}>✅</div><div style={{color:C.grn,fontWeight:"600",fontSize:"15px"}}>All clear!</div></div>
-              :reminders.map(inv=>(
-                <div key={inv.id} style={{...CARD,marginBottom:"10px",borderLeft:`4px solid ${inv.displayStatus==="overdue"?C.red:C.yel}`}}>
-                  <div style={{padding:"14px 16px"}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"10px"}}>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontWeight:"700",fontSize:"15px",color:C.txt,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{inv.customer?.name}</div>
-                        <div style={{fontSize:"12px",color:C.blue}}>{inv.invoiceNo}</div>
-                      </div>
-                      <span style={{...bdg(SCFG[inv.displayStatus]),marginLeft:"10px",flexShrink:0}}>{SCFG[inv.displayStatus]?.label}</span>
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"12px"}}>
-                      {[["Due Date",fdate(inv.dueDate)],["Outstanding",fmyr(inv.outstanding)],["Contact",inv.customer?.contact||"—"],["Phone",inv.customer?.phone||"—"]].map(([l,v])=>(
-                        <div key={l}><div style={{fontSize:"11px",color:C.mut,fontWeight:"600"}}>{l}</div><div style={{fontSize:"13px",color:C.txt,fontWeight:"600"}}>{v}</div></div>
-                      ))}
-                    </div>
-                    {inv.daysOverdue>0
-                      ?<div style={{padding:"8px 12px",background:"#3a0a0a",borderRadius:"8px",fontSize:"13px",color:"#fca5a5",marginBottom:"12px"}}>⚠️ {inv.daysOverdue} days past due (Net {inv.customer?.creditTerm})</div>
-                      :<div style={{padding:"8px 12px",background:"#3a2a0a",borderRadius:"8px",fontSize:"13px",color:"#fcd34d",marginBottom:"12px"}}>⏰ Due in {Math.abs(inv.daysOverdue)} day{Math.abs(inv.daysOverdue)!==1?"s":""}</div>}
-                    <div style={{display:"flex",gap:"8px"}}>
-                      <button style={{...btn("success"),flex:1}} onClick={()=>{setPayModal(inv);setPayAmt("");setPayNote("");}}>💰 Record Payment</button>
-                      <button style={{...btn("ghost"),padding:"12px 16px"}} onClick={()=>setDismissed(p=>[...p,inv.id])}>✕</button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-        )}
-
-        {subTab==="whatsapp"&&(
-          <div>
-            <div style={{...CARD,marginBottom:"16px",padding:"14px 16px",background:"linear-gradient(90deg,#0a1a0f,#111827)"}}>
-              <div style={{fontWeight:"700",color:C.wa,fontSize:"15px",marginBottom:"4px"}}>💬 WhatsApp Reminder Generator</div>
-              <div style={{fontSize:"13px",color:C.mut}}>Tap a customer to generate & send a personalised payment reminder.</div>
-            </div>
-            <div style={{marginBottom:"14px"}}>
-              <label style={LBL}>Your Company Name</label>
-              <input style={INP} value={company} onChange={e=>setCompany(e.target.value)}/>
-            </div>
-            {custsWithOS.length===0
-              ?<div style={{...CARD,padding:"40px",textAlign:"center"}}><div style={{fontSize:"28px",marginBottom:"8px"}}>🎉</div><div style={{color:C.grn,fontWeight:"600"}}>No outstanding invoices!</div></div>
-              :custsWithOS.map(cust=>{
-                const custInvs=enriched.filter(i=>i.customerId===cust.id&&i.displayStatus!=="paid");
-                const totalOS=custInvs.reduce((s,i)=>s+i.outstanding,0);
-                const hasOD=custInvs.some(i=>i.displayStatus==="overdue");
-                const ws=waStats[cust.id];
-                const ds=daysSinceWa(cust.id);
-                const needsChase=ds===null||(hasOD&&ds>=3)||(!hasOD&&ds>=7);
-                return (
-                  <div key={cust.id} style={{...CARD,marginBottom:"12px",borderLeft:`4px solid ${needsChase?(hasOD?C.red:C.yel):C.wa}`}}>
-                    <div style={{padding:"14px 16px"}}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"10px"}}>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontWeight:"700",fontSize:"15px",color:C.txt,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{cust.name}</div>
-                          <div style={{fontSize:"12px",color:C.mut,marginTop:"2px"}}>{cust.contact||"—"} · {cust.phone||"No phone"}</div>
-                        </div>
-                        <div style={{textAlign:"right",flexShrink:0,marginLeft:"10px"}}>
-                          <div style={{fontWeight:"700",color:hasOD?C.red:C.yel,fontSize:"15px"}}>{fmyr(totalOS)}</div>
-                          <div style={{fontSize:"11px",color:C.mut}}>{custInvs.length} invoice{custInvs.length!==1?"s":""}</div>
-                        </div>
-                      </div>
-                      <div style={{display:"flex",gap:"8px",marginBottom:"12px",flexWrap:"wrap"}}>
-                        {ws
-                          ?<>
-                            <div style={{background:"#0a1a0f",border:"1px solid #166534",borderRadius:"8px",padding:"6px 12px",fontSize:"12px",display:"flex",alignItems:"center",gap:"6px"}}>
-                              <span>💬</span><span style={{color:C.grn,fontWeight:"700"}}>{ws.count}x</span><span style={{color:C.mut}}>reminded</span>
-                            </div>
-                            <div style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:"8px",padding:"6px 12px",fontSize:"12px",display:"flex",alignItems:"center",gap:"6px"}}>
-                              <span>🕐</span><span style={{color:C.sub}}>Last:</span><span style={{color:C.txt,fontWeight:"600"}}>{ds===0?"Today":ds===1?"Yesterday":`${ds}d ago`}</span>
-                            </div>
-                            {needsChase&&(
-                              <div style={{background:hasOD?"#3a0a0a":"#3a2a0a",border:`1px solid ${hasOD?"#991b1b":"#92400e"}`,borderRadius:"8px",padding:"6px 12px",fontSize:"12px",display:"flex",alignItems:"center",gap:"6px"}}>
-                                <span>🔔</span><span style={{color:hasOD?C.red:C.yel,fontWeight:"700"}}>Time to follow up!</span>
-                              </div>
-                            )}
-                          </>
-                          :<div style={{background:"#3a2a0a",border:"1px solid #92400e",borderRadius:"8px",padding:"6px 12px",fontSize:"12px",display:"flex",alignItems:"center",gap:"6px"}}>
-                            <span>⚠️</span><span style={{color:C.yel,fontWeight:"700"}}>Not reminded yet</span>
-                          </div>}
-                      </div>
-                      <div style={{background:C.bg,borderRadius:"10px",padding:"12px",marginBottom:"12px",fontSize:"12px",color:C.sub,lineHeight:"1.6",maxHeight:"120px",overflowY:"auto",whiteSpace:"pre-wrap",fontFamily:"monospace",border:`1px solid ${C.bdr}`}}>
-                        {genWaMsg(cust.id)}
-                      </div>
-                      <div style={{display:"flex",gap:"8px"}}>
-                        <button style={{...btn("ghost"),flex:1,fontSize:"13px"}} onClick={()=>copyWa(cust.id)}>
-                          {waCopied[cust.id]?"✅ Copied!":"📋 Copy Text"}
-                        </button>
-                        {cust.phone&&(
-                          <button style={{...btn("wa"),flex:1,fontSize:"13px"}} onClick={()=>openWa(cust.id)}>
-                            <span style={{fontSize:"16px"}}>📱</span> Open WhatsApp
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        )}
-      </div>
-    )}
-
-    {/* ── REPORTS ── */}
-    {tab==="reports"&&(
-      <div>
-        <div style={{display:"flex",gap:"4px",background:C.card,borderRadius:"12px",padding:"4px",border:`1px solid ${C.bdr}`,marginBottom:"16px"}}>
-          {[{id:"monthly",label:"📅 Monthly"},{id:"history",label:"📜 Payments"},{id:"walog",label:"💬 WA Log"}].map(s=>(
-            <button key={s.id} onClick={()=>setSubTab(s.id)} style={{...btn(subTab===s.id?"primary":"ghost"),flex:1,border:"none",padding:"10px"}}>{s.label}</button>
-          ))}
-        </div>
-
-        {subTab==="monthly"&&(
-          <div>
-            <div style={{fontWeight:"700",color:C.txt,fontSize:"16px",marginBottom:"4px"}}>📅 Monthly Collection Report</div>
-            <div style={{fontSize:"13px",color:C.mut,marginBottom:"16px"}}>Overview of payments collected each month.</div>
-            {monthlyData.length===0&&<div style={{...CARD,padding:"40px",textAlign:"center",color:C.mut}}>No data yet. Record some payments first.</div>}
-            {monthlyData.map(m=>{
-              const mPays=payments.filter(p=>monthKey(p.date)===m.key);
-              const mInvs=invoices.filter(i=>monthKey(i.invoiceDate)===m.key);
-              const invoiced=mInvs.reduce((s,i)=>s+i.amount,0);
-              const collected=mPays.reduce((s,p)=>s+p.amount,0);
-              const rate=invoiced>0?Math.round((collected/invoiced)*100):0;
-              const isOpen=rMonth===m.key;
-              return (
-                <div key={m.key} onClick={()=>setRMonth(isOpen?"":m.key)} style={{...CARD,marginBottom:"10px",cursor:"pointer",border:isOpen?`1px solid ${C.blue}`:undefined}}
-                  onMouseEnter={e=>e.currentTarget.style.background="#131c2e"} onMouseLeave={e=>e.currentTarget.style.background=""}>
-                  <div style={{padding:"14px 16px"}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"10px"}}>
-                      <div style={{fontWeight:"700",fontSize:"15px",color:C.txt}}>{m.label}</div>
-                      <div style={{fontSize:"12px",color:C.mut}}>{mPays.length} payment{mPays.length!==1?"s":""}</div>
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px",marginBottom:"10px"}}>
-                      {[["Invoiced",fshort(invoiced),C.sub],["Collected",fshort(collected),C.grn],["Rate",`${rate}%`,rate>=80?C.grn:rate>=50?C.yel:C.red]].map(([l,v,col])=>(
-                        <div key={l} style={{background:C.bg,borderRadius:"8px",padding:"10px 12px"}}>
-                          <div style={{fontSize:"11px",color:C.mut,marginBottom:"3px"}}>{l}</div>
-                          <div style={{fontWeight:"700",color:col,fontSize:"15px"}}>{v}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{height:"6px",background:C.bdr,borderRadius:"4px",overflow:"hidden"}}>
-                      <div style={{height:"100%",width:`${Math.min(rate,100)}%`,background:rate>=80?C.grn:rate>=50?C.yel:C.red,borderRadius:"4px",transition:"width .5s"}}/>
-                    </div>
-                  </div>
-                  {isOpen&&mPays.length>0&&(
-                    <div style={{borderTop:`1px solid ${C.bdr}`,padding:"12px 16px"}}>
-                      <div style={{fontSize:"12px",fontWeight:"600",color:C.sub,textTransform:"uppercase",letterSpacing:"0.4px",marginBottom:"8px"}}>Payments this month</div>
-                      {mPays.map(p=>(
-                        <div key={p.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:`1px solid ${C.bdr}`}}>
-                          <div>
-                            <div style={{fontSize:"13px",fontWeight:"600",color:C.txt}}>{p.customerName}</div>
-                            <div style={{fontSize:"12px",color:C.mut}}>{p.invoiceNo} · {fdate(p.date)}</div>
-                          </div>
-                          <div style={{fontWeight:"700",color:C.grn,fontSize:"14px"}}>{fmyr(p.amount)}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {subTab==="history"&&(
-          <div>
-            <div style={{fontWeight:"700",color:C.txt,fontSize:"16px",marginBottom:"4px"}}>📜 Payment History</div>
-            <div style={{fontSize:"13px",color:C.mut,marginBottom:"14px"}}>Every payment recorded in the system.</div>
-            <input style={{...INP,marginBottom:"14px",padding:"10px 14px"}} placeholder="🔍 Search customer or invoice…" value={hSearch} onChange={e=>setHSearch(e.target.value)}/>
-            {filteredHistory.length===0
-              ?<div style={{...CARD,padding:"40px",textAlign:"center",color:C.mut}}>No payment history yet.</div>
-              :<div style={CARD}>
-                {filteredHistory.map(p=>(
-                  <div key={p.id} style={{padding:"13px 16px",borderBottom:`1px solid ${C.bdr}`,display:"flex",justifyContent:"space-between",alignItems:"center",gap:"12px"}}>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontWeight:"700",fontSize:"14px",color:C.txt,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.customerName}</div>
-                      <div style={{fontSize:"12px",color:C.blue}}>{p.invoiceNo}</div>
-                      <div style={{fontSize:"12px",color:C.mut,marginTop:"2px"}}>{fdate(p.date)}{p.note&&<span style={{marginLeft:"8px"}}>· {p.note}</span>}</div>
-                    </div>
-                    <div style={{fontWeight:"700",color:C.grn,fontSize:"16px",flexShrink:0}}>{fmyr(p.amount)}</div>
-                  </div>
-                ))}
-                <div style={{padding:"14px 16px",background:"#0a1a0f",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <div style={{fontWeight:"700",color:C.txt,fontSize:"14px"}}>Total ({filteredHistory.length})</div>
-                  <div style={{fontWeight:"700",color:C.grn,fontSize:"16px"}}>{fmyr(filteredHistory.reduce((s,p)=>s+p.amount,0))}</div>
-                </div>
-              </div>}
-          </div>
-        )}
-
-        {subTab==="walog"&&(
-          <div>
-            <div style={{fontWeight:"700",color:C.txt,fontSize:"16px",marginBottom:"4px"}}>💬 WhatsApp Reminder Log</div>
-            <div style={{fontSize:"13px",color:C.mut,marginBottom:"16px"}}>Every reminder you've sent, tracked automatically.</div>
-            {customers.filter(c=>waStats[c.id]).length>0&&(
-              <div style={{...CARD,marginBottom:"16px"}}>
-                <div style={{padding:"12px 16px",borderBottom:`1px solid ${C.bdr}`}}><span style={{fontWeight:"600",color:C.txt,fontSize:"14px"}}>Reminder Count by Customer</span></div>
-                {customers.filter(c=>waStats[c.id]).sort((a,b)=>(waStats[b.id]?.count||0)-(waStats[a.id]?.count||0)).map(c=>{
-                  const ws=waStats[c.id];
-                  const ds=daysSinceWa(c.id);
-                  const hasOS=enriched.some(i=>i.customerId===c.id&&i.displayStatus!=="paid");
-                  return (
-                    <div key={c.id} style={{padding:"12px 16px",borderBottom:`1px solid ${C.bdr}`,display:"flex",justifyContent:"space-between",alignItems:"center",gap:"12px"}}>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontWeight:"600",fontSize:"14px",color:C.txt,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</div>
-                        <div style={{fontSize:"12px",color:C.mut,marginTop:"2px"}}>Last sent: {ds===0?"Today":ds===1?"Yesterday":`${ds} days ago`} · {fdate(ws.lastDate)}</div>
-                      </div>
-                      <div style={{display:"flex",alignItems:"center",gap:"10px",flexShrink:0}}>
-                        {hasOS&&ds!==null&&ds>=3&&<span style={{fontSize:"11px",color:C.red,fontWeight:"700"}}>⚠️ Chase!</span>}
-                        <div style={{background:"#0a1a0f",border:"1px solid #166534",borderRadius:"20px",padding:"4px 12px",fontWeight:"700",color:C.grn,fontSize:"14px"}}>{ws.count}x</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            <div style={{fontWeight:"600",color:C.sub,fontSize:"12px",textTransform:"uppercase",letterSpacing:"0.4px",marginBottom:"8px"}}>Full Log ({waLog.length} total)</div>
-            {waLog.length===0
-              ?<div style={{...CARD,padding:"40px",textAlign:"center",color:C.mut}}>No reminders sent yet. Use the WhatsApp tab!</div>
-              :<div style={CARD}>
-                {waLog.map(l=>(
-                  <div key={l.id} style={{padding:"11px 16px",borderBottom:`1px solid ${C.bdr}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                    <div>
-                      <div style={{fontSize:"13px",fontWeight:"600",color:C.txt}}>{l.customerName}</div>
-                      <div style={{fontSize:"12px",color:C.mut}}>{fdate(l.date)}</div>
-                    </div>
-                    <div style={{fontSize:"12px",color:C.wa,fontWeight:"600"}}>💬 Sent</div>
-                  </div>
-                ))}
-              </div>}
-          </div>
-        )}
-      </div>
-    )}
-
-    {/* ── IMPORT ── */}
-    {tab==="import"&&<ImportUI/>}
-  </div>
-
-  {/* BOTTOM NAV (mobile) */}
-  {mob&&(
-    <div style={{position:"fixed",bottom:0,left:0,right:0,background:"#111827",borderTop:`1px solid ${C.bdr}`,display:"flex",zIndex:100,paddingBottom:"env(safe-area-inset-bottom)"}}>
-      {TABS.map(t=>(
-        <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"10px 4px 8px",border:"none",cursor:"pointer",background:"transparent",display:"flex",flexDirection:"column",alignItems:"center",gap:"3px",color:tab===t.id?C.blue:C.mut,position:"relative"}}>
-          <span style={{fontSize:"20px",lineHeight:1}}>{t.icon}</span>
-          <span style={{fontSize:"10px",fontWeight:tab===t.id?"700":"500"}}>{t.label}</span>
-          {t.badge>0&&<span style={{position:"absolute",top:"6px",right:"calc(50% - 16px)",background:C.red,color:"white",borderRadius:"10px",padding:"1px 5px",fontSize:"9px",fontWeight:"700"}}>{t.badge}</span>}
-          {tab===t.id&&<div style={{position:"absolute",top:0,left:"20%",right:"20%",height:"2px",background:C.blue,borderRadius:"0 0 2px 2px"}}/>}
-        </button>
-      ))}
-    </div>
-  )}
-
-  {selInv&&<InvDetail inv={selInv}/>}
-
-  {/* ADD INVOICE */}
-  {showInv&&(
-    <div style={MODAL_OUTER} onClick={()=>setShowInv(false)}>
-      <div style={MODAL_INNER} onClick={e=>e.stopPropagation()}>
-        {mob&&<div style={DRAG_HANDLE}/>}
-        <div style={{fontSize:"17px",fontWeight:"700",color:C.txt,marginBottom:"20px"}}>➕ New Invoice</div>
-        <div style={{display:"flex",flexDirection:"column",gap:"14px"}}>
-          <div><label style={LBL}>Customer *</label>
-            <select style={INP} value={newInv.customerId} onChange={e=>setNewInv(p=>({...p,customerId:e.target.value}))}>
-              <option value="">Select customer…</option>
-              {customers.map(c=><option key={c.id} value={c.id}>{c.name} (Net {c.creditTerm})</option>)}
-            </select>
-          </div>
-          <div><label style={LBL}>Invoice No *</label><input style={INP} placeholder="INV-XXX" value={newInv.invoiceNo} onChange={e=>setNewInv(p=>({...p,invoiceNo:e.target.value}))}/></div>
-          <div><label style={LBL}>Invoice Date</label><input type="date" style={INP} value={newInv.invoiceDate} onChange={e=>setNewInv(p=>({...p,invoiceDate:e.target.value}))}/></div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px"}}>
-            <div><label style={LBL}>Amount (RM) *</label><input type="number" style={INP} placeholder="0.00" value={newInv.amount} onChange={e=>setNewInv(p=>({...p,amount:e.target.value}))}/></div>
-            <div><label style={LBL}>Paid (RM)</label><input type="number" style={INP} placeholder="0.00" value={newInv.paidAmount} onChange={e=>setNewInv(p=>({...p,paidAmount:e.target.value}))}/></div>
-          </div>
-          <div><label style={LBL}>Notes</label><input style={INP} placeholder="Optional…" value={newInv.notes} onChange={e=>setNewInv(p=>({...p,notes:e.target.value}))}/></div>
-          <div style={{display:"flex",gap:"10px"}}>
-            <button style={{...btn("ghost"),flex:1}} onClick={()=>setShowInv(false)}>Cancel</button>
-            <button style={{...btn("primary"),flex:1}} onClick={addInvoice}>Save Invoice</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )}
-
-  {/* ADD CUSTOMER */}
-  {showCust&&(
-    <div style={MODAL_OUTER} onClick={()=>setShowCust(false)}>
-      <div style={MODAL_INNER} onClick={e=>e.stopPropagation()}>
-        {mob&&<div style={DRAG_HANDLE}/>}
-        <div style={{fontSize:"17px",fontWeight:"700",color:C.txt,marginBottom:"20px"}}>👤 New Customer</div>
-        <div style={{display:"flex",flexDirection:"column",gap:"14px"}}>
-          <div><label style={LBL}>Company Name *</label><input style={INP} placeholder="ABC Trading Sdn Bhd" value={newCust.name} onChange={e=>setNewCust(p=>({...p,name:e.target.value}))}/></div>
-          <div><label style={LBL}>Credit Term (days)</label><input type="number" style={INP} placeholder="30" value={newCust.creditTerm} onChange={e=>setNewCust(p=>({...p,creditTerm:e.target.value}))}/></div>
-          <div><label style={LBL}>Contact Person</label><input style={INP} value={newCust.contact} onChange={e=>setNewCust(p=>({...p,contact:e.target.value}))}/></div>
-          <div><label style={LBL}>Phone (for WhatsApp)</label><input type="tel" style={INP} placeholder="012-3456789" value={newCust.phone} onChange={e=>setNewCust(p=>({...p,phone:e.target.value}))}/></div>
-          <div><label style={LBL}>Email</label><input type="email" style={INP} placeholder="email@company.com" value={newCust.email} onChange={e=>setNewCust(p=>({...p,email:e.target.value}))}/></div>
-          <div style={{display:"flex",gap:"10px"}}>
-            <button style={{...btn("ghost"),flex:1}} onClick={()=>setShowCust(false)}>Cancel</button>
-            <button style={{...btn("primary"),flex:1}} onClick={addCustomer}>Save Customer</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )}
-
-  {/* PAYMENT MODAL */}
-  {payModal&&(
-    <div style={MODAL_OUTER} onClick={()=>setPayModal(null)}>
-      <div style={MODAL_INNER} onClick={e=>e.stopPropagation()}>
-        {mob&&<div style={DRAG_HANDLE}/>}
-        <div style={{fontSize:"17px",fontWeight:"700",color:C.txt,marginBottom:"4px"}}>💰 Record Payment</div>
-        <div style={{fontSize:"13px",color:C.mut,marginBottom:"18px"}}>{payModal.customer?.name} · {payModal.invoiceNo}</div>
-        <div style={{background:C.bg,borderRadius:"10px",padding:"14px",marginBottom:"16px"}}>
-          {[["Invoice Amount",fmyr(payModal.amount),"#e2e8f0"],["Already Paid",fmyr(payModal.paidAmount),C.grn],["Outstanding",fmyr(payModal.outstanding),C.red]].map(([l,v,col],i,a)=>(
-            <div key={l} style={{display:"flex",justifyContent:"space-between",padding:i===a.length-1?"10px 0 0":"0 0 10px",borderTop:i===a.length-1?`1px solid ${C.bdr}`:"none"}}>
-              <span style={{color:C.mut,fontSize:"14px"}}>{l}</span>
-              <span style={{color:col,fontWeight:i===a.length-1?"700":"500",fontSize:"14px"}}>{v}</span>
-            </div>
-          ))}
-        </div>
-        <label style={LBL}>Payment Amount (RM)</label>
-        <input type="number" style={{...INP,marginBottom:"10px",fontSize:"18px",fontWeight:"600"}} placeholder={`Max: ${payModal.outstanding.toFixed(2)}`} value={payAmt} onChange={e=>setPayAmt(e.target.value)} autoFocus/>
-        <div style={{display:"flex",gap:"8px",marginBottom:"12px"}}>
-          <button style={{...btn("ghost"),flex:1,fontSize:"13px"}} onClick={()=>setPayAmt(payModal.outstanding.toFixed(2))}>Full Amount</button>
-          <button style={{...btn("ghost"),flex:1,fontSize:"13px"}} onClick={()=>setPayAmt((payModal.outstanding/2).toFixed(2))}>Half</button>
-        </div>
-        <label style={LBL}>Note (optional)</label>
-        <input style={{...INP,marginBottom:"16px"}} placeholder="e.g. Paid via TT, Cash, Cheque…" value={payNote} onChange={e=>setPayNote(e.target.value)}/>
-        <div style={{display:"flex",gap:"10px"}}>
-          <button style={{...btn("ghost"),flex:1}} onClick={()=>setPayModal(null)}>Cancel</button>
-          <button style={{...btn("success"),flex:1}} onClick={recordPayment}>Confirm Payment</button>
-        </div>
-      </div>
-    </div>
-  )}
-</div>
-```
-
+function InvRow(inv){
+return h(“div”,{key:inv.id,onClick:()=>setSelInv(inv),style:{padding:“14px 16px”,borderBottom:“1px solid “+C.bdr,cursor:“pointer”,display:“flex”,justifyContent:“space-between”,alignItems:“center”,gap:“12px”,borderLeft:“3px solid “+(SCLR[inv.displayStatus]||C.bdr)},onMouseEnter:function(e){e.currentTarget.style.background=”#131c2e”;},onMouseLeave:function(e){e.currentTarget.style.background=“transparent”;},onTouchStart:function(e){e.currentTarget.style.background=”#131c2e”;},onTouchEnd:function(e){e.currentTarget.style.background=“transparent”;}},
+h(“div”,{style:{flex:1,minWidth:0}},
+h(“div”,{style:{fontWeight:“700”,fontSize:“14px”,color:C.txt,overflow:“hidden”,textOverflow:“ellipsis”,whiteSpace:“nowrap”,marginBottom:“3px”}},inv.customer?inv.customer.name:“Unknown”),
+h(“div”,{style:{fontSize:“12px”,color:C.blue,marginBottom:“2px”}},inv.invoiceNo),
+h(“div”,{style:{fontSize:“12px”,color:C.mut}},
+“Due “+fdshort(inv.dueDate)+” · Net “+(inv.customer?inv.customer.creditTerm:”?”),
+inv.displayStatus!==“paid”&&inv.daysOverdue>0?h(“span”,{style:{color:C.red,marginLeft:“6px”,fontWeight:“600”}},“▲”+inv.daysOverdue+“d late”):null,
+inv.displayStatus!==“paid”&&inv.daysOverdue<=0&&inv.daysOverdue>-7?h(“span”,{style:{color:C.yel,marginLeft:“6px”}},“⚡”+Math.abs(inv.daysOverdue)+“d left”):null
+)
+),
+h(“div”,{style:{textAlign:“right”,flexShrink:0}},
+h(“div”,{style:{fontWeight:“700”,color:inv.outstanding>0&&inv.daysOverdue>0?C.red:C.txt,fontSize:“15px”,marginBottom:“4px”}},fshort(inv.outstanding)),
+h(“span”,{style:bdgS(SCFG[inv.displayStatus]||SCFG.current)},(SCFG[inv.displayStatus]||SCFG.current).label)
+)
 );
 }
 
-```
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<ZeusPayTrack />);
-```
+// ── DASHBOARD ──────────────────────────────────────────────
+function renderDashboard(){
+return h(“div”,null,
+reminders.length>0&&h(“div”,{style:{background:“linear-gradient(90deg,#1a0f0a,#2a1500)”,border:“1px solid #92400e”,borderRadius:“12px”,padding:“14px 16px”,marginBottom:“16px”}},
+h(“div”,{style:{display:“flex”,gap:“10px”,alignItems:“flex-start”}},
+h(“span”,{style:{fontSize:“20px”}},“🔔”),
+h(“div”,{style:{flex:1}},
+h(“div”,{style:{fontWeight:“700”,color:C.yel,marginBottom:“6px”,fontSize:“14px”}},reminders.length+” Payment Reminder”+(reminders.length>1?“s”:””)),
+reminders.slice(0,2).map(inv=>h(“div”,{key:inv.id,style:{fontSize:“13px”,color:”#d97706”,marginBottom:“4px”,display:“flex”,justifyContent:“space-between”,alignItems:“center”}},
+h(“span”,{style:{flex:1,minWidth:0,overflow:“hidden”,textOverflow:“ellipsis”,whiteSpace:“nowrap”,marginRight:“8px”}},”• “+(inv.customer?inv.customer.name:””)+” — “+fshort(inv.outstanding)+(inv.daysOverdue>0?” (”+inv.daysOverdue+“d overdue)”:””)),
+h(“button”,{onClick:function(){setDismissed(p=>[…p,inv.id]);},style:{background:“none”,border:“none”,color:”#92400e”,cursor:“pointer”,fontSize:“13px”}},“✕”)
+)),
+reminders.length>2&&h(“button”,{onClick:()=>setTab(“reminders”),style:{fontSize:“12px”,color:”#92400e”,background:“none”,border:“none”,cursor:“pointer”,padding:0}},“See all “+reminders.length+” →”)
+)
+)
+),
+h(“div”,{style:{display:“grid”,gridTemplateColumns:“1fr 1fr”,gap:“10px”,marginBottom:“16px”}},
+[{l:“Outstanding”,v:fshort(stats.totalOut),c:C.blue},{l:“Overdue”,v:fshort(stats.overdue),s:stats.overdueN+” inv”,c:C.red},{l:“Due Soon”,v:fshort(stats.dueSoon),s:stats.dueSoonN+” inv”,c:C.yel},{l:“Current”,v:fshort(stats.current),c:C.grn}].map(function(x,i){
+return h(“div”,{key:i,style:{background:C.card,border:“1px solid “+x.c+“22”,borderRadius:“12px”,padding:“14px 16px”,position:“relative”,overflow:“hidden”}},
+h(“div”,{style:{position:“absolute”,top:-10,right:-10,width:“60px”,height:“60px”,background:“radial-gradient(circle,”+x.c+“20,transparent 70%)”}}),
+h(“div”,{style:{fontSize:“11px”,color:C.mut,fontWeight:“600”,textTransform:“uppercase”,letterSpacing:“0.4px”,marginBottom:“4px”}},x.l),
+h(“div”,{style:{fontSize:“22px”,fontWeight:“700”,color:x.c}},x.v),
+x.s&&h(“div”,{style:{fontSize:“11px”,color:C.mut,marginTop:“2px”}},x.s)
+);
+})
+),
+h(“div”,{style:Object.assign({},cardS,{marginBottom:“16px”})},
+h(“div”,{style:{padding:“14px 16px”,borderBottom:“1px solid “+C.bdr}},h(“span”,{style:{fontWeight:“600”,color:C.txt,fontSize:“14px”}},“Aging Analysis”)),
+h(“div”,{style:{padding:“14px 16px”}},
+[{k:“current”,l:“Current”},{k:“1-30”,l:“1–30 Days”},{k:“31-60”,l:“31–60 Days”},{k:“61-90”,l:“61–90 Days”},{k:“90+”,l:“90+ Days”}].map(function(b){
+const v=aging[b.k]||0,max=Math.max.apply(null,Object.values(aging).concat([1])),pct=(v/max)*100,col=ACLR[b.k];
+return h(“div”,{key:b.k,style:{marginBottom:“10px”}},
+h(“div”,{style:{display:“flex”,justifyContent:“space-between”,marginBottom:“4px”}},h(“span”,{style:{fontSize:“12px”,color:C.sub}},b.l),h(“span”,{style:{fontSize:“12px”,fontWeight:“700”,color:col}},fshort(v))),
+h(“div”,{style:{height:“6px”,background:C.bdr,borderRadius:“4px”,overflow:“hidden”}},h(“div”,{style:{height:“100%”,width:pct+”%”,background:col,borderRadius:“4px”,transition:“width .5s”}}))
+);
+})
+)
+),
+h(“div”,{style:cardS},
+h(“div”,{style:{padding:“14px 16px”,borderBottom:“1px solid “+C.bdr,display:“flex”,justifyContent:“space-between”,alignItems:“center”}},
+h(“span”,{style:{fontWeight:“600”,color:C.txt,fontSize:“14px”}},“Outstanding Invoices”),
+h(“button”,{onClick:()=>setTab(“invoices”),style:{background:“none”,border:“none”,cursor:“pointer”,color:C.blue,fontSize:“13px”,fontWeight:“600”}},“View all →”)
+),
+enriched.filter(i=>i.displayStatus!==“paid”).length===0
+?h(“div”,{style:{padding:“32px”,textAlign:“center”,color:C.mut}},“All invoices settled 🎉”)
+:enriched.filter(i=>i.displayStatus!==“paid”).slice(0,5).map(inv=>InvRow(inv))
+)
+);
+}
 
-  </script>
+// ── INVOICES ───────────────────────────────────────────────
+function renderInvoices(){
+return h(“div”,null,
+h(“div”,{style:{display:“flex”,gap:“8px”,marginBottom:“10px”,flexWrap:“wrap”}},
+h(“input”,{style:inpS({flex:1,minWidth:“160px”,padding:“10px 14px”}),placeholder:“🔍 Search…”,value:fSearch,onChange:e=>setFSearch(e.target.value)}),
+h(“select”,{style:inpS({width:mob?“100%”:“auto”,padding:“10px 14px”}),value:fStatus,onChange:e=>setFStatus(e.target.value)},
+[“all”,“overdue”,“due-soon”,“current”,“partial”,“paid”].map(v=>h(“option”,{key:v,value:v},v===“all”?“All Status”:v===“due-soon”?“Due Soon”:v.charAt(0).toUpperCase()+v.slice(1)))
+)
+),
+h(“div”,{style:{display:“flex”,gap:“8px”,marginBottom:“14px”,justifyContent:“flex-end”}},
+h(“button”,{style:btnS(“ghost”,mob),onClick:()=>setShowCust(true)},”+ Customer”),
+h(“button”,{style:btnS(“primary”,mob),onClick:()=>setShowInv(true)},”+ Invoice”)
+),
+h(“div”,{style:cardS},
+filtered.length===0?h(“div”,{style:{padding:“40px”,textAlign:“center”,color:C.mut}},“No invoices found”):filtered.map(inv=>InvRow(inv))
+)
+);
+}
+
+// ── REMINDERS ──────────────────────────────────────────────
+function renderReminders(){
+return h(“div”,null,
+h(“div”,{style:{display:“flex”,gap:“4px”,background:C.card,borderRadius:“12px”,padding:“4px”,border:“1px solid “+C.bdr,marginBottom:“16px”}},
+[{id:“alerts”,label:“🔔 Alerts”},{id:“whatsapp”,label:“💬 WhatsApp”}].map(s=>
+h(“button”,{key:s.id,onClick:()=>setSubTab(s.id),style:Object.assign({},btnS(subTab===s.id?“primary”:“ghost”,mob),{flex:1,border:“none”,padding:“10px”})},s.label)
+)
+),
+subTab===“alerts”&&(
+reminders.length===0
+?h(“div”,{style:Object.assign({},cardS,{padding:“48px”,textAlign:“center”})},h(“div”,{style:{fontSize:“32px”,marginBottom:“8px”}},“✅”),h(“div”,{style:{color:C.grn,fontWeight:“600”,fontSize:“15px”}},“All clear!”))
+:h(“div”,null,reminders.map(inv=>h(“div”,{key:inv.id,style:Object.assign({},cardS,{marginBottom:“10px”,borderLeft:“4px solid “+(inv.displayStatus===“overdue”?C.red:C.yel)})},
+h(“div”,{style:{padding:“14px 16px”}},
+h(“div”,{style:{display:“flex”,justifyContent:“space-between”,alignItems:“flex-start”,marginBottom:“10px”}},
+h(“div”,{style:{flex:1,minWidth:0}},
+h(“div”,{style:{fontWeight:“700”,fontSize:“15px”,color:C.txt,overflow:“hidden”,textOverflow:“ellipsis”,whiteSpace:“nowrap”}},inv.customer?inv.customer.name:””),
+h(“div”,{style:{fontSize:“12px”,color:C.blue}},inv.invoiceNo)
+),
+h(“span”,{style:Object.assign({},bdgS(SCFG[inv.displayStatus]||SCFG.current),{marginLeft:“10px”,flexShrink:0})},(SCFG[inv.displayStatus]||SCFG.current).label)
+),
+h(“div”,{style:{display:“grid”,gridTemplateColumns:“1fr 1fr”,gap:“8px”,marginBottom:“12px”}},
+[[“Due Date”,fdate(inv.dueDate)],[“Outstanding”,fmyr(inv.outstanding)],[“Contact”,inv.customer&&inv.customer.contact||”—”],[“Phone”,inv.customer&&inv.customer.phone||”—”]].map(([l,v])=>
+h(“div”,{key:l},h(“div”,{style:{fontSize:“11px”,color:C.mut,fontWeight:“600”}},l),h(“div”,{style:{fontSize:“13px”,color:C.txt,fontWeight:“600”}},v))
+)
+),
+inv.daysOverdue>0
+?h(“div”,{style:{padding:“8px 12px”,background:”#3a0a0a”,borderRadius:“8px”,fontSize:“13px”,color:”#fca5a5”,marginBottom:“12px”}},“⚠️ “+inv.daysOverdue+” days past due”)
+:h(“div”,{style:{padding:“8px 12px”,background:”#3a2a0a”,borderRadius:“8px”,fontSize:“13px”,color:”#fcd34d”,marginBottom:“12px”}},“⏰ Due in “+Math.abs(inv.daysOverdue)+” day”+(Math.abs(inv.daysOverdue)!==1?“s”:””)),
+h(“div”,{style:{display:“flex”,gap:“8px”}},
+h(“button”,{style:Object.assign({},btnS(“success”,mob),{flex:1}),onClick:()=>{setPayModal(inv);setPayAmt(””);setPayNote(””);}},“💰 Record Payment”),
+h(“button”,{style:Object.assign({},btnS(“ghost”,mob),{padding:“12px 16px”}),onClick:()=>setDismissed(p=>[…p,inv.id])},“✕”)
+)
+)
+)))
+),
+subTab===“whatsapp”&&h(“div”,null,
+h(“div”,{style:Object.assign({},cardS,{marginBottom:“16px”,padding:“14px 16px”,background:“linear-gradient(90deg,#0a1a0f,#111827)”})},
+h(“div”,{style:{fontWeight:“700”,color:C.wa,fontSize:“15px”,marginBottom:“4px”}},“💬 WhatsApp Reminder Generator”),
+h(“div”,{style:{fontSize:“13px”,color:C.mut}},“Tap a customer to generate & send a personalised reminder.”)
+),
+h(“div”,{style:{marginBottom:“14px”}},h(“label”,{style:lblS},“Your Company Name”),h(“input”,{style:inpS(),value:company,onChange:e=>setCompany(e.target.value)})),
+custsWithOS.length===0
+?h(“div”,{style:Object.assign({},cardS,{padding:“40px”,textAlign:“center”})},h(“div”,{style:{fontSize:“28px”,marginBottom:“8px”}},“🎉”),h(“div”,{style:{color:C.grn,fontWeight:“600”}},“No outstanding invoices!”))
+:custsWithOS.map(function(cust){
+const custInvs=enriched.filter(i=>i.customerId===cust.id&&i.displayStatus!==“paid”);
+const totalOS=custInvs.reduce((s,i)=>s+i.outstanding,0);
+const hasOD=custInvs.some(i=>i.displayStatus===“overdue”);
+const ws=waStats[cust.id];
+const ds=daysSinceWa(cust.id);
+const needsChase=ds===null||(hasOD&&ds>=3)||(!hasOD&&ds>=7);
+return h(“div”,{key:cust.id,style:Object.assign({},cardS,{marginBottom:“12px”,borderLeft:“4px solid “+(needsChase?(hasOD?C.red:C.yel):C.wa)})},
+h(“div”,{style:{padding:“14px 16px”}},
+h(“div”,{style:{display:“flex”,justifyContent:“space-between”,alignItems:“flex-start”,marginBottom:“10px”}},
+h(“div”,{style:{flex:1,minWidth:0}},
+h(“div”,{style:{fontWeight:“700”,fontSize:“15px”,color:C.txt,overflow:“hidden”,textOverflow:“ellipsis”,whiteSpace:“nowrap”}},cust.name),
+h(“div”,{style:{fontSize:“12px”,color:C.mut,marginTop:“2px”}},(cust.contact||”—”)+” · “+(cust.phone||“No phone”))
+),
+h(“div”,{style:{textAlign:“right”,flexShrink:0,marginLeft:“10px”}},
+h(“div”,{style:{fontWeight:“700”,color:hasOD?C.red:C.yel,fontSize:“15px”}},fmyr(totalOS)),
+h(“div”,{style:{fontSize:“11px”,color:C.mut}},custInvs.length+” invoice”+(custInvs.length!==1?“s”:””))
+)
+),
+h(“div”,{style:{display:“flex”,gap:“8px”,marginBottom:“12px”,flexWrap:“wrap”}},
+ws
+?[h(“div”,{key:“c”,style:{background:”#0a1a0f”,border:“1px solid #166534”,borderRadius:“8px”,padding:“6px 12px”,fontSize:“12px”,display:“flex”,alignItems:“center”,gap:“6px”}},h(“span”,null,“💬”),h(“span”,{style:{color:C.grn,fontWeight:“700”}},ws.count+“x”),h(“span”,{style:{color:C.mut}},“reminded”)),
+h(“div”,{key:“l”,style:{background:C.bg,border:“1px solid “+C.bdr,borderRadius:“8px”,padding:“6px 12px”,fontSize:“12px”,display:“flex”,alignItems:“center”,gap:“6px”}},h(“span”,null,“🕐”),h(“span”,{style:{color:C.sub}},“Last:”),h(“span”,{style:{color:C.txt,fontWeight:“600”}},ds===0?“Today”:ds===1?“Yesterday”:ds+“d ago”)),
+needsChase&&h(“div”,{key:“f”,style:{background:hasOD?”#3a0a0a”:”#3a2a0a”,border:“1px solid “+(hasOD?”#991b1b”:”#92400e”),borderRadius:“8px”,padding:“6px 12px”,fontSize:“12px”,display:“flex”,alignItems:“center”,gap:“6px”}},h(“span”,null,“🔔”),h(“span”,{style:{color:hasOD?C.red:C.yel,fontWeight:“700”}},“Time to follow up!”))]
+:[h(“div”,{key:“n”,style:{background:”#3a2a0a”,border:“1px solid #92400e”,borderRadius:“8px”,padding:“6px 12px”,fontSize:“12px”,display:“flex”,alignItems:“center”,gap:“6px”}},h(“span”,null,“⚠️”),h(“span”,{style:{color:C.yel,fontWeight:“700”}},“Not reminded yet”))]
+),
+h(“div”,{style:{background:C.bg,borderRadius:“10px”,padding:“12px”,marginBottom:“12px”,fontSize:“12px”,color:C.sub,lineHeight:“1.6”,maxHeight:“120px”,overflowY:“auto”,whiteSpace:“pre-wrap”,fontFamily:“monospace”,border:“1px solid “+C.bdr}},genWaMsg(cust.id)),
+h(“div”,{style:{display:“flex”,gap:“8px”}},
+h(“button”,{style:Object.assign({},btnS(“ghost”,mob),{flex:1,fontSize:“13px”}),onClick:()=>copyWa(cust.id)},waCopied[cust.id]?“✅ Copied!”:“📋 Copy Text”),
+cust.phone&&h(“button”,{style:Object.assign({},btnS(“wa”,mob),{flex:1,fontSize:“13px”}),onClick:()=>openWa(cust.id)},“📱 Open WhatsApp”)
+)
+)
+);
+})
+)
+);
+}
+
+// ── REPORTS ────────────────────────────────────────────────
+function renderReports(){
+return h(“div”,null,
+h(“div”,{style:{display:“flex”,gap:“4px”,background:C.card,borderRadius:“12px”,padding:“4px”,border:“1px solid “+C.bdr,marginBottom:“16px”}},
+[{id:“monthly”,label:“📅 Monthly”},{id:“history”,label:“📜 Payments”},{id:“walog”,label:“💬 WA Log”}].map(s=>
+h(“button”,{key:s.id,onClick:()=>setSubTab(s.id),style:Object.assign({},btnS(subTab===s.id?“primary”:“ghost”,mob),{flex:1,border:“none”,padding:“10px”})},s.label)
+)
+),
+subTab===“monthly”&&h(“div”,null,
+h(“div”,{style:{fontWeight:“700”,color:C.txt,fontSize:“16px”,marginBottom:“4px”}},“📅 Monthly Collection Report”),
+h(“div”,{style:{fontSize:“13px”,color:C.mut,marginBottom:“16px”}},“Overview of payments collected each month.”),
+monthlyData.length===0?h(“div”,{style:Object.assign({},cardS,{padding:“40px”,textAlign:“center”,color:C.mut})},“No data yet.”):
+monthlyData.map(function(m){
+const mPays=payments.filter(p=>mKey(p.date)===m.key);
+const mInvs=invoices.filter(i=>mKey(i.invoiceDate)===m.key);
+const invoiced=mInvs.reduce((s,i)=>s+i.amount,0);
+const collected=mPays.reduce((s,p)=>s+p.amount,0);
+const rate=invoiced>0?Math.round((collected/invoiced)*100):0;
+const isOpen=rMonth===m.key;
+return h(“div”,{key:m.key,onClick:()=>setRMonth(isOpen?””:m.key),style:Object.assign({},cardS,{marginBottom:“10px”,cursor:“pointer”}),onMouseEnter:function(e){e.currentTarget.style.background=”#131c2e”;},onMouseLeave:function(e){e.currentTarget.style.background=””;}},
+h(“div”,{style:{padding:“14px 16px”}},
+h(“div”,{style:{display:“flex”,justifyContent:“space-between”,alignItems:“center”,marginBottom:“10px”}},
+h(“div”,{style:{fontWeight:“700”,fontSize:“15px”,color:C.txt}},m.label),
+h(“div”,{style:{fontSize:“12px”,color:C.mut}},mPays.length+” payment”+(mPays.length!==1?“s”:””))
+),
+h(“div”,{style:{display:“grid”,gridTemplateColumns:“1fr 1fr 1fr”,gap:“8px”,marginBottom:“10px”}},
+[[“Invoiced”,fshort(invoiced),C.sub],[“Collected”,fshort(collected),C.grn],[“Rate”,rate+”%”,rate>=80?C.grn:rate>=50?C.yel:C.red]].map(([l,v,col])=>
+h(“div”,{key:l,style:{background:C.bg,borderRadius:“8px”,padding:“10px 12px”}},h(“div”,{style:{fontSize:“11px”,color:C.mut,marginBottom:“3px”}},l),h(“div”,{style:{fontWeight:“700”,color:col,fontSize:“15px”}},v))
+)
+),
+h(“div”,{style:{height:“6px”,background:C.bdr,borderRadius:“4px”,overflow:“hidden”}},h(“div”,{style:{height:“100%”,width:Math.min(rate,100)+”%”,background:rate>=80?C.grn:rate>=50?C.yel:C.red,borderRadius:“4px”,transition:“width .5s”}}))
+),
+isOpen&&mPays.length>0&&h(“div”,{style:{borderTop:“1px solid “+C.bdr,padding:“12px 16px”}},
+h(“div”,{style:{fontSize:“12px”,fontWeight:“600”,color:C.sub,textTransform:“uppercase”,letterSpacing:“0.4px”,marginBottom:“8px”}},“Payments this month”),
+mPays.map(p=>h(“div”,{key:p.id,style:{display:“flex”,justifyContent:“space-between”,alignItems:“center”,padding:“8px 0”,borderBottom:“1px solid “+C.bdr}},
+h(“div”,null,h(“div”,{style:{fontSize:“13px”,fontWeight:“600”,color:C.txt}},p.customerName),h(“div”,{style:{fontSize:“12px”,color:C.mut}},p.invoiceNo+” · “+fdate(p.date))),
+h(“div”,{style:{fontWeight:“700”,color:C.grn,fontSize:“14px”}},fmyr(p.amount))
+))
+)
+);
+})
+),
+subTab===“history”&&h(“div”,null,
+h(“div”,{style:{fontWeight:“700”,color:C.txt,fontSize:“16px”,marginBottom:“4px”}},“📜 Payment History”),
+h(“div”,{style:{fontSize:“13px”,color:C.mut,marginBottom:“14px”}},“Every payment recorded.”),
+h(“input”,{style:inpS({marginBottom:“14px”,padding:“10px 14px”}),placeholder:“🔍 Search…”,value:hSearch,onChange:e=>setHSearch(e.target.value)}),
+filteredHistory.length===0?h(“div”,{style:Object.assign({},cardS,{padding:“40px”,textAlign:“center”,color:C.mut})},“No payment history yet.”):
+h(“div”,{style:cardS},
+filteredHistory.map(p=>h(“div”,{key:p.id,style:{padding:“13px 16px”,borderBottom:“1px solid “+C.bdr,display:“flex”,justifyContent:“space-between”,alignItems:“center”,gap:“12px”}},
+h(“div”,{style:{flex:1,minWidth:0}},
+h(“div”,{style:{fontWeight:“700”,fontSize:“14px”,color:C.txt,overflow:“hidden”,textOverflow:“ellipsis”,whiteSpace:“nowrap”}},p.customerName),
+h(“div”,{style:{fontSize:“12px”,color:C.blue}},p.invoiceNo),
+h(“div”,{style:{fontSize:“12px”,color:C.mut,marginTop:“2px”}},fdate(p.date)+(p.note?” · “+p.note:””))
+),
+h(“div”,{style:{fontWeight:“700”,color:C.grn,fontSize:“16px”,flexShrink:0}},fmyr(p.amount))
+)),
+h(“div”,{style:{padding:“14px 16px”,background:”#0a1a0f”,display:“flex”,justifyContent:“space-between”,alignItems:“center”}},
+h(“div”,{style:{fontWeight:“700”,color:C.txt,fontSize:“14px”}},“Total (”+filteredHistory.length+”)”),
+h(“div”,{style:{fontWeight:“700”,color:C.grn,fontSize:“16px”}},fmyr(filteredHistory.reduce((s,p)=>s+p.amount,0)))
+)
+)
+),
+subTab===“walog”&&h(“div”,null,
+h(“div”,{style:{fontWeight:“700”,color:C.txt,fontSize:“16px”,marginBottom:“4px”}},“💬 WhatsApp Reminder Log”),
+h(“div”,{style:{fontSize:“13px”,color:C.mut,marginBottom:“16px”}},“Every reminder sent, tracked automatically.”),
+customers.filter(c=>waStats[c.id]).length>0&&h(“div”,{style:Object.assign({},cardS,{marginBottom:“16px”})},
+h(“div”,{style:{padding:“12px 16px”,borderBottom:“1px solid “+C.bdr}},h(“span”,{style:{fontWeight:“600”,color:C.txt,fontSize:“14px”}},“Reminder Count by Customer”)),
+customers.filter(c=>waStats[c.id]).sort((a,b)=>((waStats[b.id]&&waStats[b.id].count)||0)-((waStats[a.id]&&waStats[a.id].count)||0)).map(function(c){
+const ws=waStats[c.id];const ds=daysSinceWa(c.id);const hasOS=enriched.some(i=>i.customerId===c.id&&i.displayStatus!==“paid”);
+return h(“div”,{key:c.id,style:{padding:“12px 16px”,borderBottom:“1px solid “+C.bdr,display:“flex”,justifyContent:“space-between”,alignItems:“center”,gap:“12px”}},
+h(“div”,{style:{flex:1,minWidth:0}},
+h(“div”,{style:{fontWeight:“600”,fontSize:“14px”,color:C.txt,overflow:“hidden”,textOverflow:“ellipsis”,whiteSpace:“nowrap”}},c.name),
+h(“div”,{style:{fontSize:“12px”,color:C.mut,marginTop:“2px”}},“Last: “+(ds===0?“Today”:ds===1?“Yesterday”:ds+” days ago”)+” · “+fdate(ws.lastDate))
+),
+h(“div”,{style:{display:“flex”,alignItems:“center”,gap:“10px”,flexShrink:0}},
+hasOS&&ds!==null&&ds>=3?h(“span”,{style:{fontSize:“11px”,color:C.red,fontWeight:“700”}},“⚠️ Chase!”):null,
+h(“div”,{style:{background:”#0a1a0f”,border:“1px solid #166534”,borderRadius:“20px”,padding:“4px 12px”,fontWeight:“700”,color:C.grn,fontSize:“14px”}},ws.count+“x”)
+)
+);
+})
+),
+h(“div”,{style:{fontWeight:“600”,color:C.sub,fontSize:“12px”,textTransform:“uppercase”,letterSpacing:“0.4px”,marginBottom:“8px”}},“Full Log (”+waLog.length+” total)”),
+waLog.length===0?h(“div”,{style:Object.assign({},cardS,{padding:“40px”,textAlign:“center”,color:C.mut})},“No reminders sent yet.”):
+h(“div”,{style:cardS},
+waLog.map(l=>h(“div”,{key:l.id,style:{padding:“11px 16px”,borderBottom:“1px solid “+C.bdr,display:“flex”,justifyContent:“space-between”,alignItems:“center”}},
+h(“div”,null,h(“div”,{style:{fontSize:“13px”,fontWeight:“600”,color:C.txt}},l.customerName),h(“div”,{style:{fontSize:“12px”,color:C.mut}},fdate(l.date))),
+h(“div”,{style:{fontSize:“12px”,color:C.wa,fontWeight:“600”}},“💬 Sent”)
+))
+)
+)
+);
+}
+
+// ── IMPORT ─────────────────────────────────────────────────
+function renderImport(){
+if(iStage===“done”)return h(“div”,{style:Object.assign({},cardS,{padding:“32px”,textAlign:“center”,maxWidth:“440px”,margin:“0 auto”})},
+h(“div”,{style:{fontSize:“44px”,marginBottom:“12px”}},“🎉”),
+h(“div”,{style:{fontSize:“20px”,fontWeight:“700”,color:C.grn,marginBottom:“16px”}},“Import Done!”),
+h(“div”,{style:{display:“grid”,gridTemplateColumns:“1fr 1fr”,gap:“10px”,marginBottom:“20px”}},
+[[“Added”,iStats&&iStats.added,C.blue],[“Updated”,iStats&&iStats.updated,C.grn],[“New Customers”,iStats&&iStats.custCreated,C.pur],[“Total”,iStats&&iStats.total,C.yel]].map(([l,v,col])=>
+h(“div”,{key:l,style:{background:C.bg,borderRadius:“10px”,padding:“14px”,border:“1px solid “+col+“33”}},h(“div”,{style:{fontSize:“26px”,fontWeight:“700”,color:col}},v),h(“div”,{style:{fontSize:“12px”,color:C.mut}},l))
+)
+),
+h(“div”,{style:{display:“flex”,gap:“10px”}},
+h(“button”,{style:Object.assign({},btnS(“primary”,mob),{flex:1}),onClick:()=>{resetImport();setTab(“dashboard”);}},“View Dashboard”),
+h(“button”,{style:Object.assign({},btnS(“ghost”,mob),{flex:1}),onClick:resetImport},“Import Again”)
+)
+);
+if(iStage===“preview”)return h(“div”,null,
+h(“div”,{style:{background:”#0f2a1a”,border:“1px solid #166534”,borderRadius:“12px”,padding:“14px”,marginBottom:“14px”,fontSize:“13px”,color:”#86efac”}},h(“strong”,null,“🔄 No duplicates:”),” Same invoice = update only. Weekly upload is safe.”),
+h(“div”,{style:{display:“flex”,justifyContent:“space-between”,alignItems:“center”,marginBottom:“14px”,flexWrap:“wrap”,gap:“10px”}},
+h(“div”,{style:{fontWeight:“700”,color:C.txt,fontSize:“14px”}},iPrev.length+” rows · “,h(“span”,{style:{color:C.blue}},iFile)),
+h(“div”,{style:{display:“flex”,gap:“8px”,flexWrap:“wrap”}},
+h(“div”,{style:{display:“flex”,background:C.bg,borderRadius:“8px”,padding:“3px”,border:“1px solid “+C.bdr}},
+[“merge”,“replace”].map(m=>h(“button”,{key:m,onClick:()=>setIMode(m),style:Object.assign({},btnS(iMode===m?“primary”:“ghost”,mob),{padding:“6px 12px”,fontSize:“12px”,border:“none”})},m===“merge”?“🔄 Merge”:“♻️ Replace”))
+),
+h(“button”,{style:btnS(“ghost”,mob),onClick:()=>setIStage(“mapping”)},“← Back”),
+h(“button”,{style:btnS(“success”,mob),onClick:doImport},“✓ Confirm”)
+)
+),
+h(“div”,{style:cardS},
+iPrev.slice(0,50).map(function(r,i){
+const ex=invoices.find(inv=>inv.invoiceNo===r.invNo);
+return h(“div”,{key:i,style:{padding:“12px 16px”,borderBottom:“1px solid “+C.bdr,background:ex?”#0f1f0f”:“transparent”,display:“flex”,justifyContent:“space-between”,alignItems:“center”,gap:“12px”}},
+h(“div”,{style:{flex:1,minWidth:0}},h(“div”,{style:{fontWeight:“600”,fontSize:“13px”,color:C.txt,overflow:“hidden”,textOverflow:“ellipsis”,whiteSpace:“nowrap”}},r.custName),h(“div”,{style:{fontSize:“12px”,color:C.blue}},r.invNo,ex?h(“span”,{style:{color:C.grn,marginLeft:“6px”}},“↑ update”):null)),
+h(“div”,{style:{textAlign:“right”,flexShrink:0}},h(“div”,{style:{fontWeight:“700”,color:C.txt,fontSize:“13px”}},fmyr(r.outstanding)),h(“span”,{style:bdgS(SCFG[r.status]||SCFG.current)},(SCFG[r.status]||SCFG.current).label))
+);
+}),
+iPrev.length>50&&h(“div”,{style:{padding:“12px 16px”,textAlign:“center”,color:C.mut,fontSize:“12px”}},”…and “+(iPrev.length-50)+” more”)
+)
+);
+if(iStage===“mapping”)return h(“div”,null,
+h(“div”,{style:{fontWeight:“700”,color:C.txt,fontSize:“16px”,marginBottom:“4px”}},“Map Columns”),
+h(“div”,{style:{fontSize:“13px”,color:C.mut,marginBottom:“16px”}},iFile+” · “+iRows.length+” rows”),
+h(“div”,{style:{display:“flex”,flexDirection:“column”,gap:“10px”,marginBottom:“16px”}},
+IFIELDS.map(function(field){
+return h(“div”,{key:field},
+h(“label”,{style:Object.assign({},lblS,{color:IREQ.includes(field)?C.yel:C.mut})},ILBL[field],IREQ.includes(field)?h(“span”,{style:{color:C.red}},” *”):null),
+h(“select”,{style:inpS(),value:iMap[field]||””,onChange:e=>setIMap(p=>Object.assign({},p,{[field]:e.target.value||undefined}))},
+h(“option”,{value:””},”— Not mapped —”),
+iHeaders.map(hd=>h(“option”,{key:hd,value:hd},hd))
+)
+);
+})
+),
+h(“div”,{style:{display:“flex”,gap:“10px”}},
+h(“button”,{style:Object.assign({},btnS(“ghost”,mob),{flex:1}),onClick:resetImport},“Cancel”),
+h(“button”,{style:Object.assign({},btnS(“primary”,mob),{flex:1}),onClick:buildPreview},“Preview →”)
+)
+);
+return h(“div”,null,
+h(“div”,{style:{fontWeight:“700”,color:C.txt,fontSize:“17px”,marginBottom:“6px”}},“📥 Import from Autocount”),
+h(“div”,{style:{fontSize:“14px”,color:C.sub,marginBottom:“16px”,lineHeight:“1.6”}},“Export “,h(“strong”,{style:{color:C.yel}},“Debtor Outstanding / Aging Report”),” from Autocount as Excel, then upload below.”),
+h(“div”,{style:{background:”#0f2a1a”,border:“1px solid #166534”,borderRadius:“12px”,padding:“14px”,marginBottom:“20px”,fontSize:“13px”,color:”#86efac”,lineHeight:“1.7”}},h(“strong”,null,“🔄 Weekly upload is safe!”),” Same invoice = updated only. New = added fresh.”),
+h(“div”,{
+onDragOver:function(e){e.preventDefault();setDragOver(true);},
+onDragLeave:function(){setDragOver(false);},
+onDrop:function(e){e.preventDefault();setDragOver(false);handleFile(e.dataTransfer.files[0]);},
+onClick:function(){fileRef.current&&fileRef.current.click();},
+style:{border:“2px dashed “+(dragOver?C.blue:C.bdr),borderRadius:“14px”,padding:“40px 24px”,textAlign:“center”,cursor:“pointer”,transition:“all .2s”,background:dragOver?”#0d1a2a”:C.bg}
+},
+h(“div”,{style:{fontSize:“44px”,marginBottom:“12px”}},“📊”),
+h(“div”,{style:{fontWeight:“600”,color:C.txt,marginBottom:“4px”,fontSize:“16px”}},“Tap or drop file here”),
+h(“div”,{style:{fontSize:“13px”,color:C.mut,marginBottom:“20px”}},”.xlsx or .xls from Autocount”),
+h(“button”,{style:Object.assign({},btnS(“primary”,mob),{display:“inline-flex”,padding:“12px 24px”}),onClick:function(e){e.stopPropagation();fileRef.current&&fileRef.current.click();}},“Browse File”),
+h(“input”,{ref:fileRef,type:“file”,accept:”.xlsx,.xls”,style:{display:“none”},onChange:function(e){handleFile(e.target.files[0]);}})
+)
+);
+}
+
+// ── MODALS ─────────────────────────────────────────────────
+function renderInvDetail(){
+if(!selInv)return null;
+const inv=selInv;
+return h(“div”,{style:moutS,onClick:()=>setSelInv(null)},
+h(“div”,{style:Object.assign({},minS,{maxWidth:“100%”}),onClick:e=>e.stopPropagation()},
+h(“div”,{style:dragS}),
+h(“div”,{style:{display:“flex”,justifyContent:“space-between”,alignItems:“flex-start”,marginBottom:“16px”}},
+h(“div”,null,h(“div”,{style:{fontWeight:“700”,fontSize:“17px”,color:C.txt,marginBottom:“3px”}},inv.invoiceNo),h(“div”,{style:{fontSize:“14px”,color:C.sub}},inv.customer?inv.customer.name:””)),
+h(“span”,{style:bdgS(SCFG[inv.displayStatus]||SCFG.current)},(SCFG[inv.displayStatus]||SCFG.current).label)
+),
+[[“Invoice Date”,fdate(inv.invoiceDate)],[“Due Date”,fdate(inv.dueDate)],[“Credit Term”,“Net “+(inv.customer?inv.customer.creditTerm:”?”)+” days”],[“Invoice Amount”,fmyr(inv.amount)],[“Paid”,fmyr(inv.paidAmount)],[“Outstanding”,fmyr(inv.outstanding)]].map(([l,v])=>
+h(“div”,{key:l,style:{display:“flex”,justifyContent:“space-between”,padding:“11px 0”,borderBottom:“1px solid “+C.bdr}},h(“span”,{style:{color:C.mut,fontSize:“14px”}},l),h(“span”,{style:{color:C.txt,fontWeight:“600”,fontSize:“14px”}},v))
+),
+inv.daysOverdue>0&&h(“div”,{style:{marginTop:“12px”,padding:“10px 14px”,background:”#3a0a0a”,borderRadius:“10px”,color:”#fca5a5”,fontSize:“13px”,fontWeight:“600”}},“⚠️ “+inv.daysOverdue+” days overdue”),
+h(“div”,{style:{display:“flex”,gap:“10px”,marginTop:“16px”}},
+inv.displayStatus!==“paid”&&h(“button”,{style:Object.assign({},btnS(“success”,mob),{flex:1}),onClick:function(){setPayModal(inv);setPayAmt(””);setPayNote(””);setSelInv(null);}},“💰 Record Payment”),
+h(“button”,{style:Object.assign({},btnS(“danger”,mob),{flex:1}),onClick:function(){setInvoices(p=>p.filter(i=>i.id!==inv.id));setSelInv(null);}},“Delete”)
+)
+)
+);
+}
+
+function renderAddInv(){
+if(!showInv)return null;
+return h(“div”,{style:moutS,onClick:()=>setShowInv(false)},
+h(“div”,{style:minS,onClick:e=>e.stopPropagation()},
+h(“div”,{style:dragS}),
+h(“div”,{style:{fontSize:“17px”,fontWeight:“700”,color:C.txt,marginBottom:“20px”}},“➕ New Invoice”),
+h(“div”,{style:{display:“flex”,flexDirection:“column”,gap:“14px”}},
+h(“div”,null,h(“label”,{style:lblS},“Customer *”),
+h(“select”,{style:inpS(),value:newInv.customerId,onChange:e=>setNewInv(p=>Object.assign({},p,{customerId:e.target.value}))},
+h(“option”,{value:””},“Select customer…”),
+customers.map(c=>h(“option”,{key:c.id,value:c.id},c.name+” (Net “+c.creditTerm+”)”))
+)
+),
+h(“div”,null,h(“label”,{style:lblS},“Invoice No *”),h(“input”,{style:inpS(),placeholder:“INV-XXX”,value:newInv.invoiceNo,onChange:e=>setNewInv(p=>Object.assign({},p,{invoiceNo:e.target.value}))})),
+h(“div”,null,h(“label”,{style:lblS},“Invoice Date”),h(“input”,{type:“date”,style:inpS(),value:newInv.invoiceDate,onChange:e=>setNewInv(p=>Object.assign({},p,{invoiceDate:e.target.value}))})),
+h(“div”,{style:{display:“grid”,gridTemplateColumns:“1fr 1fr”,gap:“12px”}},
+h(“div”,null,h(“label”,{style:lblS},“Amount (RM) *”),h(“input”,{type:“number”,style:inpS(),placeholder:“0.00”,value:newInv.amount,onChange:e=>setNewInv(p=>Object.assign({},p,{amount:e.target.value}))})),
+h(“div”,null,h(“label”,{style:lblS},“Paid (RM)”),h(“input”,{type:“number”,style:inpS(),placeholder:“0.00”,value:newInv.paidAmount,onChange:e=>setNewInv(p=>Object.assign({},p,{paidAmount:e.target.value}))}))
+),
+h(“div”,null,h(“label”,{style:lblS},“Notes”),h(“input”,{style:inpS(),placeholder:“Optional…”,value:newInv.notes,onChange:e=>setNewInv(p=>Object.assign({},p,{notes:e.target.value}))})),
+h(“div”,{style:{display:“flex”,gap:“10px”}},
+h(“button”,{style:Object.assign({},btnS(“ghost”,mob),{flex:1}),onClick:()=>setShowInv(false)},“Cancel”),
+h(“button”,{style:Object.assign({},btnS(“primary”,mob),{flex:1}),onClick:addInvoice},“Save Invoice”)
+)
+)
+)
+);
+}
+
+function renderAddCust(){
+if(!showCust)return null;
+return h(“div”,{style:moutS,onClick:()=>setShowCust(false)},
+h(“div”,{style:minS,onClick:e=>e.stopPropagation()},
+h(“div”,{style:dragS}),
+h(“div”,{style:{fontSize:“17px”,fontWeight:“700”,color:C.txt,marginBottom:“20px”}},“👤 New Customer”),
+h(“div”,{style:{display:“flex”,flexDirection:“column”,gap:“14px”}},
+h(“div”,null,h(“label”,{style:lblS},“Company Name *”),h(“input”,{style:inpS(),placeholder:“ABC Trading Sdn Bhd”,value:newCust.name,onChange:e=>setNewCust(p=>Object.assign({},p,{name:e.target.value}))})),
+h(“div”,null,h(“label”,{style:lblS},“Credit Term (days)”),h(“input”,{type:“number”,style:inpS(),placeholder:“30”,value:newCust.creditTerm,onChange:e=>setNewCust(p=>Object.assign({},p,{creditTerm:e.target.value}))})),
+h(“div”,null,h(“label”,{style:lblS},“Contact Person”),h(“input”,{style:inpS(),value:newCust.contact,onChange:e=>setNewCust(p=>Object.assign({},p,{contact:e.target.value}))})),
+h(“div”,null,h(“label”,{style:lblS},“Phone (for WhatsApp)”),h(“input”,{type:“tel”,style:inpS(),placeholder:“012-3456789”,value:newCust.phone,onChange:e=>setNewCust(p=>Object.assign({},p,{phone:e.target.value}))})),
+h(“div”,null,h(“label”,{style:lblS},“Email”),h(“input”,{type:“email”,style:inpS(),placeholder:“email@company.com”,value:newCust.email,onChange:e=>setNewCust(p=>Object.assign({},p,{email:e.target.value}))})),
+h(“div”,{style:{display:“flex”,gap:“10px”}},
+h(“button”,{style:Object.assign({},btnS(“ghost”,mob),{flex:1}),onClick:()=>setShowCust(false)},“Cancel”),
+h(“button”,{style:Object.assign({},btnS(“primary”,mob),{flex:1}),onClick:addCustomer},“Save Customer”)
+)
+)
+)
+);
+}
+
+function renderPayModal(){
+if(!payModal)return null;
+return h(“div”,{style:moutS,onClick:()=>setPayModal(null)},
+h(“div”,{style:minS,onClick:e=>e.stopPropagation()},
+h(“div”,{style:dragS}),
+h(“div”,{style:{fontSize:“17px”,fontWeight:“700”,color:C.txt,marginBottom:“4px”}},“💰 Record Payment”),
+h(“div”,{style:{fontSize:“13px”,color:C.mut,marginBottom:“18px”}},(payModal.customer?payModal.customer.name:””)+” · “+payModal.invoiceNo),
+h(“div”,{style:{background:C.bg,borderRadius:“10px”,padding:“14px”,marginBottom:“16px”}},
+[[“Invoice Amount”,fmyr(payModal.amount),”#e2e8f0”],[“Already Paid”,fmyr(payModal.paidAmount),C.grn],[“Outstanding”,fmyr(payModal.outstanding),C.red]].map(function([l,v,col],i,a){
+return h(“div”,{key:l,style:{display:“flex”,justifyContent:“space-between”,padding:i===a.length-1?“10px 0 0”:“0 0 10px”,borderTop:i===a.length-1?“1px solid “+C.bdr:“none”}},
+h(“span”,{style:{color:C.mut,fontSize:“14px”}},l),h(“span”,{style:{color:col,fontWeight:i===a.length-1?“700”:“500”,fontSize:“14px”}},v)
+);
+})
+),
+h(“label”,{style:lblS},“Payment Amount (RM)”),
+h(“input”,{type:“number”,style:inpS({marginBottom:“10px”,fontSize:“18px”,fontWeight:“600”}),placeholder:“Max: “+payModal.outstanding.toFixed(2),value:payAmt,onChange:e=>setPayAmt(e.target.value),autoFocus:true}),
+h(“div”,{style:{display:“flex”,gap:“8px”,marginBottom:“12px”}},
+h(“button”,{style:Object.assign({},btnS(“ghost”,mob),{flex:1,fontSize:“13px”}),onClick:()=>setPayAmt(payModal.outstanding.toFixed(2))},“Full Amount”),
+h(“button”,{style:Object.assign({},btnS(“ghost”,mob),{flex:1,fontSize:“13px”}),onClick:()=>setPayAmt((payModal.outstanding/2).toFixed(2))},“Half”)
+),
+h(“label”,{style:lblS},“Note (optional)”),
+h(“input”,{style:inpS({marginBottom:“16px”}),placeholder:“e.g. Paid via TT, Cash, Cheque…”,value:payNote,onChange:e=>setPayNote(e.target.value)}),
+h(“div”,{style:{display:“flex”,gap:“10px”}},
+h(“button”,{style:Object.assign({},btnS(“ghost”,mob),{flex:1}),onClick:()=>setPayModal(null)},“Cancel”),
+h(“button”,{style:Object.assign({},btnS(“success”,mob),{flex:1}),onClick:recordPayment},“Confirm Payment”)
+)
+)
+);
+}
+
+// ── MAIN RENDER ────────────────────────────────────────────
+return h(“div”,{style:{minHeight:“100vh”,background:C.bg,paddingBottom:mob?“80px”:“0”}},
+h(“div”,{style:{background:“linear-gradient(135deg,#111827,#1a2035)”,borderBottom:“1px solid “+C.bdr,padding:mob?“14px 16px”:“0 24px”,display:“flex”,alignItems:“center”,justifyContent:“space-between”,height:mob?“auto”:“60px”,position:“sticky”,top:0,zIndex:100}},
+h(“div”,{style:{display:“flex”,alignItems:“center”,gap:“10px”}},
+h(“div”,{style:{width:“34px”,height:“34px”,background:“linear-gradient(135deg,#f59e0b,#d97706)”,borderRadius:“10px”,display:“flex”,alignItems:“center”,justifyContent:“center”,fontSize:“18px”}},“⚡”),
+h(“div”,null,h(“div”,{style:{fontSize:mob?“15px”:“16px”,fontWeight:“700”,color:”#f1f5f9”}},“⚡ Zeus PayTrack”),h(“div”,{style:{fontSize:“11px”,color:C.mut}},“G Wira Trading (M) Sdn Bhd”))
+),
+!mob&&h(“div”,{style:{display:“flex”,gap:“4px”}},
+TABS.map(t=>h(“button”,{key:t.id,onClick:()=>setTab(t.id),style:{padding:“6px 14px”,borderRadius:“6px”,border:“none”,cursor:“pointer”,fontSize:“13px”,fontWeight:“500”,background:tab===t.id?”#1e3a5f”:“transparent”,color:tab===t.id?C.blue:C.sub,display:“flex”,alignItems:“center”,gap:“5px”}},
+t.icon,” “,t.label,t.badge>0?h(“span”,{style:{background:C.red,color:“white”,borderRadius:“10px”,padding:“1px 6px”,fontSize:“10px”}},t.badge):null
+))
+),
+h(“div”,{style:{fontSize:“12px”,color:C.mut,display:mob?“none”:“block”}},new Date().toLocaleDateString(“en-MY”,{day:“2-digit”,month:“short”,year:“numeric”}))
+),
+h(“div”,{style:{padding:mob?“14px”:“24px”,maxWidth:mob?“100%”:“1400px”,margin:“0 auto”}},
+tab===“dashboard”&&renderDashboard(),
+tab===“invoices”&&renderInvoices(),
+tab===“reminders”&&renderReminders(),
+tab===“reports”&&renderReports(),
+tab===“import”&&renderImport()
+),
+mob&&h(“div”,{style:{position:“fixed”,bottom:0,left:0,right:0,background:”#111827”,borderTop:“1px solid “+C.bdr,display:“flex”,zIndex:100,paddingBottom:“env(safe-area-inset-bottom)”}},
+TABS.map(t=>h(“button”,{key:t.id,onClick:()=>setTab(t.id),style:{flex:1,padding:“10px 4px 8px”,border:“none”,cursor:“pointer”,background:“transparent”,display:“flex”,flexDirection:“column”,alignItems:“center”,gap:“3px”,color:tab===t.id?C.blue:C.mut,position:“relative”}},
+tab===t.id&&h(“div”,{style:{position:“absolute”,top:0,left:“20%”,right:“20%”,height:“2px”,background:C.blue,borderRadius:“0 0 2px 2px”}}),
+h(“span”,{style:{fontSize:“20px”,lineHeight:1}},t.icon),
+h(“span”,{style:{fontSize:“10px”,fontWeight:tab===t.id?“700”:“500”}},t.label),
+t.badge>0?h(“span”,{style:{position:“absolute”,top:“6px”,right:“calc(50% - 16px)”,background:C.red,color:“white”,borderRadius:“10px”,padding:“1px 5px”,fontSize:“9px”,fontWeight:“700”}},t.badge):null
+))
+),
+renderInvDetail(),
+renderAddInv(),
+renderAddCust(),
+renderPayModal()
+);
+}
+
+ReactDOM.createRoot(document.getElementById(“root”)).render(React.createElement(App));
+</script>
+
 </body>
 </html>
