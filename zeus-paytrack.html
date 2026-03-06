@@ -10,90 +10,90 @@
 <title>⚡ Zeus PayTrack</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#0d0f14;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden}
-button,input,select,textarea{font-family:inherit;font-size:14px}
+html,body{height:100%;background:#0d0f14;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;overflow-x:hidden;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font-family:inherit;font-size:16px}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:#111827}
 ::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:4px}
-.app{min-height:100vh;padding-bottom:72px}
-/* HEADER */
-.header{background:linear-gradient(135deg,#111827,#1a2035);border-bottom:1px solid #1e2d4a;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.header-logo{width:34px;height:34px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.header-title{font-size:15px;font-weight:700;color:#f1f5f9}
-.header-sub{font-size:11px;color:#64748b}
-/* BOTTOM NAV */
+.app{min-height:100vh;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+/* HEADER - Dynamic Island safe */
+.header{background:linear-gradient(135deg,#111827,#1a2035);border-bottom:1px solid #1e2d4a;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-logo{width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.header-title{font-size:16px;font-weight:700;color:#f1f5f9}
+.header-sub{font-size:12px;color:#64748b}
+/* BOTTOM NAV - iPhone 15 home indicator */
 .nav{position:fixed;bottom:0;left:0;right:0;background:#111827;border-top:1px solid #1e2d4a;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
-.nav-btn{flex:1;padding:10px 4px 8px;border:none;cursor:pointer;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;color:#64748b;position:relative;transition:color .15s}
+.nav-btn{flex:1;padding:12px 4px 10px;border:none;cursor:pointer;background:transparent;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;position:relative;transition:color .15s;min-height:56px}
 .nav-btn.active{color:#60a5fa}
 .nav-btn.active::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:#60a5fa;border-radius:0 0 2px 2px}
-.nav-icon{font-size:20px;line-height:1}
-.nav-label{font-size:10px;font-weight:500}
-.nav-badge{position:absolute;top:6px;right:calc(50% - 16px);background:#f87171;color:white;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:700}
+.nav-icon{font-size:22px;line-height:1}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.2px}
+.nav-badge{position:absolute;top:8px;right:calc(50% - 18px);background:#f87171;color:white;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:700}
 /* CONTENT */
-.content{padding:14px}
+.content{padding:12px 14px}
 .page{display:none}
 .page.active{display:block}
 /* CARDS */
-.card{background:#111827;border:1px solid #1e2d4a;border-radius:14px;overflow:hidden;margin-bottom:12px}
+.card{background:#111827;border:1px solid #1e2d4a;border-radius:16px;overflow:hidden;margin-bottom:12px}
 .card-header{padding:14px 16px;border-bottom:1px solid #1e2d4a;display:flex;justify-content:space-between;align-items:center}
-.card-title{font-weight:600;font-size:14px;color:#e2e8f0}
+.card-title{font-weight:600;font-size:15px;color:#e2e8f0}
 /* STATS GRID */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.stat-card{background:#111827;border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
-.stat-label{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px}
-.stat-value{font-size:22px;font-weight:700}
-.stat-sub{font-size:11px;color:#64748b;margin-top:2px}
+.stat-card{background:#111827;border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.stat-label{font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.stat-value{font-size:24px;font-weight:800;letter-spacing:-0.5px}
+.stat-sub{font-size:12px;color:#64748b;margin-top:3px}
 /* INVOICE ROW */
-.inv-row{padding:14px 16px;border-bottom:1px solid #1e2d4a;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;border-left:3px solid transparent;transition:background .15s}
+.inv-row{padding:16px;border-bottom:1px solid #1e2d4a;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;border-left:3px solid transparent;transition:background .15s;min-height:72px}
 .inv-row:active{background:#131c2e}
 .inv-row:last-child{border-bottom:none}
-.inv-name{font-weight:700;font-size:14px;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px}
-.inv-no{font-size:12px;color:#60a5fa;margin-bottom:2px}
+.inv-name{font-weight:700;font-size:15px;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px}
+.inv-no{font-size:13px;color:#60a5fa;margin-bottom:2px}
 .inv-meta{font-size:12px;color:#64748b}
-.inv-amt{font-weight:700;font-size:15px;margin-bottom:4px;text-align:right}
+.inv-amt{font-weight:800;font-size:16px;margin-bottom:5px;text-align:right}
 /* BADGES */
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
 .badge-overdue{background:#3a0a0a;color:#f87171;border:1px solid #991b1b}
 .badge-due-soon{background:#3a2a0a;color:#fbbf24;border:1px solid #92400e}
 .badge-current{background:#1a3a2a;color:#4ade80;border:1px solid #166534}
 .badge-paid{background:#0a1a2a;color:#60a5fa;border:1px solid #1e40af}
 .badge-partial{background:#2a1a3a;color:#c084fc;border:1px solid #7e22ce}
-/* INPUTS */
-.inp{background:#111827;border:1px solid #1e2d4a;border-radius:10px;padding:12px 14px;color:#e2e8f0;font-size:15px;width:100%;outline:none}
-.inp:focus{border-color:#3b82f6}
-.lbl{font-size:12px;color:#64748b;margin-bottom:6px;display:block;font-weight:600;text-transform:uppercase;letter-spacing:0.4px}
-.form-group{margin-bottom:14px}
+/* INPUTS - iOS zoom fix: font-size 16px prevents auto-zoom */
+.inp{background:#1a2035;border:1px solid #1e2d4a;border-radius:12px;padding:14px 16px;color:#e2e8f0;font-size:16px;width:100%;outline:none;-webkit-appearance:none}
+.inp:focus{border-color:#3b82f6;background:#111827}
+.lbl{font-size:12px;color:#64748b;margin-bottom:6px;display:block;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.form-group{margin-bottom:16px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-/* BUTTONS */
-.btn{padding:12px 16px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;transition:all .15s;white-space:nowrap}
+/* BUTTONS - bigger tap targets */
+.btn{padding:14px 18px;border-radius:12px;cursor:pointer;font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;transition:all .15s;white-space:nowrap;min-height:48px}
 .btn-primary{background:#1d4ed8;color:#fff}
 .btn-success{background:#14532d;color:#86efac}
 .btn-danger{background:#7f1d1d;color:#fca5a5}
 .btn-ghost{background:transparent;color:#94a3b8;border:1px solid #1e2d4a}
 .btn-wa{background:#128c3e;color:#fff}
-.btn-sm{padding:8px 14px;font-size:13px}
+.btn-sm{padding:10px 14px;font-size:13px;min-height:40px}
 .btn-full{width:100%}
-.btn-row{display:flex;gap:8px;margin-top:12px}
+.btn-row{display:flex;gap:8px;margin-top:14px}
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;justify-content:center;z-index:1000;backdrop-filter:blur(6px)}
-.modal{background:#111827;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto}
-.modal-drag{width:40px;height:4px;background:#1e2d4a;border-radius:4px;margin:0 auto 20px}
-.modal-title{font-size:17px;font-weight:700;color:#e2e8f0;margin-bottom:20px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;justify-content:center;z-index:1000;backdrop-filter:blur(8px)}
+.modal{background:#111827;border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:520px;max-height:94vh;overflow-y:auto}
+.modal-drag{width:44px;height:5px;background:#1e2d4a;border-radius:4px;margin:0 auto 20px}
+.modal-title{font-size:18px;font-weight:700;color:#e2e8f0;margin-bottom:20px}
 /* AGING BARS */
-.aging-row{margin-bottom:10px}
-.aging-meta{display:flex;justify-content:space-between;margin-bottom:4px}
-.aging-bar-bg{height:6px;background:#1e2d4a;border-radius:4px;overflow:hidden}
-.aging-bar{height:100%;border-radius:4px;transition:width .5s}
+.aging-row{margin-bottom:12px}
+.aging-meta{display:flex;justify-content:space-between;margin-bottom:5px}
+.aging-bar-bg{height:8px;background:#1e2d4a;border-radius:4px;overflow:hidden}
+.aging-bar{height:100%;border-radius:4px;transition:width .6s}
 /* ALERT BANNER */
-.alert-banner{background:linear-gradient(90deg,#1a0f0a,#2a1500);border:1px solid #92400e;border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.alert-banner{background:linear-gradient(90deg,#1a0f0a,#2a1500);border:1px solid #92400e;border-radius:14px;padding:14px 16px;margin-bottom:14px}
 /* SUB TABS */
-.sub-tabs{display:flex;gap:4px;background:#111827;border-radius:12px;padding:4px;border:1px solid #1e2d4a;margin-bottom:16px}
-.sub-tab{flex:1;padding:10px;border:none;cursor:pointer;background:transparent;color:#64748b;font-size:13px;font-weight:600;border-radius:8px;transition:all .15s}
+.sub-tabs{display:flex;gap:4px;background:#111827;border-radius:14px;padding:4px;border:1px solid #1e2d4a;margin-bottom:14px}
+.sub-tab{flex:1;padding:11px 6px;border:none;cursor:pointer;background:transparent;color:#64748b;font-size:13px;font-weight:700;border-radius:10px;transition:all .15s}
 .sub-tab.active{background:#1d4ed8;color:#fff}
 /* FILTER ROW */
 .filter-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.search-inp{flex:1;min-width:160px;padding:10px 14px}
-.select-inp{padding:10px 14px;width:100%}
+.search-inp{flex:1;min-width:160px;padding:12px 14px}
+.select-inp{padding:12px 14px;width:100%}
 /* EMPTY STATE */
 .empty{padding:40px;text-align:center;color:#64748b}
 .empty-icon{font-size:32px;margin-bottom:8px}
@@ -199,9 +199,15 @@ button,input,select,textarea{font-family:inherit;font-size:14px}
       <option value="paid">Paid</option>
     </select>
   </div>
-  <div class="flex" style="justify-content:flex-end;gap:8px;margin-bottom:14px">
-    <button class="btn btn-ghost btn-sm" onclick="showModal('addCustModal')">+ Customer</button>
-    <button class="btn btn-primary btn-sm" onclick="showModal('addInvModal')">+ Invoice</button>
+  <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div class="flex gap8">
+      <button id="toggleByInv" class="btn btn-sm btn-primary" onclick="setInvView('invoice')">🧾 By Invoice</button>
+      <button id="toggleByCust" class="btn btn-sm btn-ghost" onclick="setInvView('customer')">👥 By Customer</button>
+    </div>
+    <div class="flex gap8">
+      <button class="btn btn-ghost btn-sm" onclick="showModal('addCustModal')">+ Customer</button>
+      <button class="btn btn-primary btn-sm" onclick="showModal('addInvModal')">+ Invoice</button>
+    </div>
   </div>
   <div class="card" id="invList"></div>
 </div>
@@ -489,6 +495,7 @@ function dismiss(id){
 }
 
 // ── INVOICES ──────────────────────────────────────────────────
+var invView='invoice'; // 'invoice' or 'customer'
 function renderInvoices(){
   var enriched=getEnriched();
   var search=(document.getElementById('invSearch').value||'').toLowerCase();
@@ -502,10 +509,78 @@ function renderInvoices(){
   // refresh customer select
   var sel=document.getElementById('newInvCust');
   sel.innerHTML='<option value="">Select customer…</option>'+state.customers.map(function(c){return'<option value="'+c.id+'">'+esc(c.name)+' (Net '+c.creditTerm+')</option>';}).join('');
-  document.getElementById('invList').innerHTML=filtered.length===0
-    ?'<div class="empty">No invoices found</div>'
-    :filtered.map(function(inv){return invRowHtml(inv,'openInvDetail');}).join('');
+
+  // update toggle buttons
+  var btnInv=document.getElementById('toggleByInv');
+  var btnCust=document.getElementById('toggleByCust');
+  if(btnInv&&btnCust){
+    btnInv.className='btn btn-sm '+(invView==='invoice'?'btn-primary':'btn-ghost');
+    btnCust.className='btn btn-sm '+(invView==='customer'?'btn-primary':'btn-ghost');
+  }
+
+  if(filtered.length===0){
+    document.getElementById('invList').innerHTML='<div class="empty">No invoices found</div>';
+    return;
+  }
+
+  if(invView==='invoice'){
+    document.getElementById('invList').innerHTML=filtered.map(function(inv){return invRowHtml(inv,'openInvDetail');}).join('');
+  } else {
+    // Group by customer
+    var groups={};
+    filtered.forEach(function(inv){
+      var cid=inv.customerId;
+      if(!groups[cid])groups[cid]={customer:inv.customer,invoices:[],totalOS:0,maxDaysOverdue:-999,hasOverdue:false};
+      groups[cid].invoices.push(inv);
+      groups[cid].totalOS+=inv.outstanding;
+      if(inv.daysOverdue>groups[cid].maxDaysOverdue)groups[cid].maxDaysOverdue=inv.daysOverdue;
+      if(inv.displayStatus==='overdue')groups[cid].hasOverdue=true;
+    });
+    var groupList=Object.values(groups).sort(function(a,b){return b.maxDaysOverdue-a.maxDaysOverdue;});
+    document.getElementById('invList').innerHTML=groupList.map(function(g){
+      var bc=g.hasOverdue?'#f87171':g.maxDaysOverdue>-7?'#fbbf24':'#4ade80';
+      var overdueCount=g.invoices.filter(function(i){return i.displayStatus==='overdue';}).length;
+      var expanded=groupList.length<=5; // auto expand if few customers
+      var gid='grp-'+(g.customer?g.customer.id:'x');
+      return '<div class="card mb12" style="border-left:4px solid '+bc+';overflow:visible">'
+        +'<div style="padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="toggleGroup(\''+gid+'\')">'
+          +'<div class="flex1">'
+            +'<div class="fw7 fs15 text-ellipsis">'+esc(g.customer?g.customer.name:'Unknown')+'</div>'
+            +'<div class="fs12 text-mut" style="margin-top:3px">'+g.invoices.length+' invoice'+(g.invoices.length!==1?'s':'')+(overdueCount>0?' · <span style="color:#f87171;font-weight:700">'+overdueCount+' overdue</span>':'')+'</div>'
+          +'</div>'
+          +'<div style="text-align:right;flex-shrink:0;margin-left:12px">'
+            +'<div class="fw7 fs16" style="color:'+bc+'">'+fmyr(g.totalOS)+'</div>'
+            +'<div class="fs13 text-mut" style="margin-top:2px" id="arr-'+gid+'">▼</div>'
+          +'</div>'
+        +'</div>'
+        +'<div id="'+gid+'" style="border-top:1px solid #1e2d4a;'+(expanded?'':'display:none')+'">'
+          +g.invoices.map(function(inv){
+            var col=STATUS_COLOR[inv.displayStatus]||'#1e2d4a';
+            return '<div class="inv-row" style="padding-left:20px;border-left:none" onclick="openInvDetail('+inv.id+')">'
+              +'<div class="flex1">'
+                +'<div style="font-size:13px;color:#60a5fa;font-weight:600;margin-bottom:2px">'+esc(inv.invoiceNo)+'</div>'
+                +'<div class="fs12 text-mut">Due '+fdshort(inv.dueDate)+(inv.daysOverdue>0?' · <span style="color:#f87171;font-weight:700">'+inv.daysOverdue+'d late</span>':'')+'</div>'
+              +'</div>'
+              +'<div style="text-align:right;flex-shrink:0">'
+                +'<div class="fw7 fs14" style="color:'+(inv.outstanding>0&&inv.daysOverdue>0?'#f87171':'#e2e8f0')+'">'+fmyr(inv.outstanding)+'</div>'
+                +badgeHtml(inv.displayStatus)
+              +'</div>'
+            +'</div>';
+          }).join('')
+        +'</div>'
+      +'</div>';
+    }).join('');
+  }
 }
+function toggleGroup(gid){
+  var el=document.getElementById(gid);
+  var arr=document.getElementById('arr-'+gid);
+  if(!el)return;
+  var hidden=el.style.display==='none';
+  el.style.display=hidden?'block':'none';
+  if(arr)arr.textContent=hidden?'▲':'▼';
+}
+function setInvView(v){invView=v;renderInvoices();}
 function filterInvoices(){renderInvoices();}
 
 // ── INVOICE DETAIL ────────────────────────────────────────────
