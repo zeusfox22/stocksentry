@@ -797,14 +797,14 @@ function renderWaLog(){
     +'<div class="card">'+state.waLog.map(function(l){return'<div class="inv-row"><div><div class="fs13 fw7">'+esc(l.customerName)+'</div><div class="fs12 text-mut">'+fdate(l.date)+'</div></div><div class="fs12 fw7" style="color:#25d366">💬 Sent</div></div>';}).join('')+'</div>');
 }
 
-// ── IMPORT (CSV) ──────────────────────────────────────────────
-var importState={stage:'idle',rows:[],file:''};
+// ── IMPORT ────────────────────────────────────────────────────
+var importState={stage:'idle',rows:[],file:'',added:0,updated:0,custCreated:0,total:0};
 function renderImport(){
   var el=document.getElementById('importContent');if(!el)return;
   if(importState.stage==='done'){
     el.innerHTML='<div class="card p14" style="text-align:center;max-width:440px;margin:0 auto">'
       +'<div style="font-size:44px;margin-bottom:12px">🎉</div>'
-      +'<div class="fw7 fs20 text-grn mb16">Import Done!</div>'
+      +'<div class="fw7" style="font-size:20px;color:#4ade80;margin-bottom:16px">Import Done!</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">'
       +[['Added',importState.added,'#60a5fa'],['Updated',importState.updated,'#4ade80'],['New Customers',importState.custCreated,'#c084fc'],['Total',importState.total,'#fbbf24']].map(function(x){return'<div style="background:#0d0f14;border-radius:10px;padding:14px;border:1px solid '+x[2]+'33"><div class="fw7" style="font-size:26px;color:'+x[2]+'">'+x[1]+'</div><div class="fs12 text-mut">'+x[0]+'</div></div>';}).join('')
       +'</div>'
@@ -812,80 +812,120 @@ function renderImport(){
     +'</div>';
     return;
   }
-  el.innerHTML='<div class="fw7 fs16 mb4">📥 Import from Autocount / Excel</div>'
-    +'<div class="fs14 text-mut mb16" style="line-height:1.6">Export <strong style="color:#fbbf24">Debtor Outstanding / Aging Report</strong> from Autocount as CSV, then upload below.</div>'
-    +'<div class="import-info"><strong>🔄 Weekly upload is safe!</strong> Same invoice = updated, never duplicated.</div>'
-    +'<div class="drop-zone" id="dropZone" onclick="document.getElementById(\'csvFile\').click()" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="handleDrop(event)">'
+  el.innerHTML='<div class="fw7 fs16 mb4">📥 Import from Autocount</div>'
+    +'<div class="fs14 text-mut mb16" style="line-height:1.6">Export <strong style="color:#fbbf24">Outstanding AR Invoice</strong> from Autocount as Excel (.xlsx), then upload below.</div>'
+    +'<div class="import-info"><strong>✅ Autocount format auto-detected!</strong><br><strong>🔄 Weekly upload is safe!</strong> Same invoice = updated only, never duplicated.</div>'
+    +'<div class="drop-zone" id="dropZone" onclick="pickFile()" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="handleDrop(event)">'
       +'<div style="font-size:44px;margin-bottom:12px">📊</div>'
       +'<div class="fw7 fs16 mb4">Tap or drop file here</div>'
-      +'<div class="fs13 text-mut mb16">.csv file from Autocount</div>'
-      +'<button class="btn btn-primary" onclick="event.stopPropagation();document.getElementById(\'csvFile\').click()">Browse File</button>'
-      +'<input id="csvFile" type="file" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFileInput(this)"/>'
+      +'<div class="fs13 text-mut mb16">.xlsx from Autocount Outstanding AR Invoice</div>'
+      +'<button class="btn btn-primary" onclick="event.stopPropagation();pickFile()">Browse File</button>'
+      +'<input id="xlsxFile" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileInput(this)"/>'
     +'</div>';
 }
-function handleDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('dragover');var f=e.dataTransfer.files[0];if(f)readCSV(f);}
-function handleFileInput(inp){if(inp.files[0])readCSV(inp.files[0]);}
-function readCSV(file){
-  importState.file=file.name;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      var text=e.target.result;
-      var lines=text.split('\n').filter(function(l){return l.trim();});
-      if(!lines.length){alert('File empty');return;}
-      var headers=lines[0].split(',').map(function(h){return h.trim().replace(/"/g,'');});
-      var rows=[];
-      for(var i=1;i<lines.length;i++){
-        var cols=lines[i].split(',').map(function(c){return c.trim().replace(/"/g,'');});
-        var obj={};headers.forEach(function(h,j){obj[h]=cols[j]||'';});
-        rows.push(obj);
-      }
-      importState.rows=rows;
-      importState.headers=headers;
-      processImport(rows,headers);
-    }catch(err){alert('Could not read: '+err.message);}
-  };
-  reader.readAsText(file);
+function pickFile(){var f=document.getElementById('xlsxFile');if(f)f.click();}
+function handleDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('dragover');var f=e.dataTransfer.files[0];if(f)readFile(f);}
+function handleFileInput(inp){if(inp.files[0])readFile(inp.files[0]);}
+function loadXlsx(cb){
+  if(window.XLSX){cb();return;}
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload=cb;
+  s.onerror=function(){alert('Could not load Excel reader. Check internet connection.');};
+  document.head.appendChild(s);
 }
-function processImport(rows,headers){
-  // Try to auto-map columns
-  var aliases={
-    custName:['customer name','debtor name','company name','name','customer','debtor'],
-    invNo:['invoice no','inv no','doc no','invoice number','ref no'],
-    amount:['amount','invoice amount','total amount','original amount'],
-    outstanding:['outstanding','balance','outstanding amount','o/s','bal'],
-    invDate:['invoice date','inv date','doc date','date'],
-  };
-  var map={};
-  var lc=headers.map(function(h){return h.toLowerCase();});
-  Object.keys(aliases).forEach(function(f){
-    var al=aliases[f];
-    var idx=lc.findIndex(function(h){return al.indexOf(h)!==-1;});
-    if(idx!==-1)map[f]=headers[idx];
-  });
-  if(!map.custName||!map.invNo){
-    alert('Could not find Customer Name or Invoice No columns. Please check your CSV headers.\n\nFound columns: '+headers.join(', '));return;
+function readFile(file){
+  importState.file=file.name;
+  var ext=file.name.split('.').pop().toLowerCase();
+  if(ext==='csv'){
+    var reader=new FileReader();
+    reader.onload=function(e){parseCSV(e.target.result);};
+    reader.readAsText(file);
+  }else{
+    var dz=document.getElementById('dropZone');
+    if(dz)dz.innerHTML='<div style="font-size:32px;margin-bottom:8px">⏳</div><div class="fw7 fs15">Loading Excel reader…</div>';
+    loadXlsx(function(){
+      var reader=new FileReader();
+      reader.onload=function(e){
+        try{
+          var data=new Uint8Array(e.target.result);
+          var wb=XLSX.read(data,{type:'array',cellDates:true});
+          var ws=wb.Sheets[wb.SheetNames[0]];
+          var raw=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:false});
+          parseAutocountRows(raw);
+        }catch(err){alert('Could not read Excel: '+err.message);}
+      };
+      reader.readAsArrayBuffer(file);
+    });
   }
-  // process
+}
+function parseAutocountRows(raw){
+  var invoices=[];
+  raw.forEach(function(row){
+    if(!row||row.length<38)return;
+    var col0=row[0];var col4=row[4];var col7=row[7];var col17=row[17];var col21=row[21];var col37=row[37];
+    // Autocount data rows: col4='IN', col7=invoiceNo, col17=companyName
+    var hasIN=col4&&String(col4).trim()==='IN';
+    var hasInvNo=col7&&String(col7).trim().length>0;
+    var hasCust=col17&&String(col17).trim().length>0;
+    if(!hasIN||!hasInvNo||!hasCust)return;
+    var invDate='';
+    if(col0){
+      if(typeof col0==='object'&&col0.toISOString){invDate=col0.toISOString().split('T')[0];}
+      else{var d=new Date(col0);if(!isNaN(d))invDate=d.toISOString().split('T')[0];}
+    }
+    var invNo=String(col7).trim();
+    var custName=String(col17).trim();
+    var amount=parseFloat(String(col21||'0').replace(/[^0-9.\-]/g,''))||0;
+    var outstanding=parseFloat(String(col37||col21||'0').replace(/[^0-9.\-]/g,''))||0;
+    var paid=Math.max(0,amount-outstanding);
+    var status=paid>=amount?'paid':paid>0?'partial':'unpaid';
+    invoices.push({invNo:invNo,custName:custName,amount:amount,outstanding:outstanding,paid:paid,invDate:invDate,status:status});
+  });
+  if(!invoices.length){alert('Could not detect Autocount invoice rows.\n\nMake sure you export "Outstanding AR Invoice" report from Autocount as .xlsx');renderImport();return;}
+  doImport(invoices);
+}
+function parseCSV(text){
+  var lines=text.split('\n').filter(function(l){return l.trim();});
+  if(!lines.length){alert('File empty');return;}
+  var headers=lines[0].split(',').map(function(h){return h.trim().replace(/"/g,'').toLowerCase();});
+  var custIdx=-1,invIdx=-1,amtIdx=-1,osIdx=-1,dateIdx=-1;
+  headers.forEach(function(h,i){
+    if(['customer name','debtor name','company name','name'].indexOf(h)!==-1)custIdx=i;
+    if(['invoice no','inv no','doc no','invoice number'].indexOf(h)!==-1)invIdx=i;
+    if(['amount','invoice amount','total'].indexOf(h)!==-1)amtIdx=i;
+    if(['outstanding','balance','o/s'].indexOf(h)!==-1)osIdx=i;
+    if(['invoice date','inv date','date'].indexOf(h)!==-1)dateIdx=i;
+  });
+  if(custIdx===-1||invIdx===-1){alert('Cannot find required columns.\nFound: '+headers.join(', '));return;}
+  var invoices=[];
+  for(var i=1;i<lines.length;i++){
+    var cols=lines[i].split(',').map(function(c){return c.trim().replace(/"/g,'');});
+    var custName=(cols[custIdx]||'').trim();var invNo=(cols[invIdx]||'').trim();
+    if(!custName||!invNo)continue;
+    var amount=amtIdx!==-1?parseFloat((cols[amtIdx]||'0').replace(/[^0-9.\-]/g,''))||0:0;
+    var outstanding=osIdx!==-1?parseFloat((cols[osIdx]||'0').replace(/[^0-9.\-]/g,'')):amount;
+    var paid=Math.max(0,amount-outstanding);
+    var invDate=dateIdx!==-1?cols[dateIdx]:'';
+    var status=paid>=amount?'paid':paid>0?'partial':'unpaid';
+    invoices.push({invNo:invNo,custName:custName,amount:amount,outstanding:outstanding,paid:paid,invDate:invDate,status:status});
+  }
+  doImport(invoices);
+}
+function doImport(invoices){
   var nc=[].concat(state.customers);
   var ni=[].concat(state.invoices);
   var added=0,updated=0,custCreated=0;
-  rows.forEach(function(row){
-    var custName=(row[map.custName]||'').trim();var invNo=(row[map.invNo]||'').trim();
-    if(!custName||!invNo)return;
-    var amt=parseFloat((row[map.amount]||'0').replace(/[^0-9.\-]/g,''))||0;
-    var os=map.outstanding?parseFloat((row[map.outstanding]||'0').replace(/[^0-9.\-]/g,'')):amt;
-    var paid=Math.max(0,amt-os);
-    var invDate=map.invDate?row[map.invDate]:'';
-    var status=paid>=amt?'paid':paid>0?'partial':'unpaid';
-    var cust=nc.find(function(c){return c.name.toLowerCase()===custName.toLowerCase();});
-    if(!cust){cust={id:Date.now()+Math.random(),name:custName,creditTerm:30,contact:'',phone:'',email:''};nc.push(cust);custCreated++;}
-    var ex=ni.find(function(i){return i.invoiceNo===invNo;});
-    if(ex){Object.assign(ex,{amount:amt,paidAmount:paid,status:status,invoiceDate:invDate||ex.invoiceDate});updated++;}
-    else{ni.push({id:Date.now()+Math.random(),customerId:cust.id,invoiceNo:invNo,amount:amt,invoiceDate:invDate||new Date().toISOString().split('T')[0],paidAmount:paid,status:status,notes:'Imported'});added++;}
+  invoices.forEach(function(row){
+    if(!row.custName||!row.invNo)return;
+    var cust=nc.find(function(c){return c.name.toLowerCase()===row.custName.toLowerCase();});
+    if(!cust){cust={id:Date.now()+Math.random(),name:row.custName,creditTerm:0,contact:'',phone:'',email:''};nc.push(cust);custCreated++;}
+    var ex=ni.find(function(i){return i.invoiceNo===row.invNo;});
+    if(ex){Object.assign(ex,{amount:row.amount,paidAmount:row.paid,status:row.status,invoiceDate:row.invDate||ex.invoiceDate});updated++;}
+    else{ni.push({id:Date.now()+Math.random(),customerId:cust.id,invoiceNo:row.invNo,amount:row.amount,invoiceDate:row.invDate||new Date().toISOString().split('T')[0],paidAmount:row.paid,status:row.status,notes:'Imported'});added++;}
   });
   state.customers=nc;state.invoices=ni;save();
-  importState.stage='done';importState.added=added;importState.updated=updated;importState.custCreated=custCreated;importState.total=rows.length;
+  importState.stage='done';importState.added=added;importState.updated=updated;importState.custCreated=custCreated;importState.total=invoices.length;
   renderImport();
 }
 
