@@ -905,6 +905,9 @@ function readFile(file){
       try{
         var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:false});
         var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:false});
+        // DEBUG: show first invoice row date values
+        var firstInv=raw.find(function(r){return r&&r[4]&&String(r[4]).trim()==='IN'&&r[7]&&r[17];});
+        if(firstInv){alert('DEBUG - First invoice:\nInvNo: '+firstInv[7]+'\ncol0 (invDate): '+JSON.stringify(firstInv[0])+'\ncol29 (dueDate): '+JSON.stringify(firstInv[29]));}
         parseAutocountRows(raw);
       }catch(err){alert('Could not read Excel: '+err.message);renderImport();}
     };
