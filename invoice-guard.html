@@ -5,7 +5,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Invoice Guard">
+<meta name="application-name" content="Invoice Guard">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%230071e3'/%3E%3Crect x='140' y='100' width='232' height='312' rx='18' fill='white'/%3E%3Crect x='172' y='150' width='100' height='14' rx='7' fill='%230071e3'/%3E%3Crect x='172' y='180' width='168' height='14' rx='7' fill='%23cce0ff'/%3E%3Crect x='172' y='230' width='168' height='2' rx='1' fill='%23e5e5ea'/%3E%3Crect x='172' y='258' width='60' height='12' rx='6' fill='%23cce0ff'/%3E%3Crect x='244' y='258' width='96' height='12' rx='6' fill='%23cce0ff'/%3E%3Crect x='172' y='284' width='60' height='12' rx='6' fill='%23cce0ff'/%3E%3Crect x='244' y='284' width='96' height='12' rx='6' fill='%23cce0ff'/%3E%3Crect x='172' y='310' width='60' height='12' rx='6' fill='%23cce0ff'/%3E%3Crect x='244' y='310' width='96' height='12' rx='6' fill='%2334c759'/%3E%3Crect x='172' y='336' width='168' height='2' rx='1' fill='%23e5e5ea'/%3E%3Crect x='244' y='356' width='96' height='16' rx='8' fill='%230071e3'/%3E%3C/svg%3E">
 <title>Invoice Guard</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -433,6 +436,11 @@ function renderReviewCards(containerId,lines,mode){
         <div><div class="lbl">Unit</div><select onchange="${mode==='review'?`updateReviewLine('${line._id}','unitType',this.value)`:`updateManualLine('${line._id}','unitType',this.value)`}" style="font-size:14px">${unitOptions(line.unitType)}</select></div>
         <div><div class="lbl">CTN Size</div><input type="number" value="${esc(line.cartonSize)}" placeholder="—" style="font-size:14px" onchange="${mode==='review'?`updateReviewLine('${line._id}','cartonSize',this.value)`:`updateManualLine('${line._id}','cartonSize',this.value)`}"></div>
         <div><div class="lbl">Cost (RM)</div><input type="number" step="0.01" value="${esc(line.price)}" placeholder="0.00" style="font-size:15px;font-weight:700" onchange="${mode==='review'?`updateReviewLine('${line._id}','price',this.value)`:`updateManualLine('${line._id}','price',this.value)`}"></div>
+      </div>
+      <div style="background:var(--bg);border-radius:var(--r3);padding:10px 12px;margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap">
+        ${!isNaN(pp)&&pp>0?`<div><div class="lbl" style="margin-bottom:2px">Per Piece</div><div style="font-size:16px;font-weight:800;color:var(--text)">RM ${fmt(pp)}</div></div>`:''}
+        ${!isNaN(pp)&&pp>0&&parseFloat(line.qty)?`<div><div class="lbl" style="margin-bottom:2px">Total (${line.qty} ${line.unitType})</div><div style="font-size:16px;font-weight:800;color:var(--text)">RM ${fmt(parseFloat(line.price)*parseFloat(line.qty))}</div></div>`:''}
+        ${margin&&!isNaN(pp)?`<div><div class="lbl" style="margin-bottom:2px">Sell/Piece (${margin}%)</div><div style="font-size:16px;font-weight:800;color:var(--green)">RM ${fmt(sellingPrice(pp,margin))}</div></div>`:''}
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
         <div style="display:flex;gap:10px;align-items:center">
