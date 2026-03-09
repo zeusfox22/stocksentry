@@ -5,128 +5,160 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Invoice Guard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  :root{--bg:#0f0f0f;--bg2:#141414;--bg3:#1a1a1a;--bg4:#1e1e1e;--border:#222;--border2:#2a2a2a;--text:#e8e0d0;--text2:#aaa;--text3:#666;--text4:#444;--gold:#f5c842;--gold2:#a0855b;--red:#ff6b4a;--green:#4caf82;--blue:#3b9eff;--font:'DM Mono','Courier New',monospace}
-  html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden}
-  input,select,button{font-family:var(--font);font-size:13px}
-  input{background:var(--bg3);border:1px solid #272727;border-radius:6px;color:var(--text);padding:8px 10px;width:100%;outline:none;transition:border .15s}
-  input:focus{border-color:var(--gold2)}
-  select{background:var(--bg3);border:1px solid #272727;border-radius:6px;color:var(--text);padding:8px 9px;outline:none;cursor:pointer}
-  button{cursor:pointer;border:none;border-radius:6px;font-family:var(--font);transition:opacity .15s}
-  button:active{opacity:.75}
-  .btn-primary{background:var(--gold);color:#0f0f0f;font-weight:700;padding:10px 20px;font-size:13px;letter-spacing:.05em}
-  .btn-sec{background:var(--bg4);border:1px solid var(--border2);color:var(--text2);padding:10px 16px;font-size:13px}
-  .btn-ghost{background:transparent;border:1px dashed #282828;color:var(--text3);padding:8px 14px;font-size:12px}
-  .btn-danger{background:none;border:1px solid #333;color:var(--text4);padding:4px 8px;font-size:11px}
-  ::-webkit-scrollbar{width:4px;height:4px}
-  ::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes scanline{0%{top:0}100%{top:100%}}
-  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
-  @keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f5f5f7;--white:#ffffff;--border:#e5e5ea;--border2:#d1d1d6;
+  --text:#1c1c1e;--text2:#48484a;--text3:#8e8e93;--text4:#c7c7cc;
+  --blue:#0071e3;--blue2:#005bbf;--blue-bg:#eef4ff;
+  --red:#ff3b30;--red-bg:#fff2f1;
+  --green:#34c759;--green-bg:#f1fff5;
+  --orange:#ff9500;--orange-bg:#fffaf0;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.05);
+  --shadow2:0 4px 16px rgba(0,0,0,.12),0 16px 48px rgba(0,0,0,.08);
+  --radius:16px;--radius2:12px;--radius3:8px;
+  --font:'Plus Jakarta Sans',system-ui,sans-serif
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+input,select,button,textarea{font-family:var(--font)}
+input,select{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius3);color:var(--text);padding:9px 12px;width:100%;outline:none;font-size:14px;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,.12)}
+input::placeholder{color:var(--text4)}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+button{cursor:pointer;border:none;border-radius:var(--radius3);font-family:var(--font);font-weight:600;transition:all .15s;font-size:14px}
+button:active{transform:scale(.96);opacity:.9}
+.btn-primary{background:var(--blue);color:#fff;padding:11px 20px;border-radius:var(--radius2)}
+.btn-primary:hover{background:var(--blue2)}
+.btn-green{background:#34c759;color:#fff;padding:11px 20px;border-radius:var(--radius2)}
+.btn-sec{background:var(--white);border:1.5px solid var(--border);color:var(--text2);padding:10px 16px}
+.btn-ghost{background:transparent;border:1.5px dashed var(--border2);color:var(--text3);padding:8px 14px;font-size:13px}
+.btn-sm-danger{background:var(--red-bg);border:none;color:var(--red);padding:5px 10px;font-size:12px;font-weight:600;border-radius:6px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scanpulse{0%{top:-3px;opacity:1}100%{top:100%;opacity:.3}}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:12px}
+.label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+.sec-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px}
+th{text-align:left;color:var(--text3);font-size:11px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;padding:8px 10px;border-bottom:1.5px solid var(--border);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #f5f5f7;vertical-align:middle;font-size:13px}
+td input{background:#f5f5f7;border:1.5px solid transparent;border-radius:6px;color:var(--text);padding:6px 8px;width:100%;font-size:13px;transition:all .15s}
+td input:focus{background:var(--white);border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,.08);outline:none}
+td select{background:#f5f5f7;border:1.5px solid transparent;border-radius:6px;font-size:13px;padding:6px 22px 6px 8px;transition:all .15s}
+td select:focus{background:var(--white);border-color:var(--blue)}
+.badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.b-red{background:#fff0ee;color:var(--red)}
+.b-green{background:#f0fff6;color:#1a8a35}
+.b-blue{background:var(--blue-bg);color:var(--blue)}
+.b-gray{background:#f5f5f7;color:var(--text3)}
+.b-orange{background:var(--orange-bg);color:#c47000}
+.inv-card{background:var(--white);border-radius:var(--radius2);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+.inv-hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;flex-wrap:wrap;gap:8px;transition:background .15s}
+.inv-hdr:hover{background:#fafafa}
+.flag-btn{border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--font);border:none;transition:opacity .15s}
+.tooltip{position:absolute;right:0;top:110%;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius2);padding:14px 16px;font-size:13px;z-index:300;min-width:220px;line-height:1.8;box-shadow:var(--shadow2);display:none;animation:fadein .15s ease}
+.tooltip.open{display:block}
+.pill-tab{background:none;border:none;padding:8px 14px;font-size:13px;font-weight:600;color:var(--text3);border-radius:20px;white-space:nowrap;transition:all .15s}
+.pill-tab.active{background:var(--white);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.stat-card{background:var(--white);border-radius:var(--radius2);padding:16px;box-shadow:var(--shadow)}
+.stat-num{font-size:24px;font-weight:800;color:var(--text);line-height:1.1}
+.stat-sub{font-size:11px;color:var(--text3);font-weight:600;margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.empty{text-align:center;padding:36px 16px;color:var(--text3)}
+.empty .icon{font-size:36px;margin-bottom:10px}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 </style>
 </head>
 <body>
 
-<!-- API KEY SETUP SCREEN -->
+<!-- SETUP -->
 
-<div id="setupScreen" style="display:none;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:var(--bg)">
-  <div style="font-size:32px;margin-bottom:16px">⬡</div>
-  <div style="font-size:20px;font-weight:700;color:var(--gold);letter-spacing:.14em;margin-bottom:6px">INVOICE GUARD</div>
-  <div style="font-size:11px;color:var(--text3);letter-spacing:.1em;margin-bottom:36px">AI-Powered Purchase Verification</div>
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:100%;max-width:400px">
-    <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Anthropic API Key Required</div>
-    <p style="color:var(--text2);font-size:13px;line-height:1.7;margin-bottom:20px">
-      To scan invoices with AI, you need a free Anthropic API key.<br><br>
-      Get one at <strong style="color:var(--gold)">console.anthropic.com</strong> → API Keys → Create Key
-    </p>
-    <label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px">Your API Key</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="margin-bottom:16px;font-size:13px">
-    <button class="btn-primary" style="width:100%" onclick="saveApiKey()">Save & Start →</button>
-    <p style="color:var(--text4);font-size:11px;margin-top:14px;line-height:1.6;text-align:center">Key is stored only on this device. Never shared.</p>
+<div id="setupScreen" style="display:none;min-height:100vh;background:linear-gradient(160deg,#f0f7ff 0%,#f5f5f7 60%,#fff 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+  <div style="width:72px;height:72px;background:var(--blue);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:20px;box-shadow:0 8px 28px rgba(0,113,227,.35)">🧾</div>
+  <h1 style="font-size:28px;font-weight:800;margin-bottom:6px">Invoice Guard</h1>
+  <p style="color:var(--text3);font-size:14px;margin-bottom:36px">AI-Powered Purchase Verification</p>
+  <div style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow2);padding:26px;width:100%;max-width:400px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px">Connect your AI</div>
+    <p style="color:var(--text3);font-size:13px;line-height:1.7;margin-bottom:20px">Get a free key at <strong style="color:var(--blue)">platform.claude.com</strong> → API Keys → Create Key</p>
+    <span class="label">Anthropic API Key</span>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="margin-bottom:16px">
+    <button class="btn-primary" style="width:100%;padding:14px;font-size:15px" onclick="saveApiKey()">Get Started →</button>
+    <p style="color:var(--text4);font-size:11px;margin-top:12px;text-align:center">Stored only on this device · Never shared</p>
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 
-<div id="app" style="display:none;min-height:100vh">
+<div id="app" style="display:none;min-height:100vh;padding-bottom:24px">
 
-  <!-- HEADER -->
-
-  <header style="background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px 10px">
-      <div>
-        <div style="font-size:17px;font-weight:700;letter-spacing:.14em;color:var(--gold)">⬡ INVOICE GUARD</div>
-        <div style="font-size:9px;color:var(--text3);letter-spacing:.1em;margin-top:2px">AI Purchase Verification</div>
+  <header style="background:rgba(255,255,255,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100">
+    <div style="padding:12px 16px 0;display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 8px rgba(0,113,227,.25)">🧾</div>
+        <div><div style="font-size:17px;font-weight:800">Invoice Guard</div><div style="font-size:10px;color:var(--text3);font-weight:500;margin-top:-1px">Purchase Verification</div></div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:6px 12px">
-          <div id="statItems" style="font-size:16px;font-weight:700;color:var(--gold)">0</div>
-          <div style="font-size:9px;color:var(--text3)">Items</div>
-        </div>
-        <div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:6px 12px">
-          <div id="statInvoices" style="font-size:16px;font-weight:700;color:var(--gold)">0</div>
-          <div style="font-size:9px;color:var(--text3)">Invoices</div>
-        </div>
-        <button onclick="showSettings()" style="background:none;border:none;color:var(--text3);font-size:18px;padding:4px 6px">⚙</button>
+        <div style="background:var(--bg);border-radius:10px;padding:6px 12px;text-align:center"><div id="statItems" style="font-size:17px;font-weight:800;color:var(--blue)">0</div><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.04em">Items</div></div>
+        <div style="background:var(--bg);border-radius:10px;padding:6px 12px;text-align:center"><div id="statInvoices" style="font-size:17px;font-weight:800;color:var(--blue)">0</div><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.04em">Saved</div></div>
+        <button onclick="showSettings()" style="background:var(--bg);width:36px;height:36px;border-radius:10px;font-size:17px;display:flex;align-items:center;justify-content:center">⚙️</button>
       </div>
     </div>
-    <nav style="display:flex;padding:0 4px;overflow-x:auto">
-      <button onclick="switchTab(0)" class="navbtn active" data-tab="0" style="background:none;border:none;border-bottom:2px solid var(--gold);color:var(--gold);padding:9px 14px;font-size:12px;letter-spacing:.04em;white-space:nowrap">📷 Scan</button>
-      <button onclick="switchTab(1)" class="navbtn" data-tab="1" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:9px 14px;font-size:12px;letter-spacing:.04em;white-space:nowrap">✏️ Manual</button>
-      <button onclick="switchTab(2)" class="navbtn" data-tab="2" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:9px 14px;font-size:12px;letter-spacing:.04em;white-space:nowrap">📦 Catalogue</button>
-      <button onclick="switchTab(3)" class="navbtn" data-tab="3" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:9px 14px;font-size:12px;letter-spacing:.04em;white-space:nowrap">🗂️ History</button>
-    </nav>
+    <div style="display:flex;gap:3px;padding:8px 10px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch">
+      <button onclick="switchTab(0)" class="pill-tab active" data-tab="0">📷 Scan</button>
+      <button onclick="switchTab(1)" class="pill-tab" data-tab="1">✏️ Manual</button>
+      <button onclick="switchTab(2)" class="pill-tab" data-tab="2">📦 Catalogue</button>
+      <button onclick="switchTab(3)" class="pill-tab" data-tab="3">🗂️ History</button>
+      <button onclick="switchTab(4)" class="pill-tab" data-tab="4">📊 Reports</button>
+    </div>
   </header>
 
-  <main style="padding:16px;max-width:960px;margin:0 auto">
+  <main style="padding:14px;max-width:960px;margin:0 auto">
 
 ```
 <!-- SCAN TAB -->
 <div id="tab0" class="tabcontent">
   <div id="scanUpload">
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px">
-      <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;font-weight:600">📷 Scan Invoice with AI</div>
-      <p style="color:var(--text3);font-size:13px;line-height:1.7;margin-bottom:18px">Take a photo of the paper invoice. AI reads all items, quantities and prices automatically.</p>
-      <div id="dropZone" onclick="document.getElementById('fileInput').click()" style="border:2px dashed #252525;border-radius:10px;padding:36px 16px;cursor:pointer;background:#111;display:flex;align-items:center;justify-content:center;min-height:150px;flex-direction:column;text-align:center">
-        <div style="font-size:40px;margin-bottom:10px">📄</div>
-        <div style="color:#bbb;font-size:14px;font-weight:600;margin-bottom:4px">Drop invoice here</div>
-        <div style="color:var(--text3);font-size:12px">or tap the buttons below</div>
+    <div class="card">
+      <div class="sec-title">📷 Scan Invoice with AI</div>
+      <p style="color:var(--text3);font-size:13px;line-height:1.7;margin-bottom:16px">Take a clear photo of any invoice. AI reads all items, quantities and prices instantly.</p>
+      <div id="dropZone" onclick="document.getElementById('fileInput').click()" style="border:2px dashed var(--border2);border-radius:var(--radius2);padding:32px 16px;cursor:pointer;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;min-height:130px;transition:all .2s">
+        <div style="width:50px;height:50px;background:var(--blue-bg);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:10px">📄</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:3px">Drop invoice here</div>
+        <div style="font-size:12px;color:var(--text4)">or use Camera / Upload below</div>
       </div>
-      <div id="compressLog" style="display:none;font-family:monospace;font-size:11px;color:var(--text3);margin-top:8px;line-height:2"></div>
+      <div id="compressLog" style="display:none;font-size:11px;color:var(--text3);margin-top:8px;background:var(--bg);border-radius:8px;padding:8px 10px;line-height:2"></div>
       <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(this.files[0])">
       <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleFile(this.files[0])">
       <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
-        <button class="btn-sec" onclick="document.getElementById('cameraInput').click()">📷 Camera</button>
-        <button class="btn-sec" onclick="document.getElementById('fileInput').click()">🖼 Upload</button>
-        <button class="btn-primary" id="scanBtn" style="display:none" onclick="doScan()">🔍 Scan with AI →</button>
+        <button class="btn-primary" onclick="document.getElementById('cameraInput').click()" style="flex:1;min-width:120px">📷 Camera</button>
+        <button class="btn-sec" onclick="document.getElementById('fileInput').click()" style="flex:1;min-width:100px">🖼 Upload</button>
+        <button class="btn-green" id="scanBtn" style="display:none;flex:2;min-width:140px" onclick="doScan()">🔍 Scan with AI →</button>
       </div>
     </div>
   </div>
 
   <div id="scanScanning" style="display:none">
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:22px">
-      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+    <div class="card">
+      <div class="sec-title">Reading Invoice…</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start">
         <div style="position:relative;flex-shrink:0">
-          <img id="scanPreviewSmall" style="height:160px;border-radius:8px;border:1px solid var(--border);opacity:.5">
-          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:scanline 1.8s linear infinite"></div>
+          <img id="scanPreviewSmall" style="height:110px;border-radius:10px;border:1.5px solid var(--border)">
+          <div style="position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--blue),transparent);animation:scanpulse 1.6s linear infinite;border-radius:2px"></div>
         </div>
-        <div style="flex:1;min-width:180px">
-          <div style="color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.1em;margin-bottom:10px">READING INVOICE…</div>
-          <div id="scanLog" style="background:#0d0d0d;border-radius:7px;padding:10px 12px;font-family:monospace;font-size:11px;color:var(--green);line-height:2.2;border:1px solid #1a1a1a;min-height:80px;word-break:break-all">Starting…</div>
+        <div style="flex:1;min-width:160px">
+          <div id="scanLog" style="background:var(--bg);border-radius:10px;padding:12px;font-size:12px;color:var(--text2);line-height:2.2;min-height:80px;border:1px solid var(--border)">Starting…</div>
         </div>
       </div>
     </div>
   </div>
 
   <div id="scanError" style="display:none">
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px">
-      <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">⚠ Scan Failed</div>
-      <div id="scanErrorMsg" style="background:#160808;border:1px solid rgba(255,107,74,.2);border-radius:8px;padding:12px 14px;color:#ff8870;font-family:monospace;font-size:12px;line-height:1.8;word-break:break-all;white-space:pre-wrap;margin-bottom:12px"></div>
-      <div id="scanDebugLog" style="background:#080d08;border-radius:7px;padding:10px 12px;font-family:monospace;font-size:11px;color:#3d7a3d;line-height:2.2;border:1px solid #151f15;margin-bottom:14px;word-break:break-all"></div>
+    <div class="card" style="border-left:4px solid var(--red)">
+      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px">⚠ Scan Failed</div>
+      <div id="scanErrorMsg" style="background:var(--red-bg);border-radius:8px;padding:12px;color:var(--red);font-size:13px;line-height:1.8;word-break:break-all;white-space:pre-wrap;margin-bottom:10px"></div>
+      <div id="scanDebugLog" style="background:var(--bg);border-radius:8px;padding:10px;font-size:11px;color:var(--text3);line-height:2;margin-bottom:14px;word-break:break-all;font-family:monospace"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn-primary" onclick="retryFromReady()">↩ Try Again</button>
         <button class="btn-sec" onclick="resetScan()">Start Over</button>
@@ -136,33 +168,22 @@
   </div>
 
   <div id="scanReview" style="display:none;animation:fadein .3s ease">
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px">
+    <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div>
-          <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;font-weight:600">✅ Review Extracted Data</div>
-          <p id="reviewSubtitle" style="color:var(--text3);font-size:12px;margin-top:3px"></p>
-        </div>
+        <div><div class="sec-title" style="margin-bottom:2px">✅ Review & Confirm</div><p id="reviewSubtitle" style="color:var(--text3);font-size:12px"></p></div>
         <div id="reviewFlags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px;background:var(--bg3);padding:12px;border-radius:8px;border:1px solid var(--border)">
-        <div><label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Supplier</label><input id="rSupplier" placeholder="Supplier name"></div>
-        <div><label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Invoice No.</label><input id="rInvoiceNo" placeholder="INV-0000"></div>
-        <div><label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Date</label><input id="rDate" type="date"></div>
+      <div class="form-row" style="background:var(--bg);padding:12px;border-radius:var(--radius3);margin-bottom:14px">
+        <div><span class="label">Supplier</span><input id="rSupplier" placeholder="Supplier name" list="supplierList"></div>
+        <div><span class="label">Invoice No.</span><input id="rInvoiceNo" placeholder="INV-0000"></div>
+        <div><span class="label">Date</span><input id="rDate" type="date"></div>
       </div>
-      <div style="display:grid;grid-template-columns:minmax(110px,160px) 1fr;gap:12px;align-items:start">
+      <div style="display:grid;grid-template-columns:minmax(80px,110px) 1fr;gap:14px;align-items:start">
+        <div><span class="label">Photo</span><img id="reviewOriginal" style="width:100%;border-radius:10px;border:1.5px solid var(--border)"></div>
         <div>
-          <div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px">Original</div>
-          <img id="reviewOriginal" style="width:100%;border-radius:8px;border:1px solid var(--border)">
-        </div>
-        <div>
-          <div style="overflow-x:auto">
-            <table id="reviewTable" style="width:100%;border-collapse:collapse;font-size:12px"></table>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:8px">
-            <div style="display:flex;gap:8px">
-              <button class="btn-ghost" onclick="addReviewRow()">＋ Row</button>
-              <button class="btn-ghost" onclick="resetScan()">↩ Rescan</button>
-            </div>
+          <div style="overflow-x:auto"><table id="reviewTable" style="width:100%;border-collapse:collapse"></table></div>
+          <div style="display:flex;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px">
+            <div style="display:flex;gap:8px"><button class="btn-ghost" onclick="addReviewRow()">＋ Row</button><button class="btn-sec" onclick="resetScan()">↩ Rescan</button></div>
             <button class="btn-primary" onclick="submitReview()">Confirm & Save →</button>
           </div>
         </div>
@@ -173,23 +194,21 @@
 
 <!-- MANUAL TAB -->
 <div id="tab1" class="tabcontent" style="display:none">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px">
-    <div id="manualSaved" style="display:none;background:#4caf8210;border:1px solid rgba(76,175,130,.17);border-radius:7px;color:var(--green);font-size:13px;padding:9px 12px;margin-bottom:12px">✅ Invoice saved!</div>
-    <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;font-weight:600">Manual Entry</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px">
-      <div><label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Supplier</label><input id="mSupplier" placeholder="ABC Trading" list="supplierList"></div>
-      <div><label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Invoice No.</label><input id="mInvoiceNo" placeholder="INV-0042"></div>
-      <div><label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Date</label><input id="mDate" type="date"></div>
+  <div class="card">
+    <div id="manualSaved" style="display:none;background:var(--green-bg);border-radius:8px;color:#1a8a35;font-size:13px;font-weight:600;padding:10px 14px;margin-bottom:14px">✅ Invoice saved!</div>
+    <div class="sec-title">Manual Entry</div>
+    <div class="form-row" style="margin-bottom:18px">
+      <div><span class="label">Supplier</span><input id="mSupplier" placeholder="ABC Trading" list="supplierList"></div>
+      <div><span class="label">Invoice No.</span><input id="mInvoiceNo" placeholder="INV-0042"></div>
+      <div><span class="label">Date</span><input id="mDate" type="date"></div>
     </div>
     <datalist id="supplierList"></datalist>
-    <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;font-weight:600;display:flex;justify-content:space-between;align-items:center">
-      <span>Items</span>
-      <div id="manualFlags" style="display:flex;gap:6px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="sec-title" style="margin-bottom:0">Items</div>
+      <div id="manualFlags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
     </div>
-    <div style="overflow-x:auto">
-      <table id="manualTable" style="width:100%;border-collapse:collapse;font-size:12px"></table>
-    </div>
-    <div style="display:flex;justify-content:space-between;margin-top:10px">
+    <div style="overflow-x:auto"><table id="manualTable" style="width:100%;border-collapse:collapse"></table></div>
+    <div style="display:flex;justify-content:space-between;margin-top:12px">
       <button class="btn-ghost" onclick="addManualRow()">＋ Add Row</button>
       <button class="btn-primary" onclick="submitManual()">Save Invoice →</button>
     </div>
@@ -198,17 +217,17 @@
 
 <!-- CATALOGUE TAB -->
 <div id="tab2" class="tabcontent" style="display:none">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px">
-    <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;font-weight:600">Item Catalogue</div>
-    <input id="catSearch" placeholder="🔍 Search by code or name…" oninput="renderCatalogue()" style="max-width:280px;margin-bottom:14px">
-    <div style="overflow-x:auto">
-      <table id="catTable" style="width:100%;border-collapse:collapse;font-size:12px"></table>
-    </div>
-    <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;margin-top:22px;margin-bottom:10px;font-weight:600">Add Item Manually</div>
+  <div class="card">
+    <div class="sec-title">Item Catalogue</div>
+    <input id="catSearch" placeholder="🔍 Search items…" oninput="renderCatalogue()" style="margin-bottom:14px">
+    <div style="overflow-x:auto"><table id="catTable" style="width:100%;border-collapse:collapse"></table></div>
+  </div>
+  <div class="card">
+    <div class="sec-title">Add New Item</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-      <div style="flex:1;min-width:100px"><label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Code</label><input id="newCode" placeholder="RICE001"></div>
-      <div style="flex:2;min-width:140px"><label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Name</label><input id="newName" placeholder="Jasmine Rice 5kg"></div>
-      <div style="flex:1;min-width:80px"><label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Carton Size</label><input id="newCtn" placeholder="12" type="number"></div>
+      <div style="flex:1;min-width:90px"><span class="label">Code</span><input id="newCode" placeholder="ITEM001"></div>
+      <div style="flex:2;min-width:140px"><span class="label">Name</span><input id="newName" placeholder="Product name"></div>
+      <div style="flex:1;min-width:80px"><span class="label">Carton Size</span><input id="newCtn" placeholder="12" type="number"></div>
       <button class="btn-primary" onclick="addCatalogueItem()">Add</button>
     </div>
   </div>
@@ -216,10 +235,13 @@
 
 <!-- HISTORY TAB -->
 <div id="tab3" class="tabcontent" style="display:none">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px">
-    <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;font-weight:600">Invoice History</div>
-    <div id="historyList"></div>
-  </div>
+  <input id="histSearch" placeholder="🔍 Search by supplier or invoice no…" oninput="renderHistory()" style="margin-bottom:12px">
+  <div id="historyList"></div>
+</div>
+
+<!-- REPORTS TAB -->
+<div id="tab4" class="tabcontent" style="display:none">
+  <div id="reportsContent"></div>
 </div>
 ```
 
@@ -228,606 +250,241 @@
 
 <!-- SETTINGS MODAL -->
 
-<div id="settingsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:22px;width:100%;max-width:400px">
-    <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px">⚙ Settings</div>
-    <label style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px">Anthropic API Key</label>
-    <input type="password" id="settingsKey" style="margin-bottom:14px">
-    <div style="display:flex;gap:10px">
-      <button class="btn-primary" onclick="updateApiKey()">Save</button>
-      <button class="btn-sec" onclick="closeSettings()">Cancel</button>
-      <button class="btn-danger" onclick="clearAllData()" style="margin-left:auto">🗑 Clear All Data</button>
+<div id="settingsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:flex-end;justify-content:center">
+  <div style="background:var(--white);border-radius:var(--radius) var(--radius) 0 0;padding:24px;width:100%;max-width:480px;box-shadow:var(--shadow2);animation:fadein .2s ease">
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:18px">⚙️ Settings</div>
+    <span class="label">Anthropic API Key</span>
+    <input type="password" id="settingsKey" style="margin-bottom:16px">
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <button class="btn-primary" onclick="updateApiKey()" style="flex:1">Save Key</button>
+      <button class="btn-sec" onclick="closeSettings()" style="flex:1">Cancel</button>
     </div>
+    <button onclick="clearAllData()" style="width:100%;padding:11px;background:var(--red-bg);color:var(--red);border:none;border-radius:var(--radius3);font-weight:600;font-size:14px">🗑 Clear All Data</button>
   </div>
 </div>
 
-<style>
-  th{text-align:left;color:var(--text3);font-size:10px;letter-spacing:.07em;text-transform:uppercase;padding:7px 7px;border-bottom:1px solid var(--border);white-space:nowrap}
-  td{padding:7px 7px;border-bottom:1px solid #191919;vertical-align:middle}
-  td input{background:var(--bg3);border:1px solid #272727;border-radius:5px;color:var(--text);padding:5px 7px;width:100%;font-size:12px}
-  td input:focus{border-color:var(--gold2);outline:none}
-  td select{background:var(--bg3);border:1px solid #272727;border-radius:5px;color:var(--text);padding:5px 6px;font-size:12px}
-  .flag-btn{border-radius:5px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--font)}
-  .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
-  .inv-card{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden}
-  .inv-hdr{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:#191919;cursor:pointer;flex-wrap:wrap;gap:8px}
-  .tooltip{position:absolute;right:0;top:110%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;font-size:12px;z-index:200;min-width:210px;line-height:1.8;box-shadow:0 10px 28px rgba(0,0,0,.8);display:none}
-  .tooltip.open{display:block}
-</style>
-
 <script>
-// ─── DATA ────────────────────────────────────────────────────────────────────
-let catalogue = {}, invoices = [], currentB64 = null, currentPreviewUrl = null, reviewLines = [], scanLogs = [];
+let catalogue={},invoices=[],currentB64=null,currentPreviewUrl=null,reviewLines=[],scanLogs=[];
+function save(){localStorage.setItem('ig_cat',JSON.stringify(catalogue));localStorage.setItem('ig_inv',JSON.stringify(invoices));updateStats()}
+function load(){try{catalogue=JSON.parse(localStorage.getItem('ig_cat')||'{}')}catch{catalogue={}}try{invoices=JSON.parse(localStorage.getItem('ig_inv')||'[]')}catch{invoices=[]}updateStats()}
+function updateStats(){document.getElementById('statItems').textContent=Object.keys(catalogue).length;document.getElementById('statInvoices').textContent=invoices.length}
+function getApiKey(){return localStorage.getItem('ig_apikey')||''}
+function today(){return new Date().toISOString().slice(0,10)}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function fmt(n){return isNaN(n)||n===null?'—':Number(n).toFixed(2)}
+function pct(a,b){return b===0?0:((a-b)/b*100).toFixed(1)}
+function avg(arr){return arr.length?arr.reduce((s,x)=>s+x,0)/arr.length:0}
+function esc(s){if(s===null||s===undefined)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
-function save() {
-  localStorage.setItem('ig_cat', JSON.stringify(catalogue));
-  localStorage.setItem('ig_inv', JSON.stringify(invoices));
-  updateStats();
-}
-
-function load() {
-  try { catalogue = JSON.parse(localStorage.getItem('ig_cat') || '{}'); } catch { catalogue = {}; }
-  try { invoices = JSON.parse(localStorage.getItem('ig_inv') || '[]'); } catch { invoices = []; }
-  updateStats();
-}
-
-function updateStats() {
-  document.getElementById('statItems').textContent = Object.keys(catalogue).length;
-  document.getElementById('statInvoices').textContent = invoices.length;
-}
-
-function getApiKey() { return localStorage.getItem('ig_apikey') || ''; }
-function today() { return new Date().toISOString().slice(0,10); }
-function uid() { return Math.random().toString(36).slice(2,9); }
-function fmt(n) { return isNaN(n) ? '—' : Number(n).toFixed(2); }
-function pct(a, b) { return b===0 ? 0 : ((a-b)/b*100).toFixed(1); }
-function avg(arr) { return arr.length ? arr.reduce((s,x) => s+x, 0)/arr.length : 0; }
-
-// ─── SETUP ───────────────────────────────────────────────────────────────────
-function init() {
+function init(){
   load();
-  const key = getApiKey();
-  if (!key) {
-    document.getElementById('setupScreen').style.display = 'flex';
-    document.getElementById('app').style.display = 'none';
-  } else {
-    document.getElementById('setupScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    initApp();
-  }
+  if(!getApiKey()){document.getElementById('setupScreen').style.display='flex';document.getElementById('app').style.display='none'}
+  else{document.getElementById('setupScreen').style.display='none';document.getElementById('app').style.display='block';initApp()}
+}
+function saveApiKey(){
+  const key=document.getElementById('apiKeyInput').value.trim();
+  if(!key.startsWith('sk-ant-')){alert('Please enter a valid key starting with sk-ant-');return}
+  localStorage.setItem('ig_apikey',key);document.getElementById('setupScreen').style.display='none';document.getElementById('app').style.display='block';initApp()
+}
+function initApp(){document.getElementById('mDate').value=today();updateSupplierList();renderManualTable();renderCatalogue();renderHistory();renderReports();updateStats()}
+
+function switchTab(n){
+  document.querySelectorAll('.tabcontent').forEach((t,i)=>t.style.display=i===n?'block':'none');
+  document.querySelectorAll('.pill-tab').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.tab)===n));
+  if(n===2)renderCatalogue();if(n===3)renderHistory();if(n===4)renderReports()
 }
 
-function saveApiKey() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key.startsWith('sk-ant-')) { alert('Please enter a valid Anthropic API key starting with sk-ant-'); return; }
-  localStorage.setItem('ig_apikey', key);
-  document.getElementById('setupScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  initApp();
+async function compressImage(dataUrl,maxPx,quality){
+  return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{let{width:w,height:h}=img;const r=Math.min(maxPx/w,maxPx/h,1);w=Math.round(w*r);h=Math.round(h*r);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);const out=c.toDataURL('image/jpeg',quality);res({dataUrl:out,b64:out.split(',')[1],sizeKB:Math.round(out.length*.75/1024)})};img.onerror=rej;img.src=dataUrl})
+}
+async function handleFile(file){
+  if(!file)return;const log=document.getElementById('compressLog');log.style.display='block';log.innerHTML='';
+  const addLog=m=>{log.innerHTML+=m+'<br>'};
+  const reader=new FileReader();reader.onload=async e=>{
+    const raw=e.target.result;addLog(`📷 Original: ~${Math.round(raw.length*.75/1024)}KB`);let result;
+    for(const[px,q]of[[800,.65],[600,.55],[500,.45],[400,.4]]){result=await compressImage(raw,px,q);addLog(`→ ${px}px = ${result.sizeKB}KB`);if(result.sizeKB<150)break}
+    addLog(`✅ Ready: ${result.sizeKB}KB`);currentB64=result.b64;currentPreviewUrl=result.dataUrl;
+    const dz=document.getElementById('dropZone');
+    dz.innerHTML=`<img src="${result.dataUrl}" style="max-height:220px;max-width:100%;border-radius:10px;border:1.5px solid var(--border)"><p style="color:var(--text3);font-size:12px;margin-top:8px;font-weight:500">Tap to change · ${result.sizeKB}KB</p>`;
+    dz.style.padding='12px';dz.style.border='2px solid var(--border)';dz.style.background='var(--white)';
+    document.getElementById('scanBtn').style.display='inline-block'
+  };reader.readAsDataURL(file)
 }
 
-function initApp() {
-  document.getElementById('mDate').value = today();
-  updateSupplierList();
-  renderManualTable();
-  renderCatalogue();
-  renderHistory();
-  updateStats();
-}
-
-// ─── TAB SWITCHING ────────────────────────────────────────────────────────────
-function switchTab(n) {
-  document.querySelectorAll('.tabcontent').forEach((t,i) => t.style.display = i===n ? 'block' : 'none');
-  document.querySelectorAll('.navbtn').forEach(b => {
-    const active = parseInt(b.dataset.tab) === n;
-    b.style.color = active ? 'var(--gold)' : 'var(--text3)';
-    b.style.borderBottom = active ? '2px solid var(--gold)' : '2px solid transparent';
-  });
-  if (n===2) renderCatalogue();
-  if (n===3) renderHistory();
-}
-
-// ─── IMAGE HANDLING ───────────────────────────────────────────────────────────
-async function compressImage(dataUrl, maxPx, quality) {
-  return new Promise((res, rej) => {
-    const img = new Image();
-    img.onload = () => {
-      let {width:w, height:h} = img;
-      const ratio = Math.min(maxPx/w, maxPx/h, 1);
-      w = Math.round(w*ratio); h = Math.round(h*ratio);
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, w, h);
-      const out = c.toDataURL('image/jpeg', quality);
-      res({ dataUrl: out, b64: out.split(',')[1], sizeKB: Math.round(out.length*0.75/1024) });
-    };
-    img.onerror = rej;
-    img.src = dataUrl;
-  });
-}
-
-async function handleFile(file) {
-  if (!file) return;
-  const log = document.getElementById('compressLog');
-  log.style.display = 'block'; log.innerHTML = '';
-  const addLog = m => { log.innerHTML += m + '<br>'; };
-
-  const reader = new FileReader();
-  reader.onload = async e => {
-    const raw = e.target.result;
-    addLog(`📷 Original: ~${Math.round(raw.length*0.75/1024)}KB`);
-    let result;
-    for (const [px, q] of [[800,.65],[600,.55],[500,.45],[400,.4]]) {
-      result = await compressImage(raw, px, q);
-      addLog(`  → ${px}px @ ${Math.round(q*100)}% = ${result.sizeKB}KB`);
-      if (result.sizeKB < 150) break;
-    }
-    addLog(`✅ Ready: ${result.sizeKB}KB`);
-    currentB64 = result.b64;
-    currentPreviewUrl = result.dataUrl;
-
-    const dz = document.getElementById('dropZone');
-    dz.innerHTML = `<img src="${result.dataUrl}" style="max-height:240px;max-width:100%;border-radius:8px;border:1px solid var(--border)"><p style="color:var(--text3);font-size:11px;margin-top:6px">Tap to change · ${result.sizeKB}KB</p>`;
-    dz.style.padding = '10px';
-    dz.style.border = '2px solid var(--border)';
-    dz.style.background = 'var(--bg2)';
-    document.getElementById('scanBtn').style.display = 'inline-block';
-  };
-  reader.readAsDataURL(file);
-}
-
-// ─── AI SCANNING ─────────────────────────────────────────────────────────────
-function addScanLog(msg) {
-  scanLogs.push(msg);
-  document.getElementById('scanLog').innerHTML = scanLogs.map(l => `<div>${l}</div>`).join('');
-}
-
-async function doScan() {
-  if (!currentB64) return;
-  const key = getApiKey();
-  if (!key) { showSettings(); return; }
-
-  scanLogs = [];
-  showScanStage('scanning');
-  document.getElementById('scanPreviewSmall').src = currentPreviewUrl;
-
-  try {
+function addScanLog(msg){scanLogs.push(msg);document.getElementById('scanLog').innerHTML=scanLogs.map(l=>`<div>${l}</div>`).join('')}
+async function doScan(){
+  if(!currentB64)return;const key=getApiKey();if(!key){showSettings();return}
+  scanLogs=[];showScanStage('scanning');document.getElementById('scanPreviewSmall').src=currentPreviewUrl;
+  try{
     addScanLog('🔌 Testing connection…');
-    const testRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 10, messages: [{ role: 'user', content: 'OK' }] })
-    });
-    const testData = await testRes.json();
-    if (testData.error) throw new Error(`Auth error: ${testData.error.message}`);
-    addScanLog('✅ Connected!');
+    const testRes=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'OK'}]})});
+    const testData=await testRes.json();if(testData.error)throw new Error(`Auth: ${testData.error.message}`);
+    addScanLog('✅ Connected!');addScanLog(`📤 Sending image (${Math.round(currentB64.length/1024)}KB)…`);
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:currentB64}},{type:'text',text:`Extract all invoice data. Reply ONLY with raw JSON, no markdown, no explanation.\n{"supplier":"","invoiceNo":"","date":"YYYY-MM-DD","lines":[{"code":"","name":"","qty":"1","unitType":"carton","cartonSize":"","price":"0"}]}\nToday=${today()}`}]}]})});
+    const data=await res.json();if(data.error)throw new Error(`API: ${data.error.message}`);
+    const txt=data.content?.find(b=>b.type==='text')?.text||'';addScanLog(`📥 Response received (${txt.length} chars)`);
+    const parsed=extractJSON(txt);if(!Array.isArray(parsed.lines))throw new Error('No line items found in response');
+    addScanLog(`✅ Extracted ${parsed.lines.length} items!`);showReview(parsed)
+  }catch(e){document.getElementById('scanErrorMsg').textContent=e.message;document.getElementById('scanDebugLog').innerHTML='Debug:\n'+scanLogs.join('\n');showScanStage('error')}
+}
+function extractJSON(text){
+  const tries=[()=>JSON.parse(text.trim()),()=>JSON.parse(text.replace(/```(?:json)?/gi,'').replace(/```/g,'').trim()),()=>{const s=text.indexOf('{'),e=text.lastIndexOf('}');if(s!==-1&&e>s)return JSON.parse(text.slice(s,e+1));throw 0}];
+  for(const fn of tries){try{return fn()}catch{}}throw new Error('Could not parse AI response: '+text.slice(0,200))
+}
+function showScanStage(stage){
+  document.getElementById('scanUpload').style.display=stage==='upload'?'block':'none';
+  document.getElementById('scanScanning').style.display=stage==='scanning'?'block':'none';
+  document.getElementById('scanError').style.display=stage==='error'?'block':'none';
+  document.getElementById('scanReview').style.display=stage==='review'?'block':'none'
+}
+function resetScan(){
+  currentB64=null;currentPreviewUrl=null;reviewLines=[];scanLogs=[];
+  const dz=document.getElementById('dropZone');
+  dz.innerHTML='<div style="width:50px;height:50px;background:var(--blue-bg);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:10px">📄</div><div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:3px">Drop invoice here</div><div style="font-size:12px;color:var(--text4)">or use Camera / Upload below</div>';
+  dz.style.padding='32px 16px';dz.style.border='2px dashed var(--border2)';dz.style.background='var(--bg)';
+  document.getElementById('scanBtn').style.display='none';document.getElementById('compressLog').style.display='none';showScanStage('upload')
+}
+function retryFromReady(){showScanStage('upload')}
 
-    addScanLog(`📤 Sending invoice image (${Math.round(currentB64.length/1024)}KB)…`);
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: [
-          { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: currentB64 } },
-          { type: 'text', text: `Extract all invoice data. Reply ONLY with raw JSON, no markdown, no explanation.\n{"supplier":"","invoiceNo":"","date":"YYYY-MM-DD","lines":[{"code":"","name":"","qty":"1","unitType":"carton","cartonSize":"","price":"0"}]}\nExtract every line item. If no code exists, create a short one. Today=${today()}` }
-        ]}]
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(`API: ${data.error.message}`);
-
-    const txt = data.content?.find(b => b.type==='text')?.text || '';
-    addScanLog(`📥 Got response (${txt.length} chars)`);
-    const parsed = extractJSON(txt);
-    if (!Array.isArray(parsed.lines)) throw new Error('No line items found in response');
-    addScanLog(`✅ Extracted ${parsed.lines.length} items!`);
-
-    showReview(parsed);
-  } catch(e) {
-    document.getElementById('scanErrorMsg').textContent = e.message;
-    document.getElementById('scanDebugLog').innerHTML = '— Debug —\n' + scanLogs.join('\n');
-    showScanStage('error');
-  }
+function showReview(parsed){
+  document.getElementById('rSupplier').value=parsed.supplier||'';document.getElementById('rInvoiceNo').value=parsed.invoiceNo||'';document.getElementById('rDate').value=parsed.date||today();document.getElementById('reviewOriginal').src=currentPreviewUrl;document.getElementById('reviewSubtitle').textContent=`AI found ${parsed.lines.length} items. Fix any errors then save.`;
+  reviewLines=(parsed.lines||[]).map(l=>({...l,_id:uid()}));renderReviewTable();showScanStage('review')
+}
+function renderReviewTable(){
+  const table=document.getElementById('reviewTable');const flags=reviewLines.map(l=>getFlag(l));document.getElementById('reviewFlags').innerHTML=flagBadges(countFlags(flags));
+  table.innerHTML=`<thead><tr>${['Code','Description','Qty','Unit','CTN','Price','Alert',''].map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
+  const tbody=document.createElement('tbody');
+  reviewLines.forEach((line,i)=>{const flag=flags[i];const tr=document.createElement('tr');tr.style.background=flag?.type==='up'?'rgba(255,59,48,.03)':flag?.type==='new'?'rgba(0,113,227,.03)':'';
+  tr.innerHTML=`<td><input style="width:76px;font-weight:700;text-transform:uppercase" value="${esc(line.code)}" onchange="updateReviewLine('${line._id}','code',this.value)"></td><td><input style="min-width:110px" value="${esc(line.name)}" onchange="updateReviewLine('${line._id}','name',this.value)"></td><td><input style="width:50px" type="number" value="${esc(line.qty)}" onchange="updateReviewLine('${line._id}','qty',this.value)"></td><td><select onchange="updateReviewLine('${line._id}','unitType',this.value)">${unitOptions(line.unitType)}</select></td><td><input style="width:54px" type="number" value="${esc(line.cartonSize)}" placeholder="—" onchange="updateReviewLine('${line._id}','cartonSize',this.value)"></td><td><input style="width:80px" type="number" step="0.01" value="${esc(line.price)}" onchange="updateReviewLine('${line._id}','price',this.value)"></td><td style="min-width:120px">${flag?flagCell(flag,line._id):''}</td><td><button class="btn-sm-danger" onclick="removeReviewLine('${line._id}')">✕</button></td>`;
+  tbody.appendChild(tr)});table.appendChild(tbody)
+}
+function updateReviewLine(id,field,val){const l=reviewLines.find(l=>l._id===id);if(l)l[field]=val;document.getElementById('reviewFlags').innerHTML=flagBadges(countFlags(reviewLines.map(l=>getFlag(l))))}
+function removeReviewLine(id){reviewLines=reviewLines.filter(l=>l._id!==id);renderReviewTable()}
+function addReviewRow(){reviewLines.push({_id:uid(),code:'',name:'',qty:'',unitType:'carton',price:'',cartonSize:''});renderReviewTable()}
+function submitReview(){
+  const supplier=document.getElementById('rSupplier').value.trim(),invoiceNo=document.getElementById('rInvoiceNo').value.trim(),date=document.getElementById('rDate').value,good=reviewLines.filter(l=>(l.code||'').trim()&&l.price&&l.qty);
+  if(!supplier||!invoiceNo||!good.length){alert('Please fill Supplier, Invoice No, and at least one item.');return}
+  saveInvoice({supplier,invoiceNo,date,lines:good});resetScan();switchTab(3)
 }
 
-function extractJSON(text) {
-  const tries = [
-    () => JSON.parse(text.trim()),
-    () => JSON.parse(text.replace(/```(?:json)?/gi,'').replace(/```/g,'').trim()),
-    () => { const s=text.indexOf('{'), e=text.lastIndexOf('}'); if(s!==-1&&e>s) return JSON.parse(text.slice(s,e+1)); throw 0; }
-  ];
-  for(const fn of tries){ try{ return fn(); }catch{} }
-  throw new Error('Could not parse AI response: ' + text.slice(0,200));
+function getFlag(line){
+  const code=(line.code||'').toUpperCase().trim(),price=parseFloat(line.price);if(!code||isNaN(price)||price<=0)return null;
+  const cat=catalogue[code];if(!cat||!cat.history?.length)return{type:'new'};
+  const last=cat.history[cat.history.length-1];const csz=parseFloat(line.cartonSize)||cat.cartonSize||1;
+  const lastPc=last.unitType==='carton'?last.price/(cat.cartonSize||1):last.price;const thisPc=line.unitType==='carton'?price/csz:price;
+  const diff=pct(thisPc,lastPc);const recent=cat.history.slice(-5).map(h=>h.unitType==='carton'?h.price/(cat.cartonSize||1):h.price);const suggested=fmt(line.unitType==='carton'?avg(recent)*csz:avg(recent));
+  if(Math.abs(diff)<0.1)return{type:'ok',suggested};
+  return{type:diff>0?'up':'down',diff,suggested,lastPrice:last.price,lastUnit:last.unitType,lastDate:last.date,lastSupplier:last.supplier}
+}
+function countFlags(flags){return flags.reduce((acc,f)=>{if(f)acc[f.type]=(acc[f.type]||0)+1;return acc},{})}
+function flagBadges(fc){let h='';if(fc.up)h+=`<span class="badge b-red">▲ ${fc.up} up</span>`;if(fc.new)h+=`<span class="badge b-blue">⚡ ${fc.new} new</span>`;if(fc.down)h+=`<span class="badge b-green">▼ ${fc.down} down</span>`;return h}
+function flagCell(flag,id){
+  const s={up:'background:#fff0ee;color:#ff3b30',new:'background:#eef4ff;color:#0071e3',down:'background:#f0fff6;color:#1a8a35',ok:'background:#f5f5f7;color:#8e8e93'};const l={up:`▲ +${flag.diff}%`,new:'⚡ NEW',down:`▼ ${Math.abs(flag.diff)}%`,ok:'✓ OK'};
+  const tipId='tip_'+id;let tip='';
+  if(flag.type==='new')tip=`<div style="font-weight:700;color:#0071e3;margin-bottom:6px">⚡ First-Time Item</div><div style="font-size:12px;color:#8e8e93">No price history yet. Verify the price before accepting.</div>`;
+  if(flag.type==='up'||flag.type==='down')tip=`<div style="font-weight:700;color:${flag.type==='up'?'#ff3b30':'#1a8a35'};margin-bottom:8px">${flag.type==='up'?'▲ Price Increase':'▼ Price Decrease'} ${Math.abs(flag.diff)}%</div><div style="font-size:12px;color:#48484a;line-height:2"><div>Last paid: <strong>RM ${fmt(flag.lastPrice)}</strong> per ${flag.lastUnit}</div><div>Supplier: ${esc(flag.lastSupplier||'—')}</div><div>Date: ${flag.lastDate}</div>${flag.suggested?`<div style="color:#0071e3;font-weight:600;margin-top:4px">💡 5-invoice avg: RM ${flag.suggested}</div>`:''}</div>`;
+  return`<div style="position:relative;display:inline-block"><button class="flag-btn" onclick="toggleTip('${tipId}')" style="${s[flag.type]}">${l[flag.type]}</button><div id="${tipId}" class="tooltip">${tip}<button onclick="toggleTip('${tipId}')" style="position:absolute;top:8px;right:10px;background:none;border:none;color:#8e8e93;cursor:pointer;font-size:15px">✕</button></div></div>`
+}
+function toggleTip(id){const el=document.getElementById(id);if(el)el.classList.toggle('open')}
+
+let manualLines=[{_id:uid(),code:'',name:'',qty:'',unitType:'carton',price:'',cartonSize:''}];
+function renderManualTable(){
+  const table=document.getElementById('manualTable');const flags=manualLines.map(l=>getFlag(l));document.getElementById('manualFlags').innerHTML=flagBadges(countFlags(flags));
+  table.innerHTML=`<thead><tr>${['Code','Description','Qty','Unit','CTN','Price','Alert',''].map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
+  const tbody=document.createElement('tbody');
+  manualLines.forEach((line,i)=>{const flag=flags[i];const tr=document.createElement('tr');tr.style.background=flag?.type==='up'?'rgba(255,59,48,.03)':flag?.type==='new'?'rgba(0,113,227,.03)':'';
+  tr.innerHTML=`<td><input style="width:76px;font-weight:700;text-transform:uppercase" value="${esc(line.code)}" oninput="manualCodeInput('${line._id}',this)" placeholder="CODE"></td><td><input style="min-width:110px" value="${esc(line.name)}" onchange="updateManualLine('${line._id}','name',this.value)" placeholder="Description"></td><td><input style="width:50px" type="number" value="${esc(line.qty)}" onchange="updateManualLine('${line._id}','qty',this.value)" placeholder="0"></td><td><select onchange="updateManualLine('${line._id}','unitType',this.value)">${unitOptions(line.unitType)}</select></td><td><input style="width:54px" type="number" value="${esc(line.cartonSize)}" placeholder="—" onchange="updateManualLine('${line._id}','cartonSize',this.value)"></td><td><input style="width:80px" type="number" step="0.01" value="${esc(line.price)}" onchange="updateManualLine('${line._id}','price',this.value)" placeholder="0.00"></td><td style="min-width:120px">${flag?flagCell(flag,'m_'+line._id):''}</td><td><button class="btn-sm-danger" onclick="removeManualLine('${line._id}')">✕</button></td>`;
+  tbody.appendChild(tr)});table.appendChild(tbody)
+}
+function manualCodeInput(id,input){
+  const val=input.value.toUpperCase();updateManualLine(id,'code',val);
+  const cat=catalogue[val.trim()];if(cat){const line=manualLines.find(l=>l._id===id);if(line&&!line.name){updateManualLine(id,'name',cat.name);input.closest('tr').querySelector('td:nth-child(2) input').value=cat.name}if(line&&!line.cartonSize){updateManualLine(id,'cartonSize',String(cat.cartonSize||1));input.closest('tr').querySelector('td:nth-child(5) input').value=cat.cartonSize||1}}
+  renderManualTable()
+}
+function updateManualLine(id,field,val){const l=manualLines.find(l=>l._id===id);if(l)l[field]=val;document.getElementById('manualFlags').innerHTML=flagBadges(countFlags(manualLines.map(l=>getFlag(l))))}
+function removeManualLine(id){manualLines=manualLines.filter(l=>l._id!==id);renderManualTable()}
+function addManualRow(){manualLines.push({_id:uid(),code:'',name:'',qty:'',unitType:'carton',price:'',cartonSize:''});renderManualTable()}
+function submitManual(){
+  const supplier=document.getElementById('mSupplier').value.trim(),invoiceNo=document.getElementById('mInvoiceNo').value.trim(),date=document.getElementById('mDate').value,good=manualLines.filter(l=>(l.code||'').trim()&&l.price&&l.qty);
+  if(!supplier||!invoiceNo||!good.length){alert('Fill Supplier, Invoice No, and at least one item.');return}
+  saveInvoice({supplier,invoiceNo,date,lines:good});
+  document.getElementById('mSupplier').value='';document.getElementById('mInvoiceNo').value='';document.getElementById('mDate').value=today();
+  manualLines=[{_id:uid(),code:'',name:'',qty:'',unitType:'carton',price:'',cartonSize:''}];renderManualTable();
+  const banner=document.getElementById('manualSaved');banner.style.display='block';setTimeout(()=>banner.style.display='none',3000);switchTab(3)
 }
 
-function showScanStage(stage) {
-  ['scanUpload','scanScanning','scanError','scanReview'].forEach(id => {
-    document.getElementById(id).style.display = id === 'scan'+stage.charAt(0).toUpperCase()+stage.slice(1) || id === 'scan'+stage ? 'block' : 'none';
-  });
-  // Handle naming mismatch
-  if (stage==='upload') { document.getElementById('scanUpload').style.display='block'; document.getElementById('scanScanning').style.display='none'; document.getElementById('scanError').style.display='none'; document.getElementById('scanReview').style.display='none'; }
-  if (stage==='scanning') { document.getElementById('scanUpload').style.display='none'; document.getElementById('scanScanning').style.display='block'; document.getElementById('scanError').style.display='none'; document.getElementById('scanReview').style.display='none'; }
-  if (stage==='error') { document.getElementById('scanUpload').style.display='none'; document.getElementById('scanScanning').style.display='none'; document.getElementById('scanError').style.display='block'; document.getElementById('scanReview').style.display='none'; }
-  if (stage==='review') { document.getElementById('scanUpload').style.display='none'; document.getElementById('scanScanning').style.display='none'; document.getElementById('scanError').style.display='none'; document.getElementById('scanReview').style.display='block'; }
+function saveInvoice(invoice){
+  invoice.lines.forEach(line=>{const code=(line.code||'ITEM').toUpperCase().trim();if(!catalogue[code])catalogue[code]={name:line.name,cartonSize:Number(line.cartonSize)||1,history:[]};else{if(line.name)catalogue[code].name=line.name;if(line.cartonSize)catalogue[code].cartonSize=Number(line.cartonSize)};catalogue[code].history=[...(catalogue[code].history||[]),{date:invoice.date,supplier:invoice.supplier,invoiceNo:invoice.invoiceNo,price:parseFloat(line.price)||0,unitType:line.unitType,qty:parseFloat(line.qty)||1}].slice(-50)});
+  invoices=[{...invoice,id:Date.now()},...invoices].slice(0,200);save();updateSupplierList()
 }
 
-function resetScan() {
-  currentB64 = null; currentPreviewUrl = null; reviewLines = []; scanLogs = [];
-  const dz = document.getElementById('dropZone');
-  dz.innerHTML = '<div style="font-size:40px;margin-bottom:10px">📄</div><div style="color:#bbb;font-size:14px;font-weight:600;margin-bottom:4px">Drop invoice here</div><div style="color:var(--text3);font-size:12px">or tap the buttons below</div>';
-  dz.style.padding = '36px 16px'; dz.style.border = '2px dashed #252525'; dz.style.background = '#111';
-  document.getElementById('scanBtn').style.display = 'none';
-  document.getElementById('compressLog').style.display = 'none';
-  document.getElementById('compressLog').innerHTML = '';
-  showScanStage('upload');
+function renderCatalogue(){
+  const search=(document.getElementById('catSearch')?.value||'').toLowerCase();
+  const items=Object.entries(catalogue).filter(([k,v])=>k.toLowerCase().includes(search)||(v.name||'').toLowerCase().includes(search)).sort((a,b)=>a[0].localeCompare(b[0]));
+  const table=document.getElementById('catTable');table.innerHTML=`<thead><tr>${['Code','Name','CTN','Last Price','Supplier','Date','Avg/pc','Trend',''].map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
+  const tbody=document.createElement('tbody');
+  if(!items.length){const tr=document.createElement('tr');tr.innerHTML=`<td colspan="9"><div class="empty"><div class="icon">📦</div><p>Items appear automatically after saving invoices.</p></div></td>`;tbody.appendChild(tr)}
+  items.forEach(([code,item])=>{const hist=item.history||[],last=hist[hist.length-1];const recent=hist.slice(-5).map(h=>h.unitType==='carton'?h.price/(item.cartonSize||1):h.price);const a=avg(recent),trend=recent.length>=2?pct(recent[recent.length-1],recent[0]):null;const tc=trend>2?'var(--red)':trend<-2?'#1a8a35':'var(--text3)';const tr=document.createElement('tr');tr.innerHTML=`<td><span style="font-weight:800;color:var(--blue)">${code}</span></td><td style="font-weight:500">${esc(item.name||'—')}</td><td style="text-align:center;color:var(--text3)">${item.cartonSize||1}</td><td>${last?`<strong>RM ${fmt(last.price)}</strong><span style="color:var(--text3);font-size:11px">/${last.unitType}</span>`:'—'}</td><td style="color:var(--text3)">${esc(last?.supplier||'—')}</td><td style="color:var(--text3)">${last?.date||'—'}</td><td style="font-weight:600">${a?`RM ${fmt(a)}`:'—'}</td><td style="color:${tc};font-weight:700;font-size:12px">${trend!==null?(trend>0?`▲ ${trend}%`:`▼ ${Math.abs(trend)}%`):'—'}</td><td style="white-space:nowrap"><button class="btn-sec" onclick="editCatItem('${code}')" style="padding:4px 10px;font-size:11px;margin-right:4px">Edit</button><button class="btn-sm-danger" onclick="deleteCatItem('${code}')">✕</button></td>`;tbody.appendChild(tr)});
+  table.appendChild(tbody)
+}
+function editCatItem(code){const item=catalogue[code];if(!item)return;const name=prompt(`Edit name for ${code}:`,item.name||'');if(name===null)return;const csz=prompt('Carton size:',item.cartonSize||1);if(csz===null)return;catalogue[code].name=name;catalogue[code].cartonSize=parseInt(csz)||1;save();renderCatalogue()}
+function deleteCatItem(code){if(!confirm(`Delete ${code} and all history?`))return;delete catalogue[code];save();renderCatalogue()}
+function addCatalogueItem(){const code=document.getElementById('newCode').value.toUpperCase().trim(),name=document.getElementById('newName').value.trim(),csz=parseInt(document.getElementById('newCtn').value)||1;if(!code){alert('Enter a code.');return}catalogue[code]={name,cartonSize:csz,history:catalogue[code]?.history||[]};document.getElementById('newCode').value='';document.getElementById('newName').value='';document.getElementById('newCtn').value='';save();renderCatalogue()}
+
+function renderHistory(){
+  const search=(document.getElementById('histSearch')?.value||'').toLowerCase();
+  const list=document.getElementById('historyList');
+  const filtered=invoices.filter(inv=>!search||(inv.supplier||'').toLowerCase().includes(search)||(inv.invoiceNo||'').toLowerCase().includes(search));
+  if(!filtered.length){list.innerHTML='<div class="card"><div class="empty"><div class="icon">🗂️</div><p>No invoices yet. Scan or manually enter your first invoice!</p></div></div>';return}
+  list.innerHTML=filtered.map((inv,idx)=>{
+    const flags=inv.lines.map(line=>{const code=(line.code||'').toUpperCase().trim(),cat=catalogue[code];if(!cat)return{type:'new'};const hist=(cat.history||[]).filter(h=>!(h.invoiceNo===inv.invoiceNo&&h.date===inv.date));if(!hist.length)return{type:'new'};const last=hist[hist.length-1];const csz=parseFloat(line.cartonSize)||cat.cartonSize||1;const lp=last.unitType==='carton'?last.price/(cat.cartonSize||1):last.price;const tp=line.unitType==='carton'?parseFloat(line.price)/csz:parseFloat(line.price);const d=parseFloat(pct(tp,lp));return{type:d>0.1?'up':d<-0.1?'down':'ok',diff:d}});
+    const ups=flags.filter(f=>f.type==='up').length,news=flags.filter(f=>f.type==='new').length;
+    const total=inv.lines.reduce((s,l)=>s+(parseFloat(l.price)||0)*(parseFloat(l.qty)||1),0);
+    const rows=inv.lines.map((line,i)=>{const code=(line.code||'').toUpperCase(),cat=catalogue[code];const csz=parseFloat(line.cartonSize)||cat?.cartonSize||1;const pp=line.unitType==='carton'?parseFloat(line.price)/csz:parseFloat(line.price);const f=flags[i]||{type:'ok'};const bc={up:'b-red',new:'b-blue',down:'b-green',ok:'b-gray'}[f.type];const fl={up:`▲ +${f.diff}%`,new:'⚡ NEW',down:`▼ ${f.diff}%`,ok:'✓ OK'}[f.type];return`<tr><td style="font-weight:700;color:var(--blue)">${esc(code)}</td><td style="font-weight:500">${esc(line.name)}</td><td>${line.qty}</td><td style="color:var(--text3)">${line.unitType}</td><td style="font-weight:600">RM ${fmt(line.price)}</td><td style="color:var(--text3)">${isNaN(pp)?'—':'RM '+fmt(pp)}</td><td><span class="badge ${bc}">${fl}</span></td></tr>`}).join('');
+    return`<div class="inv-card"><div class="inv-hdr" onclick="toggleHistory(${idx})"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-weight:800;font-size:14px">${esc(inv.invoiceNo)}</span><span style="color:var(--text2);font-size:13px">${esc(inv.supplier)}</span><span class="badge b-gray">${inv.date}</span></div><div style="display:flex;gap:6px;align-items:center">${ups?`<span class="badge b-red">▲ ${ups}</span>`:''} ${news?`<span class="badge b-blue">⚡ ${news}</span>`:''}<span style="font-weight:800;font-size:14px">RM ${fmt(total)}</span><span id="histArrow${idx}" style="color:var(--text3);font-size:12px;margin-left:4px">▼</span></div></div><div id="histBody${idx}" style="display:none;padding:12px 16px;overflow-x:auto;border-top:1px solid var(--bg)"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>${['Code','Name','Qty','Unit','Price','/Piece','Status'].map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div></div>`
+  }).join('')
+}
+function toggleHistory(idx){const b=document.getElementById(`histBody${idx}`);const a=document.getElementById(`histArrow${idx}`);const o=b.style.display==='block';b.style.display=o?'none':'block';a.textContent=o?'▼':'▲'}
+
+function renderReports(){
+  const el=document.getElementById('reportsContent');if(!el)return;
+  if(!invoices.length){el.innerHTML='<div class="card"><div class="empty"><div class="icon">📊</div><p>Reports appear after you save your first invoice.</p></div></div>';return}
+  const byMonth={};invoices.forEach(inv=>{const m=inv.date?.slice(0,7)||'Unknown';if(!byMonth[m])byMonth[m]={total:0,count:0};byMonth[m].total+=inv.lines.reduce((s,l)=>s+(parseFloat(l.price)||0)*(parseFloat(l.qty)||1),0);byMonth[m].count++});
+  const bySupplier={};invoices.forEach(inv=>{const s=inv.supplier||'Unknown';if(!bySupplier[s])bySupplier[s]={total:0,invoices:0,items:0};bySupplier[s].total+=inv.lines.reduce((s2,l)=>s2+(parseFloat(l.price)||0)*(parseFloat(l.qty)||1),0);bySupplier[s].invoices++;bySupplier[s].items+=inv.lines.length});
+  const months=Object.entries(byMonth).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,6);
+  const suppliers=Object.entries(bySupplier).sort((a,b)=>b[1].total-a[1].total);
+  const thisM=new Date().toISOString().slice(0,7);const lastMDate=new Date();lastMDate.setMonth(lastMDate.getMonth()-1);const lastM=lastMDate.toISOString().slice(0,7);
+  const thisData=byMonth[thisM]||{total:0,count:0};const lastData=byMonth[lastM]||{total:0,count:0};
+  const maxTotal=Math.max(...months.map(m=>m[1].total),1);
+  const trend=lastData.total>0?pct(thisData.total,lastData.total):null;const trendColor=trend>0?'var(--red)':trend<0?'#1a8a35':'var(--text3)';
+
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px">
+      <div class="stat-card"><div class="stat-num">RM ${fmt(thisData.total)}</div><div class="stat-sub">This Month</div></div>
+      <div class="stat-card"><div class="stat-num">${thisData.count}</div><div class="stat-sub">Invoices This Month</div></div>
+      <div class="stat-card"><div class="stat-num">RM ${fmt(lastData.total)}</div><div class="stat-sub">Last Month</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:${trendColor}">${trend!==null?(trend>0?`▲ ${trend}%`:`▼ ${Math.abs(trend)}%`):'—'}</div><div class="stat-sub">vs Last Month</div></div>
+    </div>
+    <div class="card">
+      <div class="sec-title">Monthly Spend</div>
+      ${months.map(([m,d])=>`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:13px;font-weight:600">${m}</span><div><span style="font-size:14px;font-weight:800">RM ${fmt(d.total)}</span> <span style="font-size:11px;color:var(--text3)">${d.count} invoices</span></div></div><div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden"><div style="height:100%;background:var(--blue);border-radius:4px;transition:width .5s ease;width:${(d.total/maxTotal*100).toFixed(1)}%"></div></div></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="sec-title">Spend by Supplier</div>
+      ${suppliers.map(([s,d],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;${i<suppliers.length-1?'border-bottom:1px solid var(--bg)':''}"><div><div style="font-weight:700;font-size:14px">${esc(s)}</div><div style="font-size:12px;color:var(--text3);margin-top:2px">${d.invoices} invoice${d.invoices!==1?'s':''} · ${d.items} items</div></div><div style="font-weight:800;font-size:15px;color:var(--text)">RM ${fmt(d.total)}</div></div>`).join('')}
+    </div>
+  `
 }
 
-function retryFromReady() {
-  showScanStage('upload');
-}
+function showSettings(){document.getElementById('settingsKey').value=getApiKey();document.getElementById('settingsModal').style.display='flex'}
+function closeSettings(){document.getElementById('settingsModal').style.display='none'}
+function updateApiKey(){const key=document.getElementById('settingsKey').value.trim();if(!key)return;localStorage.setItem('ig_apikey',key);closeSettings();alert('API key saved!')}
+function clearAllData(){if(!confirm('Delete ALL data? This cannot be undone.'))return;localStorage.removeItem('ig_cat');localStorage.removeItem('ig_inv');catalogue={};invoices=[];save();renderCatalogue();renderHistory();renderReports();updateStats();closeSettings()}
 
-// ─── REVIEW SCREEN ────────────────────────────────────────────────────────────
-function showReview(parsed) {
-  document.getElementById('rSupplier').value = parsed.supplier || '';
-  document.getElementById('rInvoiceNo').value = parsed.invoiceNo || '';
-  document.getElementById('rDate').value = parsed.date || today();
-  document.getElementById('reviewOriginal').src = currentPreviewUrl;
-  document.getElementById('reviewSubtitle').textContent = `AI found ${parsed.lines.length} items. Fix any errors then save.`;
-  reviewLines = (parsed.lines || []).map(l => ({...l, _id: uid()}));
-  renderReviewTable();
-  showScanStage('review');
-}
+function updateSupplierList(){const s=[...new Set(invoices.map(i=>i.supplier).filter(Boolean))];const dl=document.getElementById('supplierList');if(dl)dl.innerHTML=s.map(s=>`<option value="${esc(s)}">`).join('')}
+function unitOptions(selected){return['carton','piece','kg','pack','box'].map(u=>`<option value="${u}"${u===selected?' selected':''}>${u.charAt(0).toUpperCase()+u.slice(1)}</option>`).join('')}
 
-function renderReviewTable() {
-  const table = document.getElementById('reviewTable');
-  const flags = reviewLines.map(l => getFlag(l));
-  const fc = countFlags(flags);
-  document.getElementById('reviewFlags').innerHTML = flagBadges(fc);
-
-  table.innerHTML = `<thead><tr>${['Code','Description','Qty','Unit','CTN','Price','Alert',''].map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
-  const tbody = document.createElement('tbody');
-  reviewLines.forEach((line, i) => {
-    const flag = flags[i];
-    const tr = document.createElement('tr');
-    tr.style.background = flag?.type==='up' ? 'rgba(255,107,74,.04)' : flag?.type==='new' ? 'rgba(59,158,255,.04)' : 'transparent';
-    tr.innerHTML = `
-      <td><input style="width:76px;font-family:monospace;text-transform:uppercase" value="${esc(line.code)}" onchange="updateReviewLine('${line._id}','code',this.value)"></td>
-      <td><input style="min-width:100px" value="${esc(line.name)}" onchange="updateReviewLine('${line._id}','name',this.value)"></td>
-      <td><input style="width:44px" type="number" value="${esc(line.qty)}" onchange="updateReviewLine('${line._id}','qty',this.value)"></td>
-      <td><select onchange="updateReviewLine('${line._id}','unitType',this.value)">${unitOptions(line.unitType)}</select></td>
-      <td><input style="width:50px" type="number" value="${esc(line.cartonSize)}" placeholder="—" onchange="updateReviewLine('${line._id}','cartonSize',this.value)"></td>
-      <td><input style="width:74px;font-family:monospace" type="number" step="0.01" value="${esc(line.price)}" onchange="updateReviewLine('${line._id}','price',this.value)"></td>
-      <td style="min-width:130px">${flag ? flagCell(flag, line._id) : ''}</td>
-      <td><button class="btn-danger" onclick="removeReviewLine('${line._id}')">✕</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-  table.appendChild(tbody);
-}
-
-function updateReviewLine(id, field, val) {
-  const line = reviewLines.find(l => l._id===id);
-  if (line) { line[field] = val; }
-  const flags = reviewLines.map(l => getFlag(l));
-  document.getElementById('reviewFlags').innerHTML = flagBadges(countFlags(flags));
-}
-
-function removeReviewLine(id) { reviewLines = reviewLines.filter(l => l._id!==id); renderReviewTable(); }
-
-function addReviewRow() {
-  reviewLines.push({_id:uid(), code:'', name:'', qty:'', unitType:'carton', price:'', cartonSize:''});
-  renderReviewTable();
-}
-
-function submitReview() {
-  const supplier = document.getElementById('rSupplier').value.trim();
-  const invoiceNo = document.getElementById('rInvoiceNo').value.trim();
-  const date = document.getElementById('rDate').value;
-  const good = reviewLines.filter(l => (l.code||'').trim() && l.price && l.qty);
-  if (!supplier || !invoiceNo || !good.length) { alert('Please fill Supplier, Invoice No, and at least one complete item.'); return; }
-  saveInvoice({ supplier, invoiceNo, date, lines: good });
-  resetScan();
-  switchTab(3);
-}
-
-// ─── PRICE FLAGS ──────────────────────────────────────────────────────────────
-function getFlag(line) {
-  const code = (line.code||'').toUpperCase().trim(), price = parseFloat(line.price);
-  if (!code || isNaN(price) || price <= 0) return null;
-  const cat = catalogue[code];
-  if (!cat || !cat.history?.length) return { type:'new' };
-  const last = cat.history[cat.history.length-1];
-  const csz = parseFloat(line.cartonSize) || cat.cartonSize || 1;
-  const lastPc = last.unitType==='carton' ? last.price/(cat.cartonSize||1) : last.price;
-  const thisPc = line.unitType==='carton' ? price/csz : price;
-  const diff = pct(thisPc, lastPc);
-  const recent = cat.history.slice(-5).map(h => h.unitType==='carton' ? h.price/(cat.cartonSize||1) : h.price);
-  const suggested = fmt(line.unitType==='carton' ? avg(recent)*csz : avg(recent));
-  if (Math.abs(diff) < 0.1) return { type:'ok', suggested };
-  return { type: diff>0 ? 'up' : 'down', diff, suggested, lastPrice: last.price, lastUnit: last.unitType, lastDate: last.date };
-}
-
-function countFlags(flags) {
-  return flags.reduce((acc,f) => { if(f) acc[f.type]=(acc[f.type]||0)+1; return acc; }, {});
-}
-
-function flagBadges(fc) {
-  let html = '';
-  if (fc.up) html += `<span class="badge" style="background:rgba(255,107,74,.13);color:var(--red)">▲ ${fc.up} up</span>`;
-  if (fc.new) html += `<span class="badge" style="background:rgba(59,158,255,.13);color:var(--blue)">⚡ ${fc.new} new</span>`;
-  if (fc.down) html += `<span class="badge" style="background:rgba(76,175,130,.13);color:var(--green)">▼ ${fc.down} down</span>`;
-  return html;
-}
-
-function flagCell(flag, id) {
-  const colors = {up:'var(--red)', new:'var(--blue)', down:'var(--green)', ok:'var(--green)'};
-  const labels = {up:`▲ +${flag.diff}%`, new:'⚡ NEW', down:`▼ ${Math.abs(flag.diff)}%`, ok:'✓ OK'};
-  const c = colors[flag.type], l = labels[flag.type];
-  const tipId = 'tip_'+id;
-  let tipContent = '';
-  if (flag.type==='new') tipContent = `<p style="color:var(--blue);font-weight:700;margin:0 0 6px">⚡ First-Time Item</p><p style="color:#888;font-size:12px;margin:0">Never bought before. Verify price.</p>`;
-  if (flag.type==='up'||flag.type==='down') tipContent = `<p style="color:${c};font-weight:700;margin:0 0 7px">${flag.type==='up'?'▲ Up':'▼ Down'} ${Math.abs(flag.diff)}%</p><div style="font-size:12px;color:#888;line-height:2"><div>Last: <strong style="color:#ddd">${fmt(flag.lastPrice)}</strong>/${flag.lastUnit} (${flag.lastDate})</div>${flag.suggested?`<div style="color:var(--gold)">💡 Avg: <strong>${flag.suggested}</strong></div>`:''}</div>`;
-  return `<div style="position:relative;display:inline-block">
-    <button class="flag-btn" onclick="toggleTip('${tipId}')" style="border:1px solid ${c}44;background:${c}15;color:${c}">${l}</button>
-    <div id="${tipId}" class="tooltip">${tipContent}<button onclick="toggleTip('${tipId}')" style="position:absolute;top:6px;right:8px;background:none;border:none;color:var(--text3);cursor:pointer">✕</button></div>
-  </div>`;
-}
-
-function toggleTip(id) {
-  const el = document.getElementById(id);
-  if (el) el.classList.toggle('open');
-}
-
-// ─── MANUAL ENTRY ─────────────────────────────────────────────────────────────
-let manualLines = [{_id:uid(), code:'', name:'', qty:'', unitType:'carton', price:'', cartonSize:''}];
-
-function renderManualTable() {
-  const table = document.getElementById('manualTable');
-  const flags = manualLines.map(l => getFlag(l));
-  const fc = countFlags(flags);
-  document.getElementById('manualFlags').innerHTML = flagBadges(fc);
-
-  table.innerHTML = `<thead><tr>${['Code','Description','Qty','Unit','CTN','Price','Alert',''].map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
-  const tbody = document.createElement('tbody');
-  manualLines.forEach((line, i) => {
-    const flag = flags[i];
-    const tr = document.createElement('tr');
-    tr.style.background = flag?.type==='up' ? 'rgba(255,107,74,.04)' : flag?.type==='new' ? 'rgba(59,158,255,.04)' : 'transparent';
-    tr.innerHTML = `
-      <td><input style="width:76px;font-family:monospace;text-transform:uppercase" value="${esc(line.code)}" oninput="manualCodeInput('${line._id}',this)" placeholder="CODE"></td>
-      <td><input style="min-width:100px" value="${esc(line.name)}" onchange="updateManualLine('${line._id}','name',this.value)" placeholder="Description"></td>
-      <td><input style="width:44px" type="number" value="${esc(line.qty)}" onchange="updateManualLine('${line._id}','qty',this.value)" placeholder="0"></td>
-      <td><select onchange="updateManualLine('${line._id}','unitType',this.value)">${unitOptions(line.unitType)}</select></td>
-      <td><input style="width:50px" type="number" value="${esc(line.cartonSize)}" placeholder="—" onchange="updateManualLine('${line._id}','cartonSize',this.value)"></td>
-      <td><input style="width:74px;font-family:monospace" type="number" step="0.01" value="${esc(line.price)}" onchange="updateManualLine('${line._id}','price',this.value)" placeholder="0.00"></td>
-      <td style="min-width:130px">${flag ? flagCell(flag, 'm_'+line._id) : ''}</td>
-      <td><button class="btn-danger" onclick="removeManualLine('${line._id}')">✕</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-  table.appendChild(tbody);
-}
-
-function manualCodeInput(id, input) {
-  const val = input.value.toUpperCase();
-  updateManualLine(id, 'code', val);
-  const cat = catalogue[val.trim()];
-  if (cat) {
-    const line = manualLines.find(l => l._id===id);
-    if (line && !line.name) { updateManualLine(id, 'name', cat.name); input.closest('tr').querySelector('td:nth-child(2) input').value = cat.name; }
-    if (line && !line.cartonSize) { updateManualLine(id, 'cartonSize', String(cat.cartonSize||1)); input.closest('tr').querySelector('td:nth-child(5) input').value = cat.cartonSize||1; }
-  }
-  renderManualTable();
-}
-
-function updateManualLine(id, field, val) {
-  const line = manualLines.find(l => l._id===id);
-  if (line) line[field] = val;
-  const flags = manualLines.map(l => getFlag(l));
-  document.getElementById('manualFlags').innerHTML = flagBadges(countFlags(flags));
-}
-
-function removeManualLine(id) { manualLines = manualLines.filter(l => l._id!==id); renderManualTable(); }
-function addManualRow() { manualLines.push({_id:uid(), code:'', name:'', qty:'', unitType:'carton', price:'', cartonSize:''}); renderManualTable(); }
-
-function submitManual() {
-  const supplier = document.getElementById('mSupplier').value.trim();
-  const invoiceNo = document.getElementById('mInvoiceNo').value.trim();
-  const date = document.getElementById('mDate').value;
-  const good = manualLines.filter(l => (l.code||'').trim() && l.price && l.qty);
-  if (!supplier || !invoiceNo || !good.length) { alert('Fill Supplier, Invoice No, and at least one item.'); return; }
-  saveInvoice({ supplier, invoiceNo, date, lines: good });
-  document.getElementById('mSupplier').value = '';
-  document.getElementById('mInvoiceNo').value = '';
-  document.getElementById('mDate').value = today();
-  manualLines = [{_id:uid(), code:'', name:'', qty:'', unitType:'carton', price:'', cartonSize:''}];
-  renderManualTable();
-  const banner = document.getElementById('manualSaved');
-  banner.style.display = 'block';
-  setTimeout(() => banner.style.display = 'none', 3000);
-  switchTab(3);
-}
-
-// ─── SAVE INVOICE ─────────────────────────────────────────────────────────────
-function saveInvoice(invoice) {
-  invoice.lines.forEach(line => {
-    const code = (line.code||'ITEM').toUpperCase().trim();
-    if (!catalogue[code]) catalogue[code] = { name: line.name, cartonSize: Number(line.cartonSize)||1, history: [] };
-    else { if (line.name) catalogue[code].name = line.name; if (line.cartonSize) catalogue[code].cartonSize = Number(line.cartonSize); }
-    catalogue[code].history = [...(catalogue[code].history||[]), { date: invoice.date, supplier: invoice.supplier, invoiceNo: invoice.invoiceNo, price: parseFloat(line.price)||0, unitType: line.unitType, qty: parseFloat(line.qty)||1 }].slice(-50);
-  });
-  invoices = [{ ...invoice, id: Date.now() }, ...invoices].slice(0, 200);
-  save();
-  updateSupplierList();
-}
-
-// ─── CATALOGUE ────────────────────────────────────────────────────────────────
-function renderCatalogue() {
-  const search = (document.getElementById('catSearch')?.value||'').toLowerCase();
-  const items = Object.entries(catalogue).filter(([k,v]) => k.toLowerCase().includes(search) || (v.name||'').toLowerCase().includes(search)).sort((a,b) => a[0].localeCompare(b[0]));
-  const table = document.getElementById('catTable');
-  table.innerHTML = `<thead><tr>${['Code','Name','CTN','Last Price','Supplier','Date','Avg/pc','Trend',''].map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
-  const tbody = document.createElement('tbody');
-  if (!items.length) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="9" style="text-align:center;color:var(--text4);padding:28px">Items appear after saving invoices.</td>`;
-    tbody.appendChild(tr);
-  }
-  items.forEach(([code, item]) => {
-    const hist = item.history||[], last = hist[hist.length-1];
-    const recent = hist.slice(-5).map(h => h.unitType==='carton' ? h.price/(item.cartonSize||1) : h.price);
-    const a = avg(recent), trend = recent.length>=2 ? pct(recent[recent.length-1], recent[0]) : null;
-    const tc = trend>2 ? 'var(--red)' : trend<-2 ? 'var(--green)' : 'var(--text4)';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="color:var(--gold);font-family:monospace;font-weight:700">${code}</td>
-      <td>${esc(item.name||'—')}</td>
-      <td style="text-align:center">${item.cartonSize||1}</td>
-      <td style="font-family:monospace">${last ? `${fmt(last.price)}/${last.unitType}` : '—'}</td>
-      <td>${esc(last?.supplier||'—')}</td>
-      <td>${last?.date||'—'}</td>
-      <td style="font-family:monospace">${a ? fmt(a) : '—'}</td>
-      <td style="color:${tc}">${trend!==null ? (trend>0?`▲ ${trend}%`:`▼ ${Math.abs(trend)}%`) : '—'}</td>
-      <td>
-        <button class="btn-danger" onclick="editCatItem('${code}')" style="margin-right:4px">✎</button>
-        <button class="btn-danger" onclick="deleteCatItem('${code}')">✕</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-  table.appendChild(tbody);
-}
-
-function editCatItem(code) {
-  const item = catalogue[code];
-  if (!item) return;
-  const name = prompt(`Edit name for ${code}:`, item.name||'');
-  if (name===null) return;
-  const csz = prompt('Carton size (pieces per carton):', item.cartonSize||1);
-  if (csz===null) return;
-  catalogue[code].name = name;
-  catalogue[code].cartonSize = parseInt(csz)||1;
-  save(); renderCatalogue();
-}
-
-function deleteCatItem(code) {
-  if (!confirm(`Delete ${code} and all its history?`)) return;
-  delete catalogue[code];
-  save(); renderCatalogue();
-}
-
-function addCatalogueItem() {
-  const code = document.getElementById('newCode').value.toUpperCase().trim();
-  const name = document.getElementById('newName').value.trim();
-  const csz = parseInt(document.getElementById('newCtn').value)||1;
-  if (!code) { alert('Please enter an item code.'); return; }
-  catalogue[code] = { name, cartonSize: csz, history: catalogue[code]?.history || [] };
-  document.getElementById('newCode').value = '';
-  document.getElementById('newName').value = '';
-  document.getElementById('newCtn').value = '';
-  save(); renderCatalogue();
-}
-
-// ─── HISTORY ──────────────────────────────────────────────────────────────────
-function renderHistory() {
-  const list = document.getElementById('historyList');
-  if (!invoices.length) { list.innerHTML = '<p style="color:var(--text4);padding:12px 0">No invoices yet.</p>'; return; }
-
-  list.innerHTML = invoices.map((inv, idx) => {
-    const flags = inv.lines.map(line => {
-      const code = (line.code||'').toUpperCase().trim(), cat = catalogue[code];
-      if (!cat) return {type:'new'};
-      const hist = (cat.history||[]).filter(h => !(h.invoiceNo===inv.invoiceNo && h.date===inv.date));
-      if (!hist.length) return {type:'new'};
-      const last = hist[hist.length-1];
-      const csz = parseFloat(line.cartonSize)||cat.cartonSize||1;
-      const lastPc = last.unitType==='carton' ? last.price/(cat.cartonSize||1) : last.price;
-      const thisPc = line.unitType==='carton' ? parseFloat(line.price)/csz : parseFloat(line.price);
-      const d = parseFloat(pct(thisPc, lastPc));
-      return {type: d>0.1?'up':d<-0.1?'down':'ok', diff:d};
-    });
-    const ups = flags.filter(f=>f.type==='up').length, news = flags.filter(f=>f.type==='new').length;
-    const rowsHtml = inv.lines.map((line, i) => {
-      const code = (line.code||'').toUpperCase(), cat = catalogue[code];
-      const csz = parseFloat(line.cartonSize)||cat?.cartonSize||1;
-      const pp = line.unitType==='carton' ? parseFloat(line.price)/csz : parseFloat(line.price);
-      const f = flags[i]||{type:'ok'};
-      const fc2 = {up:'var(--red)',new:'var(--blue)',down:'var(--green)',ok:'var(--text4)'}[f.type];
-      const fl = {up:`▲ +${f.diff}%`,new:'⚡ NEW',down:`▼ ${f.diff}%`,ok:'✓ OK'}[f.type];
-      return `<tr><td style="color:var(--gold);font-family:monospace">${esc(code)}</td><td>${esc(line.name)}</td><td>${line.qty}</td><td>${line.unitType}</td><td style="text-align:center">${csz}</td><td style="font-family:monospace">${fmt(line.price)}</td><td style="font-family:monospace">${isNaN(pp)?'—':fmt(pp)}</td><td style="color:${fc2};font-weight:700;font-size:11px">${fl}</td></tr>`;
-    }).join('');
-    return `<div class="inv-card">
-      <div class="inv-hdr" onclick="toggleHistory(${idx})">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span style="font-family:monospace;font-weight:700;color:var(--gold)">${esc(inv.invoiceNo)}</span>
-          <span>${esc(inv.supplier)}</span>
-          <span style="color:var(--text3);font-size:12px">${inv.date}</span>
-          <span style="color:var(--text4);font-size:12px">${inv.lines.length} items</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          ${ups?`<span class="badge" style="background:rgba(255,107,74,.13);color:var(--red)">▲ ${ups}</span>`:''}
-          ${news?`<span class="badge" style="background:rgba(59,158,255,.13);color:var(--blue)">⚡ ${news}</span>`:''}
-          <span id="histArrow${idx}" style="color:var(--text3)">▼</span>
-        </div>
-      </div>
-      <div id="histBody${idx}" style="display:none;padding:10px 13px;overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:12px">
-          <thead><tr>${['Code','Name','Qty','Unit','CTN','Price','/Piece','Status'].map(h=>`<th>${h}</th>`).join('')}</tr></thead>
-          <tbody>${rowsHtml}</tbody>
-        </table>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleHistory(idx) {
-  const body = document.getElementById(`histBody${idx}`);
-  const arrow = document.getElementById(`histArrow${idx}`);
-  const open = body.style.display==='block';
-  body.style.display = open ? 'none' : 'block';
-  arrow.textContent = open ? '▼' : '▲';
-}
-
-// ─── SETTINGS ─────────────────────────────────────────────────────────────────
-function showSettings() {
-  document.getElementById('settingsKey').value = getApiKey();
-  document.getElementById('settingsModal').style.display = 'flex';
-}
-function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
-function updateApiKey() {
-  const key = document.getElementById('settingsKey').value.trim();
-  if (!key) return;
-  localStorage.setItem('ig_apikey', key);
-  closeSettings();
-  alert('API key saved!');
-}
-function clearAllData() {
-  if (!confirm('Delete ALL invoice data and catalogue? This cannot be undone.')) return;
-  localStorage.removeItem('ig_cat');
-  localStorage.removeItem('ig_inv');
-  catalogue = {}; invoices = [];
-  save(); renderCatalogue(); renderHistory(); updateStats();
-  closeSettings();
-}
-
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-function updateSupplierList() {
-  const suppliers = [...new Set(invoices.map(i => i.supplier).filter(Boolean))];
-  document.getElementById('supplierList').innerHTML = suppliers.map(s => `<option value="${esc(s)}">`).join('');
-}
-
-function unitOptions(selected) {
-  return ['carton','piece','kg','pack','box'].map(u => `<option value="${u}"${u===selected?' selected':''}>${u.charAt(0).toUpperCase()+u.slice(1)}</option>`).join('');
-}
-
-function esc(s) {
-  if (!s && s!==0) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ─── BOOT ─────────────────────────────────────────────────────────────────────
 init();
 </script>
 
