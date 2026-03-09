@@ -417,7 +417,7 @@ function renderReviewCards(containerId,lines,mode){
   if(flagsEl)flagsEl.innerHTML=flagBadges(fc);
   const container=document.getElementById(containerId);
   container.innerHTML=lines.map((line,i)=>{
-    const flag=flags[i];const cat=catalogue[(line.code||'').toUpperCase().trim()];
+    const flag=flags[i];const cat=catalogue[Object.keys(catalogue).find(k=>k.toLowerCase()===(line.code||'').toLowerCase().trim())||(line.code||'').trim()];
     const margin=cat?.margin||0;const csz=parseFloat(line.cartonSize)||cat?.cartonSize||1;
     const pp=line.unitType==='carton'?parseFloat(line.price)/csz:parseFloat(line.price);
     const sell=margin&&!isNaN(pp)?'RM '+fmt(sellingPrice(pp,margin)):'—';
@@ -462,7 +462,10 @@ function submitReview(){
 }
 
 function getFlag(line){
-  const code=(line.code||'').toUpperCase().trim(),price=parseFloat(line.price);if(!code||isNaN(price)||price<=0)return null;
+  const codeRaw=(line.code||'').trim();if(!codeRaw)return null;
+  // Case-insensitive lookup
+  const code=Object.keys(catalogue).find(k=>k.toLowerCase()===codeRaw.toLowerCase())||codeRaw;
+  const price=parseFloat(line.price);if(isNaN(price)||price<=0)return null;
   const cat=catalogue[code];if(!cat||!cat.history?.length)return{type:'new'};
   const last=cat.history[cat.history.length-1];const csz=parseFloat(line.cartonSize)||cat.cartonSize||1;
   const lastPc=last.unitType==='carton'?last.price/(cat.cartonSize||1):last.price;const thisPc=line.unitType==='carton'?price/csz:price;
