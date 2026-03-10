@@ -1089,13 +1089,14 @@ function renderWaLog(){
 }
 
 // ── IMPORT ────────────────────────────────────────────────────
-var importState={stage:'idle',added:0,updated:0,custCreated:0,total:0};
+var importState={stage:'idle',added:0,updated:0,custCreated:0,total:0,source:''};
 function renderImport(){
   var el=document.getElementById('importContent');if(!el)return;
   if(importState.stage==='done'){
     el.innerHTML='<div class="card p14" style="text-align:center">'
       +'<div style="font-size:44px;margin-bottom:12px">🎉</div>'
-      +'<div class="fw7 fs18 text-grn mb16">Import Done!</div>'
+      +'<div class="fw7 fs18 text-grn mb8">Import Done!</div>'
+      +'<div class="fs13 text-mut mb16">'+esc(importState.source)+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">'
       +[['Added',importState.added,'#60a5fa'],['Updated',importState.updated,'#4ade80'],['New Customers',importState.custCreated,'#c084fc'],['Total',importState.total,'#fbbf24']].map(function(x){
         return'<div style="background:#0d0f14;border-radius:10px;padding:14px;border:1px solid '+x[2]+'33"><div class="fw7" style="font-size:26px;color:'+x[2]+'">'+x[1]+'</div><div class="fs12 text-mut">'+x[0]+'</div></div>';
@@ -1134,7 +1135,7 @@ function renderImport(){
   +'<div style="border-top:1px solid #1e2d4a;margin-bottom:16px"></div>'
   +'<div class="fw7 fs16 mb4">📥 Import from Autocount</div>'
   +'<div class="fs14 text-mut mb12" style="line-height:1.6">Export <strong style="color:#fbbf24">Outstanding AR Invoice</strong> from Autocount as .xlsx, then upload below.</div>'
-  +'<div class="import-info"><strong>✅ Autocount format auto-detected!</strong><br><strong>🔄 Weekly upload is safe!</strong> Same invoice = updated, never duplicated.</div>'
+  +'<div class="import-info"><strong>✅ Auto-detects format!</strong> Works with both <strong style="color:#fbbf24">Outstanding AR Invoice</strong> and <strong style="color:#4ade80">Daily Sales Report</strong>.<br><strong>🔄 Safe to re-upload!</strong> Same invoice = updated, never duplicated.</div>'
   +'<div class="drop-zone" id="dropZone" onclick="pickFile()" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="handleDrop(event)">'
     +'<div style="font-size:44px;margin-bottom:12px">📊</div>'
     +'<div class="fw7 fs16 mb4">Tap or drop file here</div>'
@@ -1196,11 +1197,42 @@ function readFile(file){
       try{
         var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:false});
         var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:false,dateNF:'dd/mm/yyyy'});
-        parseAutocountRows(raw);
+        // Auto-detect format by checking header row
+        var firstRow=raw[0]||[];
+        var isDailySales=firstRow.some(function(c){return String(c||'').toLowerCase().indexOf('doc. no')!==-1||String(c||'').toLowerCase().indexOf('debtor name')!==-1;});
+        if(isDailySales){
+          parseDailySalesRows(raw);
+        }else{
+          parseAutocountRows(raw);
+        }
       }catch(err){alert('Could not read Excel: '+err.message);renderImport();}
     };
     r.readAsArrayBuffer(file);
   });
+}
+function parseDailySalesRows(raw){
+  // Daily Sales Report: header row 0, data from row 1
+  // Col1=InvNo, Col2=Date, Col3=DebtorCode, Col4=DebtorName, Col9=LocalTotal, Col10=Outstanding, Col13=Status
+  var invoices=[];
+  for(var i=1;i<raw.length;i++){
+    var row=raw[i];
+    if(!row||!row[1])continue;
+    var invNo=String(row[1]||'').trim();
+    var custName=String(row[4]||'').trim();
+    if(!invNo||!custName)continue;
+    // Skip cash sales
+    if(custName.toUpperCase().indexOf('CASH SALES')!==-1)continue;
+    // Skip cancelled
+    if(String(row[13]||'').trim().toUpperCase()==='C')continue;
+    var invDate=parseMYDate(row[2]);
+    var amount=parseFloat(String(row[9]||'0').replace(/[^0-9.\-]/g,''))||0;
+    var outstanding=parseFloat(String(row[10]||'0').replace(/[^0-9.\-]/g,''))||0;
+    var paid=Math.max(0,amount-outstanding);
+    var status=outstanding<=0?'paid':paid>0?'partial':'unpaid';
+    invoices.push({invNo:invNo,custName:custName,amount:amount,paid:paid,invDate:invDate,dueDate:'',status:status});
+  }
+  if(!invoices.length){alert('No invoice rows found in Daily Sales Report.');renderImport();return;}
+  doImport(invoices,'Daily Sales Report');
 }
 function parseMYDate(val){
   if(!val)return'';
@@ -1260,7 +1292,8 @@ function parseCSV(text){
   }
   doImport(invoices);
 }
-function doImport(invoices){
+function doImport(invoices,source){
+  source=source||'Outstanding AR Invoice';
   var nc=[].concat(state.customers);
   var ni=[].concat(state.invoices);
   var added=0,updated=0,custCreated=0;
@@ -1280,7 +1313,7 @@ function doImport(invoices){
     else{ni.push({id:Date.now()+Math.random(),customerId:cust.id,invoiceNo:row.invNo,amount:row.amount,invoiceDate:row.invDate||new Date().toISOString().split('T')[0],dueDate:row.dueDate||'',paidAmount:row.paid,status:row.status,notes:'Imported'});added++;}
   });
   state.customers=nc;state.invoices=ni;save();
-  importState.stage='done';importState.added=added;importState.updated=updated;importState.custCreated=custCreated;importState.total=invoices.length;
+  importState.stage='done';importState.added=added;importState.updated=updated;importState.custCreated=custCreated;importState.total=invoices.length;importState.source=source;
   renderImport();
 }
 
