@@ -227,8 +227,9 @@ select.inp{cursor:pointer}
 </div>
 
 <script>
-var emps = JSON.parse(localStorage.getItem('pr_e') || '[]');
-var pays = JSON.parse(localStorage.getItem('pr_p') || '{}');
+var emps = [], pays = {};
+try { emps = JSON.parse(localStorage.getItem('pr_e') || '[]') || []; } catch(e) { emps = []; }
+try { pays = JSON.parse(localStorage.getItem('pr_p') || '{}') || {}; } catch(e) { pays = {}; }
 var screen = 'home';
 var selId = null;
 var now = new Date();
@@ -237,8 +238,8 @@ var cM = now.getMonth() + 1;
 var MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 var COLORS = ['#10b981','#6366f1','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316'];
 
-function sE(){localStorage.setItem('pr_e',JSON.stringify(emps))}
-function sP(){localStorage.setItem('pr_p',JSON.stringify(pays))}
+function sE(){try{localStorage.setItem('pr_e',JSON.stringify(emps))}catch(e){}}
+function sP(){try{localStorage.setItem('pr_p',JSON.stringify(pays))}catch(e){}}
 function uid(){return Math.random().toString(36).slice(2,9)}
 function fmt(n){return (+n||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function mk(){return cY+'-'+(cM<10?'0'+cM:cM)}
@@ -573,8 +574,7 @@ w.document.close();
 }
 
 // init
-updMLabel();
-render();
+try { updMLabel(); render(); } catch(e) { document.getElementById(‘page’).innerHTML = ‘<div style="padding:30px;text-align:center;color:#f87171">Error: ‘+e.message+’</div>’; }
 </script>
 
 </body>
