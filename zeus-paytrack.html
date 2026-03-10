@@ -628,6 +628,7 @@ function openPayModal(id){
   var inv=enrichInv(state.invoices.find(function(i){return i.id===id;}));
   if(!inv)return;
   currentPayInv=inv;
+  var today=new Date().toISOString().split('T')[0];
   document.getElementById('payModalContent').innerHTML='<div class="modal-drag"></div>'
     +'<div class="fw7 fs16 mb4">💰 Record Payment</div>'
     +'<div class="fs13 text-mut mb16">'+esc(inv.customer?inv.customer.name:'')+' · '+esc(inv.invoiceNo)+'</div>'
@@ -638,10 +639,12 @@ function openPayModal(id){
     +'</div>'
     +'<label class="lbl">Payment Amount (RM)</label>'
     +'<input type="number" class="inp mb8" id="payAmt" placeholder="'+inv.outstanding.toFixed(2)+'" style="font-size:18px;font-weight:700"/>'
-    +'<div class="flex gap8 mb12">'
+    +'<div class="flex gap8 mb16">'
     +'<button class="btn btn-ghost btn-full btn-sm" onclick="document.getElementById(\'payAmt\').value=\''+inv.outstanding.toFixed(2)+'\'">Full</button>'
     +'<button class="btn btn-ghost btn-full btn-sm" onclick="document.getElementById(\'payAmt\').value=\''+(inv.outstanding/2).toFixed(2)+'\'">Half</button>'
     +'</div>'
+    +'<label class="lbl">Payment Date</label>'
+    +'<input type="date" class="inp mb16" id="payDate" value="'+today+'"/>'
     +'<label class="lbl">Note (optional)</label>'
     +'<input class="inp mb16" id="payNote" placeholder="e.g. Paid via TT, Cash…"/>'
     +'<div class="btn-row"><button class="btn btn-ghost btn-full" onclick="hideModal(\'payModal\')">Cancel</button><button class="btn btn-success btn-full" onclick="confirmPay()">Confirm Payment</button></div>';
@@ -650,10 +653,11 @@ function openPayModal(id){
 function confirmPay(){
   var a=parseFloat(document.getElementById('payAmt').value);
   var note=document.getElementById('payNote').value;
+  var date=document.getElementById('payDate').value||new Date().toISOString().split('T')[0];
   if(!a||!currentPayInv)return;
   var inv=currentPayInv;
   var cust=state.customers.find(function(c){return c.id===inv.customerId;});
-  state.payments.unshift({id:Date.now(),invoiceId:inv.id,customerId:inv.customerId,invoiceNo:inv.invoiceNo,customerName:cust?cust.name:'',amount:a,date:new Date().toISOString().split('T')[0],note:note||'Payment recorded'});
+  state.payments.unshift({id:Date.now(),invoiceId:inv.id,customerId:inv.customerId,invoiceNo:inv.invoiceNo,customerName:cust?cust.name:'',amount:a,date:date,note:note||'Payment recorded'});
   state.invoices=state.invoices.map(function(i){
     if(i.id!==inv.id)return i;
     var np=Math.min(i.paidAmount+a,i.amount);
