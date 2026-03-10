@@ -1,552 +1,87 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PayRoll</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:#0a110e;font-family:-apple-system,BlinkMacSystemFont,sans-serif;color:#e0ede7;min-height:100vh}
-button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:14px}
-input,select{font-family:inherit;font-size:15px}
-.wrap{max-width:430px;margin:0 auto}
-.hdr{position:sticky;top:0;z-index:50;background:#0c1610;border-bottom:1px solid #1a2d22;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
-.hdr-l{display:flex;align-items:center;gap:8px}
-.logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
-.htitle{font-size:18px;font-weight:700}
-#backBtn{width:30px;height:30px;border-radius:8px;background:#141f17;border:1px solid #1a2d22;color:#6b8f7a;font-size:17px;display:none;align-items:center;justify-content:center}
-.mnav{display:flex;align-items:center;gap:3px;background:#0f1a12;border:1px solid #1a2d22;border-radius:18px;padding:4px 6px}
-.mnav button{width:22px;height:22px;color:#6b8f7a;font-size:13px;display:flex;align-items:center;justify-content:center}
-#mLbl{font-size:11px;color:#6b8f7a;font-weight:600;min-width:76px;text-align:center}
-#page{padding-bottom:90px;min-height:200px}
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#0c1610;border-top:1px solid #1a2d22;display:flex;z-index:50}
-.nb{flex:1;padding:10px 8px 14px;display:flex;flex-direction:column;align-items:center;gap:3px;color:#3d5449}
-.nb.on{color:#10b981}
-.nbi{font-size:20px}
-.nbl{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
-.nbbar{width:0;height:2px;background:#10b981;border-radius:1px;transition:width .2s}
-.nb.on .nbbar{width:16px}
-.hero{margin:12px;background:linear-gradient(140deg,#064e3b,#047857);border-radius:18px;padding:20px;overflow:hidden}
-.hlbl{font-size:10px;text-transform:uppercase;letter-spacing:.11em;color:rgba(255,255,255,.5);margin-bottom:3px;font-weight:600}
-.hnum{font-size:34px;font-weight:700;color:#fff;margin-bottom:14px}
-.hrow{display:flex;background:rgba(255,255,255,.08);border-radius:11px;overflow:hidden}
-.hc{flex:1;padding:9px 10px;border-left:1px solid rgba(255,255,255,.1)}
-.hc:first-child{border:none}
-.hcl{font-size:9px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:2px}
-.hcv{font-size:13px;font-weight:700}
-.sechdr{display:flex;justify-content:space-between;align-items:center;padding:14px 12px 8px}
-.secl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#6b8f7a;font-weight:600}
-.secbtn{font-size:12px;color:#10b981;font-weight:600}
-.ec{background:#0f1a12;border:1px solid #1a2d22;border-radius:15px;padding:13px;margin:0 12px 9px;cursor:pointer;display:block;width:calc(100% - 24px);text-align:left}
-.ec:active{background:#141f17}
-.et{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.en{font-size:15px;font-weight:700;color:#e0ede7}
-.ep{font-size:12px;color:#6b8f7a;margin-top:1px}
-.sb{border-radius:14px;padding:3px 9px;font-size:11px;font-weight:600;flex-shrink:0}
-.spd{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.22)}
-.spe{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.22)}
-.sg{display:grid;gap:6px}
-.st{background:#141f17;border-radius:8px;padding:8px 10px}
-.stl{font-size:9px;color:#3d5449;text-transform:uppercase;margin-bottom:2px}
-.stv{font-size:13px;font-weight:700;color:#e0ede7}
-.stg{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.12)}
-.stg .stl{color:rgba(52,211,153,.4)}
-.stg .stv{color:#10b981}
-.str .stv{color:#f87171}
-.av{border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
-.card{background:#0f1a12;border:1px solid #1a2d22;border-radius:16px;margin:9px 12px 0;padding:15px 16px}
-.clbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#6b8f7a;font-weight:600;margin-bottom:12px}
-.prow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a2d22}
-.prow:last-child{border:none}
-.pl{font-size:14px;color:#6b8f7a}
-.pv{font-size:14px;font-weight:600;color:#e0ede7}
-.grossr{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0}
-.grossv{font-size:20px;font-weight:700;color:#f59e0b}
-.netbox{margin:9px 12px 0;background:linear-gradient(140deg,#064e3b,#047857);border-radius:16px;padding:18px;display:flex;justify-content:space-between;align-items:center}
-.netl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.5);margin-bottom:3px;font-weight:600}
-.netv{font-size:30px;font-weight:700;color:#fff}
-.nets{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px}
-.netico{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:20px}
-.btns{margin:9px 12px 0;display:flex;flex-direction:column;gap:8px}
-.b2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.btn{width:100%;padding:13px;border-radius:11px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit}
-.btn:active{opacity:.75}
-.bgrn{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
-.bgld{background:linear-gradient(135deg,#f59e0b,#d97706);color:#111}
-.bred{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
-.bgh{background:transparent;color:#6b8f7a;border:1.5px solid #21332a}
-.bsr{background:rgba(248,113,113,.09);color:#f87171;border:1.5px solid rgba(248,113,113,.2)}
-.prof{margin:12px;background:#0d201a;border:1px solid #1a2d22;border-radius:16px;padding:16px}
-.prow2{display:flex;align-items:flex-start;gap:12px;margin-bottom:13px}
-.pname{font-size:20px;font-weight:700;line-height:1.2}
-.ppos{font-size:13px;color:#6b8f7a;margin-top:3px}
-.pmeta{font-size:11px;color:#3d5449;margin-top:3px}
-.pag{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.pac{border-radius:10px;padding:10px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;border:none;font-family:inherit;width:100%}
-.pacd{background:#141f17;border:1px solid #21332a;color:#e0ede7}
-.pacr{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.18);color:#f87171}
-.arow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #1a2d22}
-.arow:last-child{border:none}
-.adel{width:26px;height:26px;border-radius:50%;background:rgba(248,113,113,.09);border:none;color:#f87171;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;flex-direction:column;justify-content:flex-end}
-.overlay.open{display:flex}
-.sheet{background:#0f1a12;border-radius:20px 20px 0 0;max-height:90vh;overflow-y:auto}
-.shhdl{width:34px;height:3px;background:#21332a;border-radius:2px;margin:12px auto 0}
-.shhdr{display:flex;justify-content:space-between;align-items:center;padding:12px 18px 0}
-.shttl{font-size:18px;font-weight:700}
-.shx{width:30px;height:30px;border-radius:50%;background:#141f17;border:1px solid #1a2d22;color:#6b8f7a;font-size:14px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
-.shbody{padding:14px 18px 32px}
-.field{margin-bottom:14px}
-.flbl{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#6b8f7a;font-weight:600;margin-bottom:6px}
-.inp{width:100%;background:#141f17;border:1.5px solid #21332a;border-radius:10px;padding:12px 13px;color:#e0ede7;font-size:15px;font-family:inherit}
-.inp:focus{outline:none;border-color:#10b981}
-.tipb{background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.15);color:#93c5fd;padding:10px 12px;border-radius:9px;font-size:12px;line-height:1.5;margin-bottom:12px}
-.tipg{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.15);color:#f59e0b;padding:10px 12px;border-radius:9px;font-size:12px;margin-bottom:12px}
-.tipm{background:#141f17;color:#3d5449;padding:9px 11px;border-radius:8px;font-size:11px;margin-bottom:12px}
-.divr{height:1px;background:#21332a;margin:4px 0 14px}
-.chip{background:rgba(245,158,11,.14);color:#f59e0b;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700}
-.emini{display:flex;align-items:center;gap:9px;padding:9px 12px;background:#141f17;border-radius:10px;margin-bottom:16px}
-.scard{background:#0f1a12;border:1px solid #1a2d22;border-radius:16px;overflow:hidden;margin-bottom:11px}
-.scardh{padding:14px 16px;border-bottom:1px solid #1a2d22}
-.scardt{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#6b8f7a;font-weight:600;margin-bottom:3px}
-.scardd{font-size:12px;color:#3d5449;line-height:1.5}
-.srow{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.sbg{background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;cursor:pointer;font-family:inherit}
-.sbb{background:rgba(96,165,250,.09);border:1px solid rgba(96,165,250,.22);border-radius:10px;padding:10px 16px;color:#60a5fa;font-weight:700;font-size:12px;flex-shrink:0;cursor:pointer;display:inline-block;font-family:inherit}
-.rmsg{margin:0 16px 14px;padding:10px 13px;border-radius:9px;font-size:12px}
-.rmsgok{background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.22);color:#10b981}
-.rmsger{background:rgba(248,113,113,.09);border:1px solid rgba(248,113,113,.22);color:#f87171}
-.abrow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a2d22}
-.abrow:last-child{border:none}
-.empty{text-align:center;padding:40px 20px;color:#3d5449}
-.abadge{background:rgba(245,158,11,.14);color:#f59e0b;border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;margin-right:5px}
+body{background:#0a110e;color:#e0ede7;font-family:-apple-system,sans-serif;padding:20px}
+.btn{background:#10b981;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;width:100%;margin-bottom:12px;cursor:pointer}
+.card{background:#0f1a12;border:1px solid #1a2d22;border-radius:14px;padding:16px;margin-bottom:12px}
+input{width:100%;background:#141f17;border:1.5px solid #21332a;border-radius:9px;padding:12px;color:#e0ede7;font-size:15px;margin-bottom:10px;box-sizing:border-box}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="hdr">
-    <div class="hdr-l">
-      <button id="backBtn" onclick="goBack()">&#8249;</button>
-      <div class="logo">&#8383;</div>
-      <span class="htitle" id="hdrTitle">PayRoll</span>
-    </div>
-    <div class="mnav">
-      <button onclick="adjM(-1)">&#8249;</button>
-      <span id="mLbl"></span>
-      <button onclick="adjM(1)">&#8250;</button>
-    </div>
-  </div>
-  <div id="page"></div>
-  <div class="bnav">
-    <button class="nb on" id="nb-home" onclick="goScreen('home')">
-      <span class="nbi">&#8862;</span><span class="nbl">Overview</span><div class="nbbar"></div>
-    </button>
-    <button class="nb" id="nb-staff" onclick="goScreen('staff')">
-      <span class="nbi">&#9689;</span><span class="nbl">Staff</span><div class="nbbar"></div>
-    </button>
-    <button class="nb" id="nb-settings" onclick="goScreen('settings')">
-      <span class="nbi">&#9672;</span><span class="nbl">Settings</span><div class="nbbar"></div>
-    </button>
-  </div>
-</div>
-<div class="overlay" id="overlay" onclick="closeSheet()">
-  <div class="sheet" onclick="event.stopPropagation()">
-    <div class="shhdl"></div>
-    <div class="shhdr">
-      <span class="shttl" id="shTitle"></span>
-      <button class="shx" onclick="closeSheet()">&#10005;</button>
-    </div>
-    <div class="shbody" id="shBody"></div>
-  </div>
-</div>
+<h2 style="color:#10b981;margin-bottom:20px">PayRoll Manager</h2>
+<div id="app"></div>
 
 <script>
-// ── data ──────────────────────────────────────────────────────
 var emps = [];
-var pays = {};
-var screen = 'home';
-var selId = null;
-var now = new Date();
-var cY = now.getFullYear();
-var cM = now.getMonth() + 1;
-var MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-var AC = ['#10b981','#6366f1','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+try { var s = localStorage.getItem('emps'); if(s) emps = JSON.parse(s); } catch(e) {}
 
-try { var _e = localStorage.getItem('pr_e'); if (_e) emps = JSON.parse(_e); } catch(x){}
-try { var _p = localStorage.getItem('pr_p'); if (_p) pays = JSON.parse(_p); } catch(x){}
+function save() { try { localStorage.setItem('emps', JSON.stringify(emps)); } catch(e) {} }
 
-function sE(){ try{localStorage.setItem('pr_e',JSON.stringify(emps))}catch(x){} }
-function sP(){ try{localStorage.setItem('pr_p',JSON.stringify(pays))}catch(x){} }
-
-// ── helpers ───────────────────────────────────────────────────
-function uid(){ return Math.random().toString(36).slice(2,9); }
-function fmt(n){
-  var v = parseFloat(n)||0, s = v.toFixed(2).split('.');
-  s[0] = s[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
-  return s.join('.');
-}
-function mk(){ return cY+'-'+(cM<10?'0'+cM:cM); }
-function getRec(id){ return (pays[id]&&pays[id][mk()])||{}; }
-function toDay(){ return new Date().toISOString().slice(0,10); }
-function per(){ return MO[cM-1]+' '+cY; }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function aclr(n){
-  var h=0,s=n||'?';
-  for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))&0xffffffff;
-  return AC[Math.abs(h)%AC.length];
-}
-function init(n){ return (n||'?').trim().split(' ').slice(0,2).map(function(w){return w[0]?w[0].toUpperCase():'';}).join(''); }
-function avH(name,sz){
-  sz=sz||40; var c=aclr(name), r=Math.round(sz*.27);
-  return '<span class="av" style="width:'+sz+'px;height:'+sz+'px;border-radius:'+r+'px;background:'+c+'1a;border:1.5px solid '+c+'38;color:'+c+';font-size:'+Math.round(sz*.37)+'px">'+init(name)+'</span>';
-}
-function calcP(e,r){
-  r=r||{};
-  var base=parseFloat(e.baseSalary)||0, hr=parseFloat(e.hourlyRate)||0, phR=hr||base/208;
-  var h=parseFloat(r.hoursWorked)||0, ph=parseFloat(r.publicHolidayHours)||0;
-  var ad=parseFloat(r.allowanceDays)||0, al=ad*10;
-  var adv=(r.advances||[]).reduce(function(s,a){return s+(parseFloat(a.amount)||0);},0);
-  var g=e.payType==='monthly'?base:0;
-  if(h>0) g+=h*hr; if(ph>0) g+=ph*phR*2; g+=al;
-  return {gross:g,adv:adv,net:g-adv,allow:al,ad:ad,phR:phR};
+function fmt(n) {
+  return (parseFloat(n)||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-// ── nav/routing ───────────────────────────────────────────────
-function adjM(d){ var dt=new Date(cY,cM-1+d); cY=dt.getFullYear(); cM=dt.getMonth()+1; render(); }
-function goScreen(s){ screen=s; selId=null; render(); }
-function goBack(){ goScreen('home'); }
-function openDetail(id){ selId=id; screen='detail'; render(); }
+function draw() {
+  var app = document.getElementById('app');
+  var h = '';
 
-function updNav(){
-  document.getElementById('mLbl').textContent = MO[cM-1].slice(0,3)+' '+cY;
-  ['home','staff','settings'].forEach(function(n){
-    var el=document.getElementById('nb-'+n);
-    if(el) el.className='nb'+(n===screen||(n==='home'&&screen==='detail')?' on':'');
+  h += '<button class="btn" onclick="showAdd()">+ Add Employee</button>';
+
+  for (var i = 0; i < emps.length; i++) {
+    var e = emps[i];
+    h += '<div class="card">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+    h += '<div><div style="font-size:16px;font-weight:700">' + e.name + '</div>';
+    h += '<div style="font-size:12px;color:#6b8f7a">' + (e.pos||'-') + '</div></div>';
+    h += '<button onclick="delEmp('+i+')" style="background:rgba(248,113,113,.15);border:none;border-radius:8px;padding:6px 12px;color:#f87171;cursor:pointer;font-size:12px;font-weight:700">Remove</button>';
+    h += '</div>';
+    h += '<div style="font-size:13px;color:#6b8f7a">Base: RM ' + fmt(e.base) + '/month</div>';
+    h += '</div>';
+  }
+
+  if (emps.length === 0) {
+    h += '<div style="text-align:center;padding:30px;color:#3d5449">No employees yet. Add one above.</div>';
+  }
+
+  app.innerHTML = h;
+}
+
+function showAdd() {
+  var app = document.getElementById('app');
+  app.innerHTML = '<div class="card">' +
+    '<div style="font-size:16px;font-weight:700;margin-bottom:14px">New Employee</div>' +
+    '<input id="nn" placeholder="Full Name">' +
+    '<input id="np" placeholder="Position">' +
+    '<input id="nb" type="number" placeholder="Monthly Salary (RM)">' +
+    '<button class="btn" onclick="addEmp()">Save Employee</button>' +
+    '<button onclick="draw()" style="width:100%;background:none;border:1.5px solid #21332a;color:#6b8f7a;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer">Cancel</button>' +
+    '</div>';
+}
+
+function addEmp() {
+  var name = document.getElementById('nn').value.trim();
+  if (!name) return;
+  emps.push({
+    name: name,
+    pos: document.getElementById('np').value.trim(),
+    base: document.getElementById('nb').value
   });
-  var bb=document.getElementById('backBtn');
-  if(bb) bb.style.display=screen==='detail'?'flex':'none';
-  var ht=document.getElementById('hdrTitle');
-  if(ht){
-    if(screen==='detail'&&selId){
-      var e=emps.filter(function(x){return x.id===selId;})[0];
-      ht.textContent=e?e.name.split(' ')[0]:'PayRoll';
-    } else { ht.textContent='PayRoll'; }
-  }
+  save();
+  draw();
 }
 
-// ── render ────────────────────────────────────────────────────
-function render(){
-  updNav();
-  var pg=document.getElementById('page');
-  if(!pg) return;
-  var html='<div style="color:red;padding:10px">error</div>';
-  if(screen==='home') html=rHome();
-  else if(screen==='staff') html=rStaff();
-  else if(screen==='detail') html=rDetail();
-  else if(screen==='settings') html=rSettings();
-  pg.innerHTML=html;
+function delEmp(i) {
+  emps.splice(i, 1);
+  save();
+  draw();
 }
 
-function rHome(){
-  var tG=0,tA=0,tN=0,tP=0;
-  for(var i=0;i<emps.length;i++){
-    var p=calcP(emps[i],getRec(emps[i].id));
-    tG+=p.gross; tA+=p.adv; tN+=p.net;
-    if(getRec(emps[i].id).status==='paid') tP++;
-  }
-  var h='<div class="hero">';
-  h+='<div class="hlbl">Net Payroll - '+per()+'</div>';
-  h+='<div class="hnum">RM '+fmt(tN)+'</div>';
-  h+='<div class="hrow">';
-  h+='<div class="hc"><div class="hcl">Gross</div><div class="hcv">RM '+fmt(tG)+'</div></div>';
-  h+='<div class="hc"><div class="hcl">Advances</div><div class="hcv" style="color:#fca5a5">RM '+fmt(tA)+'</div></div>';
-  h+='<div class="hc"><div class="hcl">Paid</div><div class="hcv">'+tP+'/'+emps.length+'</div></div>';
-  h+='</div></div>';
-  h+='<div class="sechdr"><span class="secl">Staff - '+per()+'</span><button class="secbtn" onclick="goScreen(\'staff\')">See All</button></div>';
-  if(emps.length===0){
-    h+='<div class="empty"><div style="font-size:44px;margin-bottom:10px">&#128101;</div>';
-    h+='<div style="font-size:17px;font-weight:700;color:#6b8f7a;margin-bottom:6px">No employees yet</div>';
-    h+='<div style="font-size:13px;margin-bottom:18px">Add your first team member</div>';
-    h+='<button class="btn bgrn" style="width:auto;padding:11px 22px" onclick="shAddEmp()">+ Add Employee</button></div>';
-  } else {
-    for(var j=0;j<emps.length;j++) h+=ecH(emps[j],j);
-  }
-  return h;
-}
-
-function ecH(e,i){
-  var r=getRec(e.id),p=calcP(e,r),isPd=r.status==='paid';
-  var cols=p.adv>0?'1fr 1fr 1fr':'1fr 1fr';
-  var h='<button class="ec" onclick="openDetail(\''+e.id+'\')">';
-  h+='<div class="et">'+avH(e.name,42);
-  h+='<div style="flex:1;min-width:0;text-align:left"><div class="en">'+esc(e.name)+'</div><div class="ep">'+esc(e.position||'-')+'</div></div>';
-  h+='<span class="sb '+(isPd?'spd':'spe')+'">'+(isPd?'Paid':'Pending')+'</span></div>';
-  h+='<div class="sg" style="grid-template-columns:'+cols+'">';
-  h+='<div class="st"><div class="stl">Gross</div><div class="stv">RM '+fmt(p.gross)+'</div></div>';
-  if(p.adv>0) h+='<div class="st str"><div class="stl">Advances</div><div class="stv">-'+fmt(p.adv)+'</div></div>';
-  h+='<div class="st stg"><div class="stl">Net Pay</div><div class="stv">RM '+fmt(p.net)+'</div></div>';
-  h+='</div></button>';
-  return h;
-}
-
-function rStaff(){
-  var h='<div style="padding:12px">';
-  h+='<button class="btn bgrn" style="margin-bottom:13px" onclick="shAddEmp()">+ Add New Employee</button>';
-  if(emps.length===0){
-    h+='<div class="empty"><div style="font-size:44px;margin-bottom:9px">&#128100;</div><div style="font-size:17px;font-weight:700;color:#6b8f7a">No employees yet</div></div>';
-  } else {
-    for(var i=0;i<emps.length;i++){
-      var e=emps[i];
-      h+='<button class="ec" style="display:flex;align-items:center;gap:11px;border-radius:13px;margin:0 0 9px" onclick="openDetail(\''+e.id+'\')">';
-      h+=avH(e.name,45);
-      h+='<div style="flex:1;min-width:0;text-align:left"><div class="en">'+esc(e.name)+'</div><div class="ep">'+esc(e.position||'-')+'</div>';
-      h+='<div style="font-size:11px;color:#3d5449;margin-top:2px">'+(e.payType==='monthly'?'RM '+fmt(e.baseSalary)+'/mo':'RM '+fmt(e.hourlyRate)+'/hr')+'</div></div>';
-      h+='<span style="color:#3d5449;font-size:20px">&#8250;</span></button>';
-    }
-  }
-  return h+'</div>';
-}
-
-function rDetail(){
-  var e=null;
-  for(var i=0;i<emps.length;i++) if(emps[i].id===selId){e=emps[i];break;}
-  if(!e) return '<div style="padding:30px;text-align:center;color:#6b8f7a">Not found</div>';
-  var r=getRec(e.id),p=calcP(e,r),isPd=r.status==='paid',hr=parseFloat(e.hourlyRate)||0;
-  var h='';
-  h+='<div class="prof"><div class="prow2">'+avH(e.name,50);
-  h+='<div style="flex:1"><div class="pname">'+esc(e.name)+'</div><div class="ppos">'+esc(e.position||'-')+'</div>';
-  h+='<div class="pmeta">'+(e.payType==='monthly'?'Base RM '+fmt(e.baseSalary)+'/mo':'RM '+fmt(e.hourlyRate)+'/hr')+(e.payType==='monthly'&&e.hourlyRate?' - OT RM '+fmt(e.hourlyRate)+'/hr':'')+'</div></div>';
-  h+='<span class="sb '+(isPd?'spd':'spe')+'">'+(isPd?'Paid':'Pending')+'</span></div>';
-  h+='<div class="pag"><button class="pac pacd" onclick="shHours()">Log Hours</button><button class="pac pacr" onclick="shAdvance()">+ Advance</button></div></div>';
-
-  h+='<div class="card"><div class="clbl">Earnings - '+per()+'</div>';
-  if(e.payType==='monthly') h+='<div class="prow"><span class="pl">Base Salary</span><span class="pv">RM '+fmt(e.baseSalary)+'</span></div>';
-  if(parseFloat(r.hoursWorked)>0) h+='<div class="prow"><span class="pl">'+(e.payType==='hourly'?'Regular':'Extra')+' Hrs ('+r.hoursWorked+'h)</span><span class="pv">RM '+fmt(parseFloat(r.hoursWorked)*hr)+'</span></div>';
-  if(parseFloat(r.publicHolidayHours)>0) h+='<div class="prow"><span class="pl">PH Double ('+r.publicHolidayHours+'h x2)</span><span class="pv" style="color:#60a5fa">RM '+fmt(parseFloat(r.publicHolidayHours)*p.phR*2)+'</span></div>';
-  if(p.ad>0) h+='<div class="prow"><div><span class="abadge">ALLOW</span><span class="pl" style="display:inline">'+p.ad+' days x RM10</span></div><span class="pv" style="color:#f59e0b">RM '+fmt(p.allow)+'</span></div>';
-  h+='<div class="grossr"><span style="font-size:15px;font-weight:700">Gross Pay</span><span class="grossv">RM '+fmt(p.gross)+'</span></div></div>';
-
-  h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(r.advances&&r.advances.length?'11':'0')+'px"><div class="clbl" style="margin:0">Advances</div>';
-  if(p.adv>0) h+='<span style="font-size:13px;font-weight:700;color:#f87171">-RM '+fmt(p.adv)+'</span>';
-  h+='</div>';
-  if(!r.advances||!r.advances.length){
-    h+='<div style="text-align:center;padding:8px 0;font-size:13px;color:#3d5449">No advances this month</div>';
-  } else {
-    for(var j=0;j<r.advances.length;j++){
-      var a=r.advances[j];
-      h+='<div class="arow"><div><div style="font-size:14px">'+esc(a.note||'Salary Advance')+'</div><div style="font-size:11px;color:#3d5449;margin-top:2px">'+a.date+'</div></div>';
-      h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:14px;font-weight:700;color:#f87171">-RM '+fmt(a.amount)+'</span>';
-      h+='<button class="adel" onclick="delAdv(\''+a.id+'\')">x</button></div></div>';
-    }
-  }
-  h+='</div>';
-
-  h+='<div class="netbox"><div><div class="netl">Net Amount Payable</div><div class="netv">RM '+fmt(p.net)+'</div><div class="nets">After RM '+fmt(p.adv)+' advances</div></div><div class="netico">'+(isPd?'OK':'$')+'</div></div>';
-  h+='<div class="btns">';
-  h+='<button class="btn '+(isPd?'bgh':'bgld')+'" onclick="togPaid()">'+(isPd?'Paid - Tap to Undo':'Mark as Paid')+'</button>';
-  h+='<button class="btn bgh" onclick="doPrint()">Print Pay Slip</button>';
-  h+='<div class="b2"><button class="btn bgh" style="font-size:13px" onclick="shEdit()">Edit</button><button class="btn bsr" style="font-size:13px" onclick="shDel()">Delete</button></div>';
-  h+='</div>';
-  return h;
-}
-
-function rSettings(){
-  var h='<div style="padding:12px">';
-  h+='<div class="scard"><div class="scardh"><div class="scardt">Data Backup</div><div class="scardd">Export payroll data as JSON.</div></div>';
-  h+='<div class="srow"><div><div style="font-size:14px;font-weight:600">Download Backup</div><div style="font-size:11px;color:#3d5449;margin-top:2px">'+emps.length+' employee'+(emps.length!==1?'s':'')+' - all months</div></div>';
-  h+='<button class="sbg" onclick="doBackup()">Export</button></div></div>';
-  h+='<div class="scard"><div class="scardh"><div class="scardt">Restore Backup</div><div class="scardd">Upload a .json backup file.</div></div>';
-  h+='<div class="srow"><div><div style="font-size:14px;font-weight:600">Restore from File</div><div style="font-size:11px;color:#3d5449;margin-top:2px">Select .json backup</div></div>';
-  h+='<label class="sbb">Restore<input type="file" accept=".json" onchange="doRestore(this)" style="display:none"></label></div>';
-  h+='<div id="rmsg"></div></div>';
-  h+='<div class="scard" style="padding:15px 16px"><div class="clbl">About</div>';
-  [['App','PayRoll'],['Daily Allowance','RM10/day'],['PH Rate','2x hourly'],['Employees',emps.length+' registered'],['Storage','Device only']].forEach(function(row){
-    h+='<div class="abrow"><span style="font-size:13px;color:#6b8f7a">'+row[0]+'</span><span style="font-size:13px;font-weight:600">'+row[1]+'</span></div>';
-  });
-  h+='</div></div>';
-  return h;
-}
-
-// ── actions ───────────────────────────────────────────────────
-function togPaid(){
-  if(!pays[selId]) pays[selId]={};
-  if(!pays[selId][mk()]) pays[selId][mk()]={};
-  pays[selId][mk()].status=pays[selId][mk()].status==='paid'?'pending':'paid';
-  sP(); render();
-}
-function delAdv(aid){
-  if(!pays[selId]||!pays[selId][mk()]) return;
-  var r=pays[selId][mk()];
-  r.advances=(r.advances||[]).filter(function(a){return a.id!==aid;});
-  sP(); render();
-}
-function doPrint(){
-  var e=null;
-  for(var i=0;i<emps.length;i++) if(emps[i].id===selId){e=emps[i];break;}
-  if(e) printSlip(e,getRec(selId),cY,cM);
-}
-function doBackup(){
-  var d={v:1,at:new Date().toISOString(),employees:emps,payroll:pays};
-  var b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-  var u=URL.createObjectURL(b),a=document.createElement('a');
-  a.href=u; a.download='payroll-'+new Date().toISOString().slice(0,10)+'.json';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
-}
-function doRestore(inp){
-  var f=inp.files&&inp.files[0]; if(!f) return;
-  var rd=new FileReader();
-  rd.onload=function(ev){
-    var m=document.getElementById('rmsg'); if(!m) return;
-    try{
-      var d=JSON.parse(ev.target.result);
-      if(!d.employees||!d.payroll) throw new Error('bad');
-      emps=d.employees; pays=d.payroll; sE(); sP();
-      m.innerHTML='<div class="rmsg rmsgok">Restored '+emps.length+' employees.</div>';
-      render();
-    }catch(err){m.innerHTML='<div class="rmsg rmsger">Invalid backup file.</div>';}
-  };
-  rd.readAsText(f); inp.value='';
-}
-
-// ── sheets ────────────────────────────────────────────────────
-function openSheet(title,html){
-  document.getElementById('shTitle').textContent=title;
-  document.getElementById('shBody').innerHTML=html;
-  document.getElementById('overlay').className='overlay open';
-}
-function closeSheet(){ document.getElementById('overlay').className='overlay'; }
-
-function shAddEmp(){ openSheet('New Employee',empForm({payType:'monthly'},null)); }
-function shEdit(){
-  var e=null;
-  for(var i=0;i<emps.length;i++) if(emps[i].id===selId){e=emps[i];break;}
-  if(e) openSheet('Edit Employee',empForm(e,e.id));
-}
-function empForm(d,eid){
-  var h='';
-  h+='<div class="field"><label class="flbl">Full Name</label><input class="inp" id="fn" value="'+esc(d.name||'')+'" placeholder="e.g. Ahmad bin Ali"></div>';
-  h+='<div class="field"><label class="flbl">Position</label><input class="inp" id="fp" value="'+esc(d.position||'')+'" placeholder="e.g. Sales Manager"></div>';
-  h+='<div class="field"><label class="flbl">Pay Type</label><select class="inp" id="ft" onchange="ftChg()"><option value="monthly"'+(d.payType!=='hourly'?' selected':'')+'>Monthly Salary</option><option value="hourly"'+(d.payType==='hourly'?' selected':'')+'>Hourly Rate</option></select></div>';
-  h+='<div id="fbw" class="field"'+(d.payType==='hourly'?' style="display:none"':'')+'>'+
-     '<label class="flbl">Base Monthly Salary (RM)</label>'+
-     '<input class="inp" id="fb" type="number" value="'+esc(d.baseSalary||'')+'" placeholder="e.g. 3500"></div>';
-  h+='<div class="field"><label class="flbl" id="fhl">'+(d.payType==='hourly'?'Hourly Rate (RM)':'OT/PH Hourly Rate (RM)')+'</label>'+
-     '<input class="inp" id="fh" type="number" value="'+esc(d.hourlyRate||'')+'" placeholder="'+(d.payType==='hourly'?'e.g. 15':'Optional')+'"></div>';
-  if(d.payType!=='hourly'&&!d.hourlyRate) h+='<div class="tipm">Leave blank: PH rate = Base / 208 hrs</div>';
-  h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">';
-  h+='<button class="btn bgrn" onclick="saveEmp('+(eid?'\''+eid+'\'':'null')+')">Save</button>';
-  h+='<button class="btn bgh" onclick="closeSheet()">Cancel</button></div>';
-  return h;
-}
-function ftChg(){
-  var t=document.getElementById('ft').value;
-  var bw=document.getElementById('fbw'),hl=document.getElementById('fhl'),fh=document.getElementById('fh');
-  if(!bw||!hl||!fh) return;
-  bw.style.display=t==='monthly'?'':'none';
-  hl.textContent=t==='monthly'?'OT/PH Hourly Rate (RM)':'Hourly Rate (RM)';
-  fh.placeholder=t==='monthly'?'Optional':'e.g. 15';
-}
-function saveEmp(eid){
-  var fn=document.getElementById('fn'); if(!fn) return;
-  var name=fn.value.trim(); if(!name) return;
-  var fb=document.getElementById('fb'),fh=document.getElementById('fh'),fp=document.getElementById('fp'),ft=document.getElementById('ft');
-  var e={id:eid||uid(),name:name,position:fp?fp.value.trim():'',payType:ft?ft.value:'monthly',baseSalary:fb?fb.value:'',hourlyRate:fh?fh.value:''};
-  if(eid){ for(var i=0;i<emps.length;i++) if(emps[i].id===eid){emps[i]=e;break;} }
-  else emps.push(e);
-  sE(); closeSheet(); render();
-}
-function shAdvance(){
-  var e=null;
-  for(var i=0;i<emps.length;i++) if(emps[i].id===selId){e=emps[i];break;}
-  if(!e) return;
-  var h='<div class="emini">'+avH(e.name,34)+'<div><div style="font-size:14px;font-weight:600">'+esc(e.name)+'</div><div style="font-size:11px;color:#6b8f7a">'+per()+'</div></div></div>';
-  h+='<div class="field"><label class="flbl">Amount (RM)</label><input class="inp" id="aa" type="number" placeholder="e.g. 500"></div>';
-  h+='<div class="field"><label class="flbl">Date</label><input class="inp" id="ad" type="date" value="'+toDay()+'"></div>';
-  h+='<div class="field"><label class="flbl">Reason (optional)</label><input class="inp" id="an" placeholder="e.g. Medical"></div>';
-  h+='<div style="display:flex;flex-direction:column;gap:8px"><button class="btn bred" onclick="saveAdv()">Record Advance</button><button class="btn bgh" onclick="closeSheet()">Cancel</button></div>';
-  openSheet('Record Advance',h);
-}
-function saveAdv(){
-  var aa=document.getElementById('aa'); if(!aa||!aa.value||!selId) return;
-  if(!pays[selId]) pays[selId]={};
-  if(!pays[selId][mk()]) pays[selId][mk()]={};
-  var r=pays[selId][mk()];
-  var ad=document.getElementById('ad'),an=document.getElementById('an');
-  r.advances=(r.advances||[]).concat([{id:uid(),amount:aa.value,date:ad?ad.value:toDay(),note:an?an.value:''}]);
-  sP(); closeSheet(); render();
-}
-function shHours(){
-  var e=null;
-  for(var i=0;i<emps.length;i++) if(emps[i].id===selId){e=emps[i];break;}
-  if(!e) return;
-  var r=getRec(selId);
-  var h='<div class="emini">'+avH(e.name,34)+'<div><div style="font-size:14px;font-weight:600">'+esc(e.name)+'</div><div style="font-size:11px;color:#6b8f7a">'+per()+'</div></div></div>';
-  h+='<div class="field"><label class="flbl">'+(e.payType==='monthly'?'Extra/Overtime Hours':'Regular Hours')+'</label><input class="inp" id="hh" type="number" value="'+esc(r.hoursWorked||'')+'" placeholder="e.g. 8"></div>';
-  h+='<div class="field"><label class="flbl">Public Holiday Hours (2x pay)</label><input class="inp" id="hp" type="number" value="'+esc(r.publicHolidayHours||'')+'" placeholder="e.g. 8"></div>';
-  h+='<div class="tipb">Public holiday hours are calculated at 2x the hourly rate.</div>';
-  h+='<div class="divr"></div>';
-  h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:8px"><span class="chip">ALLOWANCE</span><span style="font-size:12px;color:#6b8f7a">RM10 per day</span></div>';
-  h+='<div class="field"><label class="flbl">Days Attended</label><input class="inp" id="hd" type="number" value="'+esc(r.allowanceDays||'')+'" placeholder="e.g. 22" oninput="updAT()"></div>';
-  h+='<div id="atip" class="tipg"'+(r.allowanceDays&&parseFloat(r.allowanceDays)>0?'':' style="display:none"')+'>Total: RM '+fmt((parseFloat(r.allowanceDays)||0)*10)+'</div>';
-  h+='<div style="display:flex;flex-direction:column;gap:8px"><button class="btn bgrn" onclick="saveHrs()">Save</button><button class="btn bgh" onclick="closeSheet()">Cancel</button></div>';
-  openSheet('Log Hours',h);
-}
-function updAT(){
-  var hd=document.getElementById('hd'),t=document.getElementById('atip');
-  if(!hd||!t) return;
-  var d=parseFloat(hd.value)||0;
-  if(d>0){t.style.display='';t.textContent='Total: RM '+fmt(d*10)+' ('+d+' days x RM10)';}
-  else t.style.display='none';
-}
-function saveHrs(){
-  if(!selId) return;
-  if(!pays[selId]) pays[selId]={};
-  if(!pays[selId][mk()]) pays[selId][mk()]={};
-  var r=pays[selId][mk()];
-  var hh=document.getElementById('hh'),hp=document.getElementById('hp'),hd=document.getElementById('hd');
-  if(hh) r.hoursWorked=hh.value;
-  if(hp) r.publicHolidayHours=hp.value;
-  if(hd) r.allowanceDays=hd.value;
-  sP(); closeSheet(); render();
-}
-function shDel(){
-  var e=null;
-  for(var i=0;i<emps.length;i++) if(emps[i].id===selId){e=emps[i];break;}
-  if(!e) return;
-  var h='<div style="text-align:center;padding:6px 0 16px">'+avH(e.name,60);
-  h+='<div style="font-size:20px;font-weight:700;margin-top:11px">'+esc(e.name)+'</div>';
-  h+='<div style="font-size:13px;color:#6b8f7a;margin:8px 0 20px;line-height:1.6">Permanently removes this employee and all payroll records.</div>';
-  h+='<div style="display:flex;flex-direction:column;gap:8px"><button class="btn bred" onclick="doDelEmp()">Remove</button><button class="btn bgh" onclick="closeSheet()">Cancel</button></div></div>';
-  openSheet('Remove Employee',h);
-}
-function doDelEmp(){
-  emps=emps.filter(function(x){return x.id!==selId;}); sE(); closeSheet(); goScreen('home');
-}
-function printSlip(e,r,yr,mo){
-  var p=calcP(e,r),hr=parseFloat(e.hourlyRate)||0,period=MO[mo-1]+' '+yr;
-  var w=window.open('','_blank');
-  if(!w){alert('Allow popups to print.');return;}
-  var rows='';
-  if(e.payType==='monthly') rows+='<tr><td>Base Salary</td><td>RM '+fmt(e.baseSalary)+'</td></tr>';
-  if(parseFloat(r.hoursWorked)>0) rows+='<tr><td>Extra Hours ('+r.hoursWorked+'h)</td><td>RM '+fmt(parseFloat(r.hoursWorked)*hr)+'</td></tr>';
-  if(parseFloat(r.publicHolidayHours)>0) rows+='<tr><td>PH Hours ('+r.publicHolidayHours+'h x2)</td><td>RM '+fmt(parseFloat(r.publicHolidayHours)*p.phR*2)+'</td></tr>';
-  if(p.ad>0) rows+='<tr><td>Allowance ('+p.ad+' days)</td><td>RM '+fmt(p.allow)+'</td></tr>';
-  var drows='';
-  if(p.adv>0)(r.advances||[]).forEach(function(a){drows+='<tr><td>'+(a.note||'Advance')+' ('+a.date+')</td><td style="color:red">-RM '+fmt(a.amount)+'</td></tr>';});
-  w.document.write('<!DOCTYPE html><html><head><title>Pay Slip</title><style>body{font-family:-apple-system,sans-serif;padding:24px;max-width:560px;margin:auto}h2{color:#064e3b}table{width:100%;border-collapse:collapse;margin:10px 0}td{padding:7px 0;border-bottom:1px solid #eee;font-size:13px}td:last-child{text-align:right;font-weight:600}.gross{background:#f0fdf4;padding:10px;border-radius:8px;display:flex;justify-content:space-between;font-weight:700;color:#166534;margin-top:8px}.net{background:#064e3b;color:#fff;padding:16px;border-radius:10px;display:flex;justify-content:space-between;font-weight:700;font-size:18px;margin-top:12px}.sig{display:flex;justify-content:space-around;margin-top:30px}.sl{width:120px;border-top:1px solid #ccc;padding-top:5px;font-size:11px;color:#999;text-align:center}.pb{display:block;width:100%;background:#064e3b;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px}@media print{.pb{display:none}}</style></head><body>');
-
-w.document.write(’<h2>PayRoll - Pay Slip</h2><p>’+e.name+’ | ‘+(e.position||’-’)+’ | ‘+period+’</p><hr>’);
-w.document.write(’<table>’+rows+’</table><div class="gross"><span>Gross Pay</span><span>RM ‘+fmt(p.gross)+’</span></div>’);
-if(p.adv>0) w.document.write(’<table><tr><th style="text-align:left;color:#666;font-size:11px">Deductions</th></tr>’+drows+’</table>’);
-w.document.write(’<div class="net"><span>Net Payable</span><span>RM ‘+fmt(p.net)+’</span></div>’);
-w.document.write(’<div class="sig"><div class="sl">Employee</div><div class="sl">Authorised</div></div>’);
-w.document.write(’<button class="pb" onclick="window.print()">Print / Save PDF</button></body></html>’);
-w.document.close();
-}
-
-// ── START ─────────────────────────────────────────────────────
-render();
+draw();
 </script>
 
 </body>
