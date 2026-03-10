@@ -160,6 +160,11 @@ button,input,select,textarea{font-family:inherit;font-size:16px}
       <option value="all">All</option><option value="overdue">Overdue</option><option value="due-soon">Due Soon</option><option value="current">Current</option><option value="partial">Partial</option><option value="paid">Paid</option>
     </select>
   </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:10px;align-items:center">
+    <input type="date" class="inp" id="invDateFrom" onchange="renderInvoices()" placeholder="From" style="padding:10px 12px;font-size:14px"/>
+    <input type="date" class="inp" id="invDateTo" onchange="renderInvoices()" placeholder="To" style="padding:10px 12px;font-size:14px"/>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('invDateFrom').value='';document.getElementById('invDateTo').value='';renderInvoices()">✕</button>
+  </div>
   <div class="flex-between mb12">
     <div class="flex gap8">
       <button id="btnByInv" class="btn btn-sm btn-primary" onclick="setInvView('invoice')">🧾 By Invoice</button>
@@ -492,9 +497,13 @@ function renderInvoices(){
   var enriched=getEnriched();
   var search=(document.getElementById('invSearch').value||'').toLowerCase();
   var status=document.getElementById('invStatus').value;
+  var dateFrom=document.getElementById('invDateFrom').value;
+  var dateTo=document.getElementById('invDateTo').value;
   var filtered=enriched.filter(function(i){
     if(status!=='all'&&i.displayStatus!==status)return false;
     if(search&&i.invoiceNo.toLowerCase().indexOf(search)===-1&&(!i.customer||i.customer.name.toLowerCase().indexOf(search)===-1))return false;
+    if(dateFrom&&i.invoiceDate&&i.invoiceDate<dateFrom)return false;
+    if(dateTo&&i.invoiceDate&&i.invoiceDate>dateTo)return false;
     return true;
   });
   filtered.sort(function(a,b){return b.daysOverdue-a.daysOverdue;});
@@ -978,19 +987,17 @@ function renderWa(){
     +'<div class="fw7 fs15 mb4" style="color:#25d366">💬 WhatsApp Reminder Generator</div>'
     +'<div class="fs13 text-mut">Search a customer and send a personalised reminder.</div>'
     +'</div>'
-    // filter toggle + queue button
+    // filter toggle
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
       +'<button class="btn '+(waOverdueOnly?'btn-primary':'btn-ghost')+' btn-sm" onclick="waOverdueOnly=true;renderWa()">🔴 Overdue Only</button>'
       +'<button class="btn '+(waOverdueOnly?'btn-ghost':'btn-primary')+' btn-sm" onclick="waOverdueOnly=false;renderWa()">All Outstanding</button>'
     +'</div>'
-    +'<button class="btn btn-success btn-full mb12" onclick="startWaQueue()" style="background:linear-gradient(90deg,#14532d,#166534)">📬 Send Queue — One by One</button>'
     +'<input id="waSearch" class="inp mb12" placeholder="🔍 Search customer name or phone…" oninput="renderWa()" value="'+esc(search)+'"/>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">'
       +'<div style="background:#111827;border:1px solid #1e2d4a;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-blue">'+allCustsOS.length+'</div><div class="fs11 text-mut">Customers</div></div>'
       +'<div style="background:#111827;border:1px solid #991b1b;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-red">'+allOD.length+'</div><div class="fs11 text-mut">Overdue</div></div>'
       +'<div style="background:#111827;border:1px solid #166534;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-grn">'+Object.keys(waStats).length+'</div><div class="fs11 text-mut">Reminded</div></div>'
-    +'</div>'
-    +'<div class="form-group"><label class="lbl">Your Company Name</label><input class="inp" value="'+esc(state.company)+'" oninput="state.company=this.value;save()"/></div>';
+    +'</div>';
   if(custsFiltered.length===0){
     html+=search?'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🔍</div><div class="fw7 text-mut">No customer found for "'+esc(search)+'"</div></div>':'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🎉</div><div class="fw7 text-grn">All clear!</div></div>';
   }else{
