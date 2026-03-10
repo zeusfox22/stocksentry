@@ -776,12 +776,159 @@ function addPhonePrompt(cid){
   state.customers=state.customers.map(function(c){return c.id===cid?Object.assign({},c,{phone:phone}):c;});
   save();renderWa();
 }
+var waQueueMode=false;
+var waQueueIndex=0;
+var waQueueList=[];
+var waOverdueOnly=true;
+
+function buildWaQueue(){
+  var enriched=getEnriched();
+  var custsWithOS=state.customers.filter(function(c){
+    return enriched.some(function(i){
+      if(i.customerId!==c.id)return false;
+      if(waOverdueOnly)return i.displayStatus==='overdue';
+      return i.displayStatus==='overdue'||i.displayStatus==='due-soon';
+    });
+  });
+  var waStats=getWaStats();
+  custsWithOS.sort(function(a,b){
+    var aOD=enriched.filter(function(i){return i.customerId===a.id&&i.displayStatus==='overdue';}).reduce(function(s,i){return s+i.daysOverdue;},0);
+    var bOD=enriched.filter(function(i){return i.customerId===b.id&&i.displayStatus==='overdue';}).reduce(function(s,i){return s+i.daysOverdue;},0);
+    return bOD-aOD;
+  });
+  return custsWithOS;
+}
+
+function startWaQueue(){
+  var searchEl=document.getElementById('waSearch');
+  var search=searchEl?searchEl.value.toLowerCase():'';
+  waQueueList=buildWaQueue().filter(function(c){
+    if(!search)return true;
+    return c.name.toLowerCase().indexOf(search)!==-1||(c.phone&&c.phone.indexOf(search)!==-1)||(c.contact&&c.contact.toLowerCase().indexOf(search)!==-1);
+  });
+  if(!waQueueList.length){alert('No customers match!');return;}
+  waQueueIndex=0;
+  waQueueMode=true;
+  renderWa();
+}
+function exitWaQueue(){waQueueMode=false;renderWa();}
+function waQueueNext(){
+  // slide out current card then show next
+  var card=document.getElementById('waQueueCard');
+  if(card){
+    card.style.transition='transform 0.3s ease, opacity 0.3s ease';
+    card.style.transform='translateX(-120%)';
+    card.style.opacity='0';
+    setTimeout(function(){
+      waQueueIndex++;
+      if(waQueueIndex>=waQueueList.length){
+        waQueueMode=false;
+        renderWa();
+      }else{
+        renderWaQueueCard();
+      }
+    },300);
+  }else{
+    waQueueIndex++;
+    if(waQueueIndex>=waQueueList.length){waQueueMode=false;renderWa();}
+    else renderWaQueueCard();
+  }
+}
+function waQueueSkip(){
+  var card=document.getElementById('waQueueCard');
+  if(card){
+    card.style.transition='transform 0.3s ease, opacity 0.3s ease';
+    card.style.transform='translateX(120%)';
+    card.style.opacity='0';
+    setTimeout(function(){
+      waQueueIndex++;
+      if(waQueueIndex>=waQueueList.length){waQueueMode=false;renderWa();}
+      else renderWaQueueCard();
+    },300);
+  }else{
+    waQueueIndex++;
+    if(waQueueIndex>=waQueueList.length){waQueueMode=false;renderWa();}
+    else renderWaQueueCard();
+  }
+}
+function renderWaQueueCard(){
+  var el=document.getElementById('remWa');if(!el)return;
+  var cust=waQueueList[waQueueIndex];
+  if(!cust){waQueueMode=false;renderWa();return;}
+  var enriched=getEnriched();
+  var custInvs=enriched.filter(function(i){return i.customerId===cust.id&&i.displayStatus==='overdue';});
+  var totalOS=custInvs.reduce(function(s,i){return s+i.outstanding;},0);
+  var ws=getWaStats()[cust.id];var ds=daysSinceWa(cust.id);
+  var progress=waQueueIndex+1;
+  var total=waQueueList.length;
+  var queueHtml='<div style="padding:12px 0 8px">'
+    // header row
+    +'<div class="flex-between mb16">'
+      +'<button class="btn btn-ghost btn-sm" onclick="exitWaQueue()">✕ Exit</button>'
+      +'<div style="text-align:center"><div class="fw7 fs15">📬 Send Queue</div><div class="fs12 text-mut">'+progress+' of '+total+'</div></div>'
+      +'<div style="width:80px"></div>'
+    +'</div>'
+    // progress bar
+    +'<div style="background:#1e2d4a;border-radius:4px;height:6px;margin-bottom:20px;overflow:hidden">'
+      +'<div style="background:#25d366;height:100%;border-radius:4px;width:'+Math.round((waQueueIndex/total)*100)+'%;transition:width 0.3s"></div>'
+    +'</div>'
+    // customer card
+    +'<div id="waQueueCard" style="background:#111827;border:1px solid #1e2d4a;border-radius:20px;padding:20px;border-left:4px solid #f87171;margin-bottom:16px">'
+      +'<div class="fw7 fs17 mb4">'+esc(cust.name)+'</div>'
+      +'<div class="fs13 text-mut mb2">'+(cust.contact||'—')+'</div>'
+      +'<div class="fs13 mb16">'+(cust.phone?'<span style="color:#25d366">📱 '+esc(cust.phone)+'</span>':'<span style="color:#f87171">No phone saved</span>')+'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'
+        +'<div style="background:#1a0a0a;border-radius:12px;padding:12px;text-align:center"><div class="fs11 text-mut mb4">OVERDUE</div><div class="fw7 fs20 text-red">'+fmyr(totalOS)+'</div></div>'
+        +'<div style="background:#0a1a2a;border-radius:12px;padding:12px;text-align:center"><div class="fs11 text-mut mb4">INVOICES</div><div class="fw7 fs20 text-blue">'+custInvs.length+'</div></div>'
+      +'</div>'
+      +(ws?'<div class="fs12 text-mut mb12">💬 Reminded '+ws.count+'x · Last: '+(ds===0?'Today':ds===1?'Yesterday':ds+'d ago')+'</div>':'<div class="fs12 text-yel mb12">⚠️ Never reminded</div>')
+      +'<div class="wa-msg mb16" style="font-size:12px;max-height:120px;overflow-y:auto">'+esc(genWaMsg(cust.id))+'</div>'
+      // action buttons
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+        +(cust.phone
+          ?'<button class="btn btn-wa" style="font-size:14px" onclick="waQueueSend('+cust.id+')">📱 Send WA</button>'
+          :'<button class="btn btn-ghost" style="font-size:14px;color:#f87171" onclick="waQueueAddPhone('+cust.id+')">📞 Add Phone</button>')
+        +'<button class="btn btn-ghost" style="font-size:14px" onclick="waQueueCopy('+cust.id+',this)">📋 Copy</button>'
+      +'</div>'
+      +'<button class="btn btn-ghost btn-full" style="margin-top:10px;color:#64748b;font-size:13px" onclick="waQueueSkip()">Skip →</button>'
+    +'</div>'
+  +'</div>';
+  el.innerHTML=queueHtml;
+}
+
+function waQueueSend(cid){
+  var cust=state.customers.find(function(c){return c.id===Number(cid);});
+  var phone=(cust&&cust.phone||'').replace(/[^0-9]/g,'');
+  var intl=phone.startsWith('0')?'60'+phone.slice(1):phone;
+  logWa(cid);
+  window.open('https://wa.me/'+intl+'?text='+encodeURIComponent(genWaMsg(cid)),'_blank');
+  setTimeout(waQueueNext,600);
+}
+function waQueueCopy(cid,btn){
+  var msg=genWaMsg(cid);
+  navigator.clipboard.writeText(msg).then(function(){
+    logWa(cid);
+    var orig=btn.textContent;btn.textContent='✅ Copied!';
+    setTimeout(function(){btn.textContent=orig;waQueueNext();},1200);
+  });
+}
+function waQueueAddPhone(cid){
+  var phone=prompt('Enter phone number (e.g. 012-3456789):');
+  if(!phone)return;
+  state.customers=state.customers.map(function(c){return c.id===cid?Object.assign({},c,{phone:phone}):c;});
+  save();renderWaQueueCard();
+}
+
 function renderWa(){
   var el=document.getElementById('remWa');if(!el)return;
+  // Queue mode — show one at a time
+  if(waQueueMode){renderWaQueueCard();return;}
   var enriched=getEnriched();
-  var searchEl=el.querySelector('#waSearch');
+  var searchEl=document.getElementById('waSearch');
   var search=searchEl?searchEl.value.toLowerCase():'';
-  var allCustsOS=state.customers.filter(function(c){return enriched.some(function(i){return i.customerId===c.id&&i.displayStatus!=='paid';});});
+  var allOD=state.customers.filter(function(c){return enriched.some(function(i){return i.customerId===c.id&&i.displayStatus==='overdue';});});
+  var allDS=state.customers.filter(function(c){return enriched.some(function(i){return i.customerId===c.id&&(i.displayStatus==='overdue'||i.displayStatus==='due-soon');});});
+  var allCustsOS=waOverdueOnly?allOD:allDS;
   var custsFiltered=allCustsOS.filter(function(c){
     if(!search)return true;
     return c.name.toLowerCase().indexOf(search)!==-1||(c.phone&&c.phone.indexOf(search)!==-1)||(c.contact&&c.contact.toLowerCase().indexOf(search)!==-1);
@@ -796,18 +943,24 @@ function renderWa(){
     +'<div class="fw7 fs15 mb4" style="color:#25d366">💬 WhatsApp Reminder Generator</div>'
     +'<div class="fs13 text-mut">Search a customer and send a personalised reminder.</div>'
     +'</div>'
+    // filter toggle + queue button
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
+      +'<button class="btn '+(waOverdueOnly?'btn-primary':'btn-ghost')+' btn-sm" onclick="waOverdueOnly=true;renderWa()">🔴 Overdue Only</button>'
+      +'<button class="btn '+(waOverdueOnly?'btn-ghost':'btn-primary')+' btn-sm" onclick="waOverdueOnly=false;renderWa()">All Outstanding</button>'
+    +'</div>'
+    +'<button class="btn btn-success btn-full mb12" onclick="startWaQueue()" style="background:linear-gradient(90deg,#14532d,#166534)">📬 Send Queue — One by One</button>'
     +'<input id="waSearch" class="inp mb12" placeholder="🔍 Search customer name or phone…" oninput="renderWa()" value="'+esc(search)+'"/>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">'
       +'<div style="background:#111827;border:1px solid #1e2d4a;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-blue">'+allCustsOS.length+'</div><div class="fs11 text-mut">Customers</div></div>'
-      +'<div style="background:#111827;border:1px solid #991b1b;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-red">'+allCustsOS.filter(function(c){return enriched.some(function(i){return i.customerId===c.id&&i.displayStatus==='overdue';});}).length+'</div><div class="fs11 text-mut">Overdue</div></div>'
+      +'<div style="background:#111827;border:1px solid #991b1b;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-red">'+allOD.length+'</div><div class="fs11 text-mut">Overdue</div></div>'
       +'<div style="background:#111827;border:1px solid #166534;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-grn">'+Object.keys(waStats).length+'</div><div class="fs11 text-mut">Reminded</div></div>'
     +'</div>'
     +'<div class="form-group"><label class="lbl">Your Company Name</label><input class="inp" value="'+esc(state.company)+'" oninput="state.company=this.value;save()"/></div>';
   if(custsFiltered.length===0){
-    html+=search?'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🔍</div><div class="fw7 text-mut">No customer found for "'+esc(search)+'"</div></div>':'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🎉</div><div class="fw7 text-grn">No outstanding invoices!</div></div>';
+    html+=search?'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🔍</div><div class="fw7 text-mut">No customer found for "'+esc(search)+'"</div></div>':'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🎉</div><div class="fw7 text-grn">All clear!</div></div>';
   }else{
     custsFiltered.forEach(function(cust){
-      var custInvs=enriched.filter(function(i){return i.customerId===cust.id&&i.displayStatus!=='paid';});
+      var custInvs=enriched.filter(function(i){return i.customerId===cust.id&&(waOverdueOnly?i.displayStatus==='overdue':i.displayStatus!=='paid');});
       var totalOS=custInvs.reduce(function(s,i){return s+i.outstanding;},0);
       var hasOD=custInvs.some(function(i){return i.displayStatus==='overdue';});
       var ws=waStats[cust.id];var ds=daysSinceWa(cust.id);
