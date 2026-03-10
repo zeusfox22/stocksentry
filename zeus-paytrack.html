@@ -1220,8 +1220,6 @@ function parseDailySalesRows(raw){
     var invNo=String(row[1]||'').trim();
     var custName=String(row[4]||'').trim();
     if(!invNo||!custName)continue;
-    // Skip cash sales
-    if(custName.toUpperCase().indexOf('CASH SALES')!==-1)continue;
     // Skip cancelled
     if(String(row[13]||'').trim().toUpperCase()==='C')continue;
     var invDate=parseMYDate(row[2]);
