@@ -601,7 +601,15 @@ function cancelCreditTerm(){document.getElementById('termEditRow').style.display
 function setTermVal(v){document.getElementById('termInput').value=v;}
 function saveCreditTerm(custId,invId){
   var term=parseInt(document.getElementById('termInput').value)||0;
+  // Update customer credit term
   state.customers=state.customers.map(function(c){return c.id===custId?Object.assign({},c,{creditTerm:term}):c;});
+  // Recalculate due date for ALL invoices of this customer
+  state.invoices=state.invoices.map(function(i){
+    if(i.customerId!==custId)return i;
+    var newDue=getDueDate(i.invoiceDate,term);
+    var newDueStr=newDue?toDateStr(newDue):'';
+    return Object.assign({},i,{dueDate:newDueStr});
+  });
   save();
   hideModal('invDetailModal');
   renderTab(currentTab);
