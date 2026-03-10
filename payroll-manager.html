@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PayRoll Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#09100d;font-family:'Plus Jakarta Sans',sans-serif;color:#e2ede8;overscroll-behavior:none}
+input,select,button{font-family:'Plus Jakarta Sans',sans-serif}
+input:focus,select:focus{outline:none;border-color:#10b981!important;box-shadow:0 0 0 3px rgba(16,185,129,.15)!important}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:#21332a;border-radius:2px}
+@keyframes slideUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.tap{cursor:pointer;transition:transform .12s,opacity .12s}
+.tap:active{transform:scale(.96)!important;opacity:.72!important}
+.rtp:active{background:#141f17!important}
+.ani{animation:fadeIn .32s ease}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(function(){
+'use strict';
+var h = React.createElement;
+var useState = React.useState;
+var useEffect = React.useEffect;
+var useCallback = React.useCallback;
+
+/* ── Storage ── */
+var S = {
+get:function(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}},
+set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+
+/* ── Helpers ── */
+function uid(){return Math.random().toString(36).slice(2,9)}
+function fmt(n){return Number(n||0).toLocaleString(‘en-MY’,{minimumFractionDigits:2,maximumFractionDigits:2})}
+function toDay(){return new Date().toISOString().slice(0,10)}
+function mkey(y,m){return y+’-’+(m<10?‘0’+m:m)}
+var MONTHS=[‘January’,‘February’,‘March’,‘April’,‘May’,‘June’,‘July’,‘August’,‘September’,‘October’,‘November’,‘December’];
+function aColor(name){
+var cols=[’#10b981’,’#6366f1’,’#f59e0b’,’#ef4444’,’#8b5cf6’,’#ec4899’,’#14b8a6’,’#f97316’];
+var hh=0; var s=(name||’?’);
+for(var i=0;i<s.length;i++) hh=(hh*31+s.charCodeAt(i))&0xffffffff;
+return cols[Math.abs(hh)%cols.length];
+}
+function inits(name){return (name||’?’).trim().split(’ ‘).slice(0,2).map(function(w){return w[0]?w[0].toUpperCase():’’}).join(’’)}
+
+var DAILY=10;
+function calcPay(emp,rec){
+rec=rec||{};
+var base=+(emp.baseSalary)||0, hr=+(emp.hourlyRate)||0;
+var phRate=hr||base/208;
+var hours=+(rec.hoursWorked)||0, phH=+(rec.publicHolidayHours)||0;
+var ad=+(rec.allowanceDays)||0, allow=ad*DAILY;
+var adv=(rec.advances||[]).reduce(function(s,a){return s+(+(a.amount)||0)},0);
+var gross=emp.payType===‘monthly’?base:0;
+if(hours>0) gross+=hours*hr;
+if(phH>0) gross+=phH*phRate*2;
+gross+=allow;
+return {gross:gross,advances:adv,net:gross-adv,allowance:allow,allowDays:ad,phRate:phRate};
+}
+
+/* ── Colors ── */
+var G={
+bg:’#09100d’,card:’#101a14’,card2:’#141f17’,border:’#1c2c20’,border2:’#21332a’,
+green:’#10b981’,greenD:’#059669’,greenL:’#34d399’,gold:’#f59e0b’,red:’#f87171’,blue:’#60a5fa’,
+text:’#e2ede8’,sub:’#6b8f7a’,muted:’#3d5449’
+};
+
+/* ── Print slip ── */
+function printSlip(emp,rec,year,month){
+var p=calcPay(emp,rec), hr=+(emp.hourlyRate)||0, period=MONTHS[month-1]+’ ‘+year;
+var w=window.open(’’,’_blank’);
+w.document.write(’<!DOCTYPE html><html><head><title>Pay Slip</title>’+
+‘<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">’+
+’<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8f7f4;color:#1a1a1a;padding:32px;max-width:600px;margin:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}.top{background:linear-gradient(135deg,#064e3b,#047857);color:#fff;padding:28px;border-radius:16px;margin-bottom:20px;position:relative;overflow:hidden}.top::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06)}.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 12px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}.co{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:3px}.per{font-size:13px;opacity:.7}.er{display:flex;align-items:center;gap:14px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.15)}.av{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}.en{font-family:'Playfair Display',serif;font-size:19px;margin-bottom:2px}.es{font-size:12px;opacity:.65}section{background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}.st{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#6b7280;margin-bottom:12px;font-weight:600}.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13.5px}.row:last-child{border:none}.lb{color:#4b5563}.vl{font-weight:600}.gb{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}.gb .lb{font-size:13px;color:#166534;font-weight:600}.gb .vl{font-family:'Playfair Display',serif;font-size:24px;color:#14532d}.nb{background:linear-gradient(135deg,#064e3b,#047857);color:#fff;border-radius:12px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center}.nb .lb{font-size:13px;opacity:.75}.nb .vl{font-family:'Playfair Display',serif;font-size:32px}.dd{color:#ef4444}.ft{text-align:center;font-size:11px;color:#9ca3af;margin-top:22px;padding-top:14px;border-top:1px solid #e5e7eb}.sr{display:flex;justify-content:space-around;margin-top:28px}.sl{width:140px;border-top:1px solid #d1d5db;margin-bottom:6px}.sl2{font-size:11px;color:#9ca3af;text-align:center}.pb{display:block;width:100%;background:#064e3b;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:20px}@media print{.pb{display:none}}</style></head><body>’+
+‘<div class="top"><div class="badge">Official Pay Slip</div><div class="co">PayRoll</div><div class="per">Period: ‘+period+’</div>’+
+‘<div class="er"><div class="av">’+inits(emp.name)+’</div><div><div class="en">’+emp.name+’</div><div class="es">’+(emp.position||’—’)+’ · ID: ‘+emp.id.toUpperCase()+’</div></div></div></div>’+
+‘<section><div class="st">Earnings</div>’+
+(emp.payType===‘monthly’?’<div class="row"><span class="lb">Base Monthly Salary</span><span class="vl">RM ‘+fmt(emp.baseSalary)+’</span></div>’:’’)+
+(+(rec.hoursWorked)>0?’<div class="row"><span class="lb">’+(emp.payType===‘hourly’?‘Regular’:‘Extra’)+’ Hours (’+rec.hoursWorked+‘h × RM ‘+fmt(hr)+’)</span><span class="vl">RM ‘+fmt((+(rec.hoursWorked))*hr)+’</span></div>’:’’)+
+(+(rec.publicHolidayHours)>0?’<div class="row"><span class="lb">Public Holiday (’+rec.publicHolidayHours+‘h × 2×)</span><span class="vl" style="color:#0891b2">RM ‘+fmt((+(rec.publicHolidayHours))*p.phRate*2)+’</span></div>’:’’)+
+(p.allowDays>0?’<div class="row"><span class="lb"><span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600;margin-right:6px">ALLOWANCE</span>Daily (’+p.allowDays+’ days × RM10)</span><span class="vl" style="color:#d97706">RM ‘+fmt(p.allowance)+’</span></div>’:’’)+
+‘<div class="gb"><span class="lb">Gross Pay</span><span class="vl">RM ‘+fmt(p.gross)+’</span></div></section>’+
+(p.advances>0?’<section><div class="st">Deductions</div>’+(rec.advances||[]).map(function(a){return ‘<div class="row"><div><div class="lb">’+(a.note||‘Salary Advance’)+’</div><div style="font-size:11px;color:#9ca3af">’+a.date+’</div></div><span class="vl dd">−RM ‘+fmt(a.amount)+’</span></div>’}).join(’’)+’</section>’:’’)+
+‘<div class="nb"><div><div class="lb">Net Amount Payable</div><div style="font-size:11px;opacity:.5;margin-top:2px">’+period+’</div></div><div class="vl">RM ‘+fmt(p.net)+’</div></div>’+
+‘<div class="sr"><div><div class="sl"></div><div class="sl2">Employee Signature</div></div><div><div class="sl"></div><div class="sl2">Authorised Signatory</div></div></div>’+
+‘<div class="ft">Generated ‘+new Date().toLocaleDateString(‘en-MY’,{day:‘numeric’,month:‘long’,year:‘numeric’})+’ · Computer-generated document</div>’+
+‘<button class="pb" onclick="window.print()">🖨 Print / Save as PDF</button>’+
+‘</body></html>’);
+w.document.close();
+}
+
+/* ── Avatar ── */
+function Avatar(props){
+var name=props.name||’?’, size=props.size||42, bg=aColor(name);
+return h(‘div’,{style:{width:size,height:size,borderRadius:Math.round(size*.27),background:bg+‘1e’,border:’1.5px solid ’+bg+‘44’,display:‘flex’,alignItems:‘center’,justifyContent:‘center’,fontSize:Math.round(size*.38),fontWeight:700,color:bg,flexShrink:0}},inits(name));
+}
+
+/* ── Sheet ── */
+function Sheet(props){
+if(!props.open) return null;
+return h(‘div’,{onClick:props.onClose,style:{position:‘fixed’,inset:0,background:‘rgba(0,0,0,.82)’,zIndex:300,display:‘flex’,flexDirection:‘column’,justifyContent:‘flex-end’,WebkitBackdropFilter:‘blur(6px)’,backdropFilter:‘blur(6px)’}},
+h(‘div’,{onClick:function(e){e.stopPropagation()},style:{background:G.card,borderRadius:‘22px 22px 0 0’,maxHeight:‘92vh’,overflow:‘hidden’,display:‘flex’,flexDirection:‘column’,animation:‘slideUp .3s cubic-bezier(.32,1.15,.54,1)’}},
+h(‘div’,{style:{padding:‘14px 20px 0’,flexShrink:0}},
+h(‘div’,{style:{width:38,height:4,background:G.border2,borderRadius:2,margin:‘0 auto 14px’}}),
+h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,alignItems:‘center’,marginBottom:20}},
+h(‘span’,{style:{fontFamily:”‘Playfair Display’,serif”,fontSize:21,color:G.text}},props.title),
+h(‘button’,{onClick:props.onClose,className:‘tap’,style:{width:32,height:32,borderRadius:‘50%’,background:G.card2,border:’1px solid ’+G.border,color:G.sub,fontSize:15,display:‘flex’,alignItems:‘center’,justifyContent:‘center’,border:’1px solid ’+G.border}},‘✕’)
+)
+),
+h(‘div’,{style:{overflowY:‘auto’,padding:‘0 20px 32px’,flexGrow:1}},props.children)
+)
+);
+}
+
+/* ── Inp ── */
+function Inp(props){
+var label=props.label; var rest=Object.assign({},props); delete rest.label;
+return h(‘div’,{style:{marginBottom:15}},
+label&&h(‘div’,{style:{fontSize:11,textTransform:‘uppercase’,letterSpacing:’.12em’,color:G.sub,marginBottom:7,fontWeight:600}},label),
+h(‘input’,Object.assign({},rest,{style:{width:‘100%’,background:G.card2,border:’1.5px solid ’+G.border2,borderRadius:11,padding:‘13px 14px’,color:G.text,fontSize:15}}))
+);
+}
+
+/* ── Sel ── */
+function Sel(props){
+var label=props.label,children=props.children; var rest=Object.assign({},props); delete rest.label; delete rest.children;
+return h(‘div’,{style:{marginBottom:15}},
+label&&h(‘div’,{style:{fontSize:11,textTransform:‘uppercase’,letterSpacing:’.12em’,color:G.sub,marginBottom:7,fontWeight:600}},label),
+h(‘select’,Object.assign({},rest,{style:{width:‘100%’,background:G.card2,border:’1.5px solid ’+G.border2,borderRadius:11,padding:‘13px 14px’,color:G.text,fontSize:15}}),children)
+);
+}
+
+/* ── Btn ── */
+function Btn(props){
+var variant=props.variant||‘primary’,children=props.children,sty=props.style||{};
+var rest=Object.assign({},props); delete rest.variant; delete rest.children; delete rest.style;
+var base={border:‘none’,borderRadius:13,padding:‘14px 20px’,fontSize:15,fontWeight:700,width:‘100%’,display:‘block’,fontFamily:‘inherit’,cursor:‘pointer’};
+var vs={
+primary:{background:‘linear-gradient(135deg,’+G.green+’,’+G.greenD+’)’,color:’#fff’,boxShadow:‘0 4px 22px rgba(16,185,129,.4)’},
+ghost:{background:‘transparent’,color:G.sub,border:‘1.5px solid ‘+G.border2},
+danger:{background:‘rgba(248,113,113,.1)’,color:G.red,border:‘1.5px solid rgba(248,113,113,.25)’},
+gold:{background:‘linear-gradient(135deg,’+G.gold+’,#d97706)’,color:’#111’,boxShadow:‘0 4px 22px rgba(245,158,11,.35)’}
+};
+return h(‘button’,Object.assign({},rest,{className:‘tap’,style:Object.assign({},base,vs[variant],sty)}),children);
+}
+
+/* ── Row ── */
+function ERow(props){
+var emp=props.emp,r=props.r,onClick=props.onClick,idx=props.idx;
+var p=calcPay(emp,r), isPaid=r.status===‘paid’;
+return h(‘div’,{className:‘rtp tap’,onClick:onClick,style:{background:G.card,border:’1px solid ’+G.border,borderRadius:18,padding:‘14px 15px’,animation:’fadeIn .3s ease ’+(idx*0.06)+‘s both’}},
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:11,marginBottom:11}},
+h(Avatar,{name:emp.name,size:44}),
+h(‘div’,{style:{flex:1,minWidth:0}},
+h(‘div’,{style:{fontWeight:700,fontSize:15,color:G.text,marginBottom:1}},emp.name),
+h(‘div’,{style:{fontSize:12,color:G.sub}},emp.position||’—’)
+),
+h(‘div’,{style:{background:isPaid?‘rgba(16,185,129,.12)’:‘rgba(245,158,11,.1)’,color:isPaid?G.green:G.gold,border:‘1px solid ‘+(isPaid?G.green+‘30’:G.gold+‘30’),borderRadius:20,padding:‘3px 10px’,fontSize:11,fontWeight:600,flexShrink:0}},isPaid?‘✓ Paid’:‘Pending’)
+),
+h(‘div’,{style:{display:‘grid’,gridTemplateColumns:p.advances>0?‘1fr 1fr 1fr’:‘1fr 1fr’,gap:7}},
+h(‘div’,{style:{background:G.card2,borderRadius:10,padding:‘9px 11px’}},
+h(‘div’,{style:{fontSize:9,color:G.muted,marginBottom:3,textTransform:‘uppercase’,letterSpacing:’.08em’}},‘Gross’),
+h(‘div’,{style:{fontSize:14,fontWeight:700,color:G.text}},‘RM ‘+fmt(p.gross))
+),
+p.advances>0&&h(‘div’,{style:{background:G.card2,borderRadius:10,padding:‘9px 11px’}},
+h(‘div’,{style:{fontSize:9,color:G.muted,marginBottom:3,textTransform:‘uppercase’,letterSpacing:’.08em’}},‘Advances’),
+h(‘div’,{style:{fontSize:14,fontWeight:700,color:G.red}},‘−’+fmt(p.advances))
+),
+h(‘div’,{style:{background:‘rgba(16,185,129,.07)’,border:‘1px solid rgba(16,185,129,.14)’,borderRadius:10,padding:‘9px 11px’}},
+h(‘div’,{style:{fontSize:9,color:G.greenL+‘88’,marginBottom:3,textTransform:‘uppercase’,letterSpacing:’.08em’}},‘Net Pay’),
+h(‘div’,{style:{fontSize:14,fontWeight:700,color:G.green}},’RM ’+fmt(p.net))
+)
+)
+);
+}
+
+/* ══ APP ══ */
+function App(){
+var _e=useState([]),employees=_e[0],setEmployees=_e[1];
+var _p=useState({}),payroll=_p[0],setPayroll=_p[1];
+var _s=useState(‘home’),screen=_s[0],setScreen=_s[1];
+var _si=useState(null),selId=_si[0],setSelId=_si[1];
+var _sh=useState(null),sheet=_sh[0],setSheet=_sh[1];
+var _rm=useState(null),restoreMsg=_rm[0],setRestoreMsg=_rm[1];
+var now=new Date();
+var _vm=useState({y:now.getFullYear(),m:now.getMonth()+1}),vm=_vm[0],setVm=_vm[1];
+var _ef=useState({payType:‘monthly’}),ef=_ef[0],setEf=_ef[1];
+var _af=useState({amount:’’,note:’’,date:toDay()}),af=_af[0],setAf=_af[1];
+var _hf=useState({hoursWorked:’’,publicHolidayHours:’’,allowanceDays:’’}),hf=_hf[0],setHf=_hf[1];
+
+useEffect(function(){
+var e=S.get(‘pr_emp’),p=S.get(‘pr_pay’);
+if(e) setEmployees(e); if(p) setPayroll(p);
+},[]);
+
+function saveEmp(d){setEmployees(d);S.set(‘pr_emp’,d);}
+function savePay(d){setPayroll(d);S.set(‘pr_pay’,d);}
+
+var mk=mkey(vm.y,vm.m);
+function getRec(id){return (payroll[id]&&payroll[id][mk])||{};}
+var selEmp=employees.find(function(e){return e.id===selId;});
+
+function adjMonth(dir){setVm(function(p){var d=new Date(p.y,p.m-1+dir);return {y:d.getFullYear(),m:d.getMonth()+1};});}
+
+function saveEmployee(){
+if(!ef.name||!ef.name.trim()) return;
+var list=ef.id?employees.map(function(e){return e.id===ef.id?Object.assign({},ef):e}):[…employees,Object.assign({},ef,{id:uid()})];
+saveEmp(list); setSheet(null);
+}
+function deleteEmployee(){
+saveEmp(employees.filter(function(e){return e.id!==selId;}));
+setScreen(‘home’); setSelId(null); setSheet(null);
+}
+function addAdvance(){
+if(!af.amount||!selId) return;
+var r=getRec(selId), newAdv=Object.assign({id:uid()},af);
+var upd=Object.assign({},payroll);
+upd[selId]=Object.assign({},upd[selId]);
+upd[selId][mk]=Object.assign({},r,{advances:[…(r.advances||[]),newAdv]});
+savePay(upd); setAf({amount:’’,note:’’,date:toDay()}); setSheet(null);
+}
+function removeAdvance(aid){
+var r=getRec(selId);
+var upd=Object.assign({},payroll);
+upd[selId]=Object.assign({},upd[selId]);
+upd[selId][mk]=Object.assign({},r,{advances:(r.advances||[]).filter(function(a){return a.id!==aid;})});
+savePay(upd);
+}
+function saveHours(){
+if(!selId) return;
+var r=getRec(selId);
+var upd=Object.assign({},payroll);
+upd[selId]=Object.assign({},upd[selId]);
+upd[selId][mk]=Object.assign({},r,hf);
+savePay(upd); setSheet(null);
+}
+function togglePaid(){
+var r=getRec(selId);
+var upd=Object.assign({},payroll);
+upd[selId]=Object.assign({},upd[selId]);
+upd[selId][mk]=Object.assign({},r,{status:r.status===‘paid’?‘pending’:‘paid’});
+savePay(upd);
+}
+function downloadBackup(){
+var data={version:1,exportedAt:new Date().toISOString(),employees:employees,payroll:payroll};
+var blob=new Blob([JSON.stringify(data,null,2)],{type:‘application/json’});
+var url=URL.createObjectURL(blob);
+var a=document.createElement(‘a’);
+a.href=url; a.download=‘payroll-backup-’+new Date().toISOString().slice(0,10)+’.json’;
+document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function handleRestore(e){
+var file=e.target.files&&e.target.files[0]; if(!file) return;
+var reader=new FileReader();
+reader.onload=function(ev){
+try{
+var data=JSON.parse(ev.target.result);
+if(!data.employees||!data.payroll) throw new Error(‘bad’);
+saveEmp(data.employees); savePay(data.payroll);
+setRestoreMsg({ok:true,msg:‘✅ Restored ‘+data.employees.length+’ employee’+(data.employees.length!==1?‘s’:’’)+’ successfully.’});
+}catch(err){setRestoreMsg({ok:false,msg:‘❌ Invalid file. Please use a PayRoll .json backup.’});}
+};
+reader.readAsText(file); e.target.value=’’;
+}
+
+var periodLabel=MONTHS[vm.m-1]+’ ’+vm.y;
+var totalGross=employees.reduce(function(s,e){return s+calcPay(e,getRec(e.id)).gross;},0);
+var totalAdv=employees.reduce(function(s,e){return s+calcPay(e,getRec(e.id)).advances;},0);
+var totalNet=employees.reduce(function(s,e){return s+calcPay(e,getRec(e.id)).net;},0);
+var paidCount=employees.filter(function(e){return getRec(e.id).status===‘paid’;}).length;
+
+/* header */
+var header=h(‘div’,{style:{position:‘sticky’,top:0,zIndex:100,background:G.bg+‘f2’,WebkitBackdropFilter:‘blur(18px)’,backdropFilter:‘blur(18px)’,padding:‘13px 18px 11px’,borderBottom:‘1px solid ‘+G.border}},
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,justifyContent:‘space-between’}},
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:9}},
+screen===‘detail’&&h(‘button’,{className:‘tap’,onClick:function(){setScreen(‘home’);},style:{width:32,height:32,borderRadius:9,background:G.card2,border:‘1px solid ‘+G.border,color:G.sub,fontSize:18,display:‘flex’,alignItems:‘center’,justifyContent:‘center’,marginRight:2}},’‹’),
+h(‘div’,{style:{width:30,height:30,borderRadius:9,background:‘linear-gradient(135deg,’+G.green+’,’+G.greenD+’)’,display:‘flex’,alignItems:‘center’,justifyContent:‘center’,fontSize:16,boxShadow:‘0 3px 12px ‘+G.green+‘44’}},‘₿’),
+h(‘span’,{style:{fontFamily:”‘Playfair Display’,serif”,fontSize:19,color:G.text}},screen===‘detail’&&selEmp?selEmp.name.split(’ ‘)[0]:‘PayRoll’)
+),
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:5,background:G.card,border:‘1px solid ‘+G.border,borderRadius:20,padding:‘5px 8px’}},
+h(‘button’,{className:‘tap’,onClick:function(){adjMonth(-1);},style:{width:24,height:24,borderRadius:6,background:‘none’,border:‘none’,color:G.sub,fontSize:14,display:‘flex’,alignItems:‘center’,justifyContent:‘center’}},’‹’),
+h(‘span’,{style:{fontSize:12,color:G.sub,fontWeight:600,minWidth:88,textAlign:‘center’}},MONTHS[vm.m-1].slice(0,3)+’ ‘+vm.y),
+h(‘button’,{className:‘tap’,onClick:function(){adjMonth(1);},style:{width:24,height:24,borderRadius:6,background:‘none’,border:‘none’,color:G.sub,fontSize:14,display:‘flex’,alignItems:‘center’,justifyContent:‘center’}},’›’)
+)
+)
+);
+
+/* bottom nav */
+var navItems=[{id:‘home’,icon:‘⬡’,lbl:‘Overview’},{id:‘staff’,icon:‘◎’,lbl:‘Staff’},{id:‘settings’,icon:‘◈’,lbl:‘Settings’}];
+var bottomNav=h(‘div’,{style:{position:‘fixed’,bottom:0,left:‘50%’,transform:‘translateX(-50%)’,width:‘100%’,maxWidth:430,background:G.card+‘f5’,WebkitBackdropFilter:‘blur(22px)’,backdropFilter:‘blur(22px)’,borderTop:‘1px solid ‘+G.border,display:‘flex’,zIndex:150}},
+navItems.map(function(n){
+var active=screen===n.id||(n.id===‘home’&&screen===‘detail’);
+return h(‘button’,{key:n.id,className:‘tap’,onClick:function(){setScreen(n.id);},style:{flex:1,background:‘none’,border:‘none’,padding:‘12px 8px 14px’,display:‘flex’,flexDirection:‘column’,alignItems:‘center’,gap:4}},
+h(‘span’,{style:{fontSize:21,opacity:active?1:.35,filter:active?‘drop-shadow(0 0 6px ‘+G.green+’)’:‘none’,transition:‘all .2s’}},n.icon),
+h(‘span’,{style:{fontSize:10,fontWeight:700,letterSpacing:’.1em’,textTransform:‘uppercase’,color:active?G.green:G.muted,transition:‘color .2s’}},n.lbl),
+h(‘div’,{style:{width:active?18:0,height:2,background:G.green,borderRadius:1,transition:‘width .25s cubic-bezier(.34,1.56,.64,1)’}})
+);
+})
+);
+
+/* ── HOME screen ── */
+var homeScreen=h(‘div’,{className:‘ani’},
+h(‘div’,{style:{margin:‘14px 14px 0’,background:‘linear-gradient(140deg,#064e3b 0%,#065f46 60%,#047857 100%)’,borderRadius:22,padding:‘22px 22px 20px’,position:‘relative’,overflow:‘hidden’,boxShadow:‘0 10px 40px rgba(6,78,59,.5)’}},
+h(‘div’,{style:{position:‘absolute’,top:-50,right:-50,width:200,height:200,borderRadius:‘50%’,background:‘rgba(255,255,255,.045)’}}),
+h(‘div’,{style:{position:‘absolute’,bottom:-30,left:-20,width:130,height:130,borderRadius:‘50%’,background:‘rgba(255,255,255,.03)’}}),
+h(‘div’,{style:{position:‘relative’}},
+h(‘div’,{style:{fontSize:10,textTransform:‘uppercase’,letterSpacing:’.14em’,color:‘rgba(255,255,255,.55)’,marginBottom:4,fontWeight:600}},‘Net Payroll · ‘+periodLabel),
+h(‘div’,{style:{fontFamily:”‘Playfair Display’,serif”,fontSize:38,color:’#fff’,lineHeight:1.05,marginBottom:16}},‘RM ‘+fmt(totalNet)),
+h(‘div’,{style:{display:‘flex’,background:‘rgba(255,255,255,.08)’,borderRadius:14,overflow:‘hidden’}},
+[[‘Gross’,totalGross,‘rgba(255,255,255,.9)’],[‘Advances’,totalAdv,’#fca5a5’],[‘Paid’,paidCount+’/’+employees.length,‘rgba(255,255,255,.9)’]].map(function(item,i){
+return h(‘div’,{key:item[0],style:{flex:1,padding:‘10px 12px’,borderLeft:i>0?‘1px solid rgba(255,255,255,.12)’:‘none’}},
+h(‘div’,{style:{fontSize:9,textTransform:‘uppercase’,letterSpacing:’.1em’,color:‘rgba(255,255,255,.45)’,marginBottom:3}},item[0]),
+h(‘div’,{style:{fontSize:14,fontWeight:700,color:item[2]}},typeof item[1]===‘number’?‘RM ‘+fmt(item[1]):item[1])
+);
+})
+)
+)
+),
+h(‘div’,{style:{padding:‘18px 14px 0’}},
+h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,alignItems:‘center’,marginBottom:13}},
+h(‘span’,{style:{fontSize:11,textTransform:‘uppercase’,letterSpacing:’.12em’,color:G.sub,fontWeight:600}},‘Staff · ‘+periodLabel),
+h(‘button’,{className:‘tap’,onClick:function(){setScreen(‘staff’);},style:{fontSize:12,color:G.green,background:‘none’,border:‘none’,fontWeight:600}},‘See All ›’)
+),
+employees.length===0?
+h(‘div’,{style:{textAlign:‘center’,padding:‘44px 20px’,color:G.muted}},
+h(‘div’,{style:{fontSize:48,marginBottom:10}},‘👥’),
+h(‘div’,{style:{fontFamily:”‘Playfair Display’,serif”,fontSize:18,color:G.sub,marginBottom:6}},‘No employees yet’),
+h(‘div’,{style:{fontSize:13,marginBottom:20,lineHeight:1.6}},‘Add your first team member to get started’),
+h(‘button’,{className:‘tap’,onClick:function(){setEf({payType:‘monthly’});setSheet(‘addEmp’);},style:{background:‘linear-gradient(135deg,’+G.green+’,’+G.greenD+’)’,border:‘none’,borderRadius:12,padding:‘12px 24px’,color:’#fff’,fontWeight:700,fontSize:14,boxShadow:‘0 4px 18px ‘+G.green+‘44’}},’+ Add Employee’)
+):
+h(‘div’,{style:{display:‘flex’,flexDirection:‘column’,gap:10}},
+employees.map(function(emp,i){return h(ERow,{key:emp.id,emp:emp,r:getRec(emp.id),idx:i,onClick:function(){setSelId(emp.id);setScreen(‘detail’);}});})
+)
+)
+);
+
+/* ── STAFF screen ── */
+var staffScreen=h(‘div’,{className:‘ani’,style:{padding:‘14px 14px 0’}},
+h(‘button’,{className:‘tap’,onClick:function(){setEf({payType:‘monthly’});setSheet(‘addEmp’);},style:{display:‘flex’,alignItems:‘center’,justifyContent:‘center’,gap:8,width:‘100%’,background:‘linear-gradient(135deg,’+G.green+’,’+G.greenD+’)’,border:‘none’,borderRadius:14,padding:‘15px’,fontSize:15,fontWeight:700,color:’#fff’,marginBottom:16,boxShadow:‘0 4px 20px ‘+G.green+‘44’}},
+h(‘span’,{style:{fontSize:19}},’+’),’ Add New Employee’
+),
+employees.length===0?
+h(‘div’,{style:{textAlign:‘center’,padding:‘50px 20px’,color:G.muted}},
+h(‘div’,{style:{fontSize:48,marginBottom:10}},‘👤’),
+h(‘div’,{style:{fontFamily:”‘Playfair Display’,serif”,fontSize:18,color:G.sub}},‘No employees yet’)
+):
+h(‘div’,null,employees.map(function(emp,i){
+return h(‘div’,{key:emp.id,className:‘rtp tap’,onClick:function(){setSelId(emp.id);setScreen(‘detail’);},style:{background:G.card,border:’1px solid ’+G.border,borderRadius:16,padding:‘13px 15px’,marginBottom:9,display:‘flex’,alignItems:‘center’,gap:12,animation:’fadeIn .3s ease ’+(i*.06)+‘s both’}},
+h(Avatar,{name:emp.name,size:48}),
+h(‘div’,{style:{flex:1,minWidth:0}},
+h(‘div’,{style:{fontWeight:700,fontSize:15,color:G.text}},emp.name),
+h(‘div’,{style:{fontSize:12,color:G.sub,marginTop:1}},emp.position||’—’),
+h(‘div’,{style:{fontSize:11,color:G.muted,marginTop:3}},emp.payType===‘monthly’?‘RM ‘+fmt(emp.baseSalary)+’/month’:‘RM ‘+fmt(emp.hourlyRate)+’/hour’)
+),
+h(‘div’,{style:{color:G.muted,fontSize:22}},’›’)
+);
+}))
+);
+
+/* ── DETAIL screen ── */
+var detailScreen=null;
+if(screen===‘detail’&&selEmp){
+var emp=selEmp, r=getRec(emp.id), p=calcPay(emp,r);
+var isPaid=r.status===‘paid’, hr=+(emp.hourlyRate)||0;
+detailScreen=h(‘div’,{className:‘ani’},
+h(‘div’,{style:{margin:‘14px 14px 0’,background:‘linear-gradient(140deg,#0a1f16,#0d2a1a)’,border:‘1px solid ‘+G.border,borderRadius:20,padding:‘20px’,overflow:‘hidden’,position:‘relative’}},
+h(‘div’,{style:{position:‘absolute’,top:-30,right:-30,width:120,height:120,borderRadius:‘50%’,background:aColor(emp.name)+‘0a’}}),
+h(‘div’,{style:{display:‘flex’,alignItems:‘flex-start’,gap:13,marginBottom:16,position:‘relative’}},
+h(Avatar,{name:emp.name,size:56}),
+h(‘div’,{style:{flex:1}},
+h(‘div’,{style:{fontFamily:”‘Playfair Display’,serif”,fontSize:22,color:G.text,lineHeight:1.2}},emp.name),
+h(‘div’,{style:{fontSize:13,color:G.sub,marginTop:3}},emp.position||’—’),
+h(‘div’,{style:{fontSize:11,color:G.muted,marginTop:3}},(emp.payType===‘monthly’?‘Base RM ‘+fmt(emp.baseSalary)+’/mo’:‘RM ‘+fmt(emp.hourlyRate)+’/hr’)+(emp.payType===‘monthly’&&emp.hourlyRate?’ · RM ‘+fmt(emp.hourlyRate)+’/hr OT’:’’))
+),
+h(‘div’,{style:{background:isPaid?‘rgba(16,185,129,.12)’:‘rgba(245,158,11,.1)’,color:isPaid?G.green:G.gold,border:‘1px solid ‘+(isPaid?G.green+‘30’:G.gold+‘30’),borderRadius:20,padding:‘4px 11px’,fontSize:11,fontWeight:700,flexShrink:0}},isPaid?‘✓ Paid’:‘Pending’)
+),
+h(‘div’,{style:{display:‘grid’,gridTemplateColumns:‘1fr 1fr’,gap:8}},
+h(‘button’,{className:‘tap’,onClick:function(){setHf({hoursWorked:r.hoursWorked||’’,publicHolidayHours:r.publicHolidayHours||’’,allowanceDays:r.allowanceDays||’’});setSheet(‘hours’);},style:{background:G.card2,border:‘1px solid ‘+G.border2,borderRadius:12,padding:‘11px 10px’,fontSize:13,fontWeight:600,color:G.text,display:‘flex’,alignItems:‘center’,justifyContent:‘center’,gap:6}},‘⏱ Log Hours’),
+h(‘button’,{className:‘tap’,onClick:function(){setAf({amount:’’,note:’’,date:toDay()});setSheet(‘advance’);},style:{background:‘rgba(248,113,113,.08)’,border:‘1px solid rgba(248,113,113,.2)’,borderRadius:12,padding:‘11px 10px’,fontSize:13,fontWeight:600,color:G.red,display:‘flex’,alignItems:‘center’,justifyContent:‘center’,gap:6}},‘＋ Advance’)
+)
+),
+/* earnings */
+h(‘div’,{style:{margin:‘10px 14px 0’,background:G.card,border:‘1px solid ‘+G.border,borderRadius:20,padding:‘17px 18px’}},
+h(‘div’,{style:{fontSize:10,textTransform:‘uppercase’,letterSpacing:’.13em’,color:G.sub,fontWeight:600,marginBottom:14}},’Earnings · ’+periodLabel),
+emp.payType===‘monthly’&&h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,padding:‘9px 0’,borderBottom:’1px solid ’+G.border}},h(‘span’,{style:{fontSize:14,color:G.sub}},‘Base Salary’),h(‘span’,{style:{fontSize:14,fontWeight:600,color:G.text}},‘RM ‘+fmt(emp.baseSalary))),
++(r.hoursWorked)>0&&h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,padding:‘9px 0’,borderBottom:‘1px solid ‘+G.border}},h(‘span’,{style:{fontSize:14,color:G.sub}},(emp.payType===‘hourly’?‘Regular’:‘Extra’)+’ Hrs (’+r.hoursWorked+‘h)’),h(‘span’,{style:{fontSize:14,fontWeight:600,color:G.text}},‘RM ‘+fmt((+(r.hoursWorked))*hr))),
++(r.publicHolidayHours)>0&&h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,padding:‘9px 0’,borderBottom:’1px solid ’+G.border}},h(‘span’,{style:{fontSize:14,color:G.sub}},‘PH Double Pay (’+r.publicHolidayHours+‘h × 2×)’),h(‘span’,{style:{fontSize:14,fontWeight:600,color:G.blue}},’RM ’+fmt((+(r.publicHolidayHours))*p.phRate*2))),
+p.allowDays>0&&h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,alignItems:‘center’,padding:‘9px 0’,borderBottom:’1px solid ’+G.border}},
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:7}},
+h(‘span’,{style:{background:‘rgba(245,158,11,.15)’,color:G.gold,borderRadius:6,padding:‘2px 7px’,fontSize:10,fontWeight:700}},‘ALLOWANCE’),
+h(‘span’,{style:{fontSize:14,color:G.sub}},‘Daily (’+p.allowDays+‘d × RM10)’)
+),
+h(‘span’,{style:{fontSize:14,fontWeight:600,color:G.gold}},’RM ’+fmt(p.allowance))
+),
+h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,padding:‘12px 0 0’}},
+h(‘span’,{style:{fontSize:15,fontWeight:700,color:G.text}},‘Gross Pay’),
+h(‘span’,{style:{fontFamily:”‘Playfair Display’,serif”,fontSize:21,color:G.gold}},’RM ’+fmt(p.gross))
+)
+),
+/* advances */
+h(‘div’,{style:{margin:‘10px 14px 0’,background:G.card,border:‘1px solid ‘+G.border,borderRadius:20,padding:‘17px 18px’}},
+h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,alignItems:‘center’,marginBottom:(r.advances||[]).length>0?12:0}},
+h(‘div’,{style:{fontSize:10,textTransform:‘uppercase’,letterSpacing:’.13em’,color:G.sub,fontWeight:600}},‘Advances’),
+p.advances>0&&h(‘span’,{style:{fontSize:13,fontWeight:700,color:G.red}},’−RM ’+fmt(p.advances))
+),
+(r.advances||[]).length===0?
+h(‘div’,{style:{fontSize:13,color:G.muted,textAlign:‘center’,padding:‘8px 0’}},‘No advances this month’):
+(r.advances||[]).map(function(a,i){
+return h(‘div’,{key:a.id,style:{display:‘flex’,justifyContent:‘space-between’,alignItems:‘center’,padding:‘10px 0’,borderBottom:i<r.advances.length-1?’1px solid ’+G.border:‘none’}},
+h(‘div’,null,h(‘div’,{style:{fontSize:14,color:G.text}},a.note||‘Salary Advance’),h(‘div’,{style:{fontSize:11,color:G.muted,marginTop:2}},a.date)),
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:9}},
+h(‘span’,{style:{fontSize:14,fontWeight:700,color:G.red}},’−RM ’+fmt(a.amount)),
+h(‘button’,{className:‘tap’,onClick:function(){removeAdvance(a.id);},style:{width:27,height:27,borderRadius:‘50%’,background:‘rgba(248,113,113,.1)’,border:‘none’,color:G.red,fontSize:14,display:‘flex’,alignItems:‘center’,justifyContent:‘center’}},‘×’)
+)
+);
+})
+),
+/* net */
+h(‘div’,{style:{margin:‘10px 14px 0’,background:‘linear-gradient(140deg,#064e3b,#047857)’,borderRadius:20,padding:‘20px’,boxShadow:‘0 8px 32px rgba(6,78,59,.45)’}},
+h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,alignItems:‘center’}},
+h(‘div’,null,
+h(‘div’,{style:{fontSize:10,textTransform:‘uppercase’,letterSpacing:’.13em’,color:‘rgba(255,255,255,.55)’,marginBottom:4,fontWeight:600}},‘Net Amount Payable’),
+h(‘div’,{style:{fontFamily:”‘Playfair Display’,serif”,fontSize:34,color:’#fff’,lineHeight:1.1}},’RM ’+fmt(p.net)),
+h(‘div’,{style:{fontSize:12,color:‘rgba(255,255,255,.45)’,marginTop:4}},‘After RM ‘+fmt(p.advances)+’ in advances’)
+),
+h(‘div’,{style:{width:50,height:50,borderRadius:14,background:‘rgba(255,255,255,.12)’,display:‘flex’,alignItems:‘center’,justifyContent:‘center’,fontSize:22}},isPaid?‘✅’:‘💰’)
+)
+),
+/* action buttons */
+h(‘div’,{style:{margin:‘10px 14px 0’,display:‘flex’,flexDirection:‘column’,gap:9}},
+h(Btn,{onClick:togglePaid,variant:isPaid?‘ghost’:‘gold’},isPaid?‘✓ Paid — Tap to Undo’:‘💰 Mark as Paid’),
+h(Btn,{onClick:function(){printSlip(emp,r,vm.y,vm.m);},variant:‘ghost’},‘🖨 Print Pay Slip’),
+h(‘div’,{style:{display:‘grid’,gridTemplateColumns:‘1fr 1fr’,gap:9}},
+h(Btn,{onClick:function(){setEf(Object.assign({},emp));setSheet(‘editEmp’);},variant:‘ghost’,style:{fontSize:13}},‘✏️ Edit’),
+h(Btn,{onClick:function(){setSheet(‘deleteConfirm’);},variant:‘danger’,style:{fontSize:13}},‘🗑 Delete’)
+)
+)
+);
+}
+
+/* ── SETTINGS screen ── */
+var settingsScreen=h(‘div’,{className:‘ani’,style:{padding:‘14px 14px 0’}},
+h(‘div’,{style:{background:G.card,border:‘1px solid ‘+G.border,borderRadius:20,overflow:‘hidden’,marginBottom:12}},
+h(‘div’,{style:{padding:‘16px 18px 14px’,borderBottom:‘1px solid ‘+G.border}},
+h(‘div’,{style:{fontSize:10,textTransform:‘uppercase’,letterSpacing:’.13em’,color:G.sub,fontWeight:600,marginBottom:2}},‘Data Backup’),
+h(‘div’,{style:{fontSize:13,color:G.muted,marginTop:4,lineHeight:1.55}},‘Download all your employee records and payroll history as a JSON file you can restore later.’)
+),
+h(‘div’,{style:{padding:‘14px 18px’,display:‘flex’,alignItems:‘center’,justifyContent:‘space-between’}},
+h(‘div’,null,h(‘div’,{style:{fontSize:14,fontWeight:600,color:G.text}},‘📥 Download Backup’),h(‘div’,{style:{fontSize:12,color:G.muted,marginTop:2}},employees.length+’ employee’+(employees.length!==1?‘s’:’’)+’ · All months’)),
+h(‘button’,{className:‘tap’,onClick:downloadBackup,style:{background:‘linear-gradient(135deg,’+G.green+’,’+G.greenD+’)’,border:‘none’,borderRadius:12,padding:‘11px 18px’,color:’#fff’,fontWeight:700,fontSize:13,boxShadow:’0 4px 16px ’+G.green+‘44’,flexShrink:0}},‘Export’)
+)
+),
+h(‘div’,{style:{background:G.card,border:‘1px solid ‘+G.border,borderRadius:20,overflow:‘hidden’,marginBottom:12}},
+h(‘div’,{style:{padding:‘16px 18px 14px’,borderBottom:‘1px solid ‘+G.border}},
+h(‘div’,{style:{fontSize:10,textTransform:‘uppercase’,letterSpacing:’.13em’,color:G.sub,fontWeight:600,marginBottom:2}},‘Restore Backup’),
+h(‘div’,{style:{fontSize:13,color:G.muted,marginTop:4,lineHeight:1.55}},
+‘Upload a previously exported backup. This will ‘,
+h(‘strong’,{style:{color:G.red}},‘replace’),’ your current data.’
+)
+),
+h(‘div’,{style:{padding:‘14px 18px’,display:‘flex’,alignItems:‘center’,justifyContent:‘space-between’}},
+h(‘div’,null,h(‘div’,{style:{fontSize:14,fontWeight:600,color:G.text}},‘📤 Restore from File’),h(‘div’,{style:{fontSize:12,color:G.muted,marginTop:2}},‘Select a .json backup file’)),
+h(‘label’,{className:‘tap’,style:{background:‘rgba(96,165,250,.1)’,border:‘1px solid rgba(96,165,250,.25)’,borderRadius:12,padding:‘11px 18px’,color:G.blue,fontWeight:700,fontSize:13,flexShrink:0,cursor:‘pointer’}},
+‘Restore’,
+h(‘input’,{type:‘file’,accept:’.json’,onChange:handleRestore,style:{display:‘none’}})
+)
+),
+restoreMsg&&h(‘div’,{style:{margin:‘0 18px 16px’,padding:‘11px 14px’,background:restoreMsg.ok?‘rgba(16,185,129,.1)’:‘rgba(248,113,113,.1)’,border:‘1px solid ‘+(restoreMsg.ok?G.green+‘30’:G.red+‘30’),borderRadius:10,fontSize:13,color:restoreMsg.ok?G.green:G.red,display:‘flex’,alignItems:‘center’,justifyContent:‘space-between’,gap:10}},
+h(‘span’,null,restoreMsg.msg),
+h(‘button’,{onClick:function(){setRestoreMsg(null);},style:{background:‘none’,border:‘none’,color:‘inherit’,fontSize:16,cursor:‘pointer’,opacity:.6}},‘✕’)
+)
+),
+h(‘div’,{style:{background:G.card,border:‘1px solid ‘+G.border,borderRadius:20,padding:‘16px 18px’}},
+h(‘div’,{style:{fontSize:10,textTransform:‘uppercase’,letterSpacing:’.13em’,color:G.sub,fontWeight:600,marginBottom:12}},‘About’),
+[[‘App’,‘PayRoll’],[‘Daily Allowance’,‘RM10 / day’],[‘PH Rate’,‘2× Hourly Rate’],[‘Employees’,employees.length+’ registered’],[‘Storage’,‘Browser (localStorage)’]].map(function(item,i,arr){
+return h(‘div’,{key:item[0],style:{display:‘flex’,justifyContent:‘space-between’,padding:‘9px 0’,borderBottom:i<arr.length-1?’1px solid ’+G.border:‘none’}},
+h(‘span’,{style:{fontSize:14,color:G.sub}},item[0]),
+h(‘span’,{style:{fontSize:14,fontWeight:600,color:G.text}},item[1])
+);
+})
+)
+);
+
+/* ── SHEETS ── */
+var empSheet=h(Sheet,{open:sheet===‘addEmp’||sheet===‘editEmp’,onClose:function(){setSheet(null);},title:sheet===‘addEmp’?‘New Employee’:‘Edit Employee’},
+h(Inp,{label:‘Full Name’,value:ef.name||’’,onChange:function(e){setEf(function(p){return Object.assign({},p,{name:e.target.value});});},placeholder:‘e.g. Ahmad bin Ali’}),
+h(Inp,{label:‘Position / Role’,value:ef.position||’’,onChange:function(e){setEf(function(p){return Object.assign({},p,{position:e.target.value});});},placeholder:‘e.g. Sales Manager’}),
+h(Sel,{label:‘Pay Type’,value:ef.payType||‘monthly’,onChange:function(e){setEf(function(p){return Object.assign({},p,{payType:e.target.value});});}},
+h(‘option’,{value:‘monthly’},‘Monthly Salary’),
+h(‘option’,{value:‘hourly’},‘Hourly Rate’)
+),
+ef.payType===‘monthly’&&h(Inp,{label:‘Base Monthly Salary (RM)’,type:‘number’,value:ef.baseSalary||’’,onChange:function(e){setEf(function(p){return Object.assign({},p,{baseSalary:e.target.value});});},placeholder:‘e.g. 3500’}),
+h(Inp,{label:ef.payType===‘monthly’?‘Hourly Rate for OT & Public Holidays (RM)’:‘Hourly Rate (RM)’,type:‘number’,value:ef.hourlyRate||’’,onChange:function(e){setEf(function(p){return Object.assign({},p,{hourlyRate:e.target.value});});},placeholder:ef.payType===‘monthly’?‘Optional, e.g. 20’:‘e.g. 15’}),
+ef.payType===‘monthly’&&!ef.hourlyRate&&h(‘div’,{style:{fontSize:12,color:G.muted,marginTop:-8,marginBottom:14,padding:‘9px 12px’,background:G.card2,borderRadius:9,lineHeight:1.5}},‘💡 Leave blank to auto-calculate PH rate as Base ÷ 208 hrs’),
+h(‘div’,{style:{display:‘flex’,flexDirection:‘column’,gap:9,marginTop:6}},
+h(Btn,{onClick:saveEmployee},‘Save Employee’),
+h(Btn,{variant:‘ghost’,onClick:function(){setSheet(null);}},‘Cancel’)
+)
+);
+
+var advSheet=h(Sheet,{open:sheet===‘advance’,onClose:function(){setSheet(null);},title:‘Record Advance’},
+selEmp&&h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:10,padding:‘10px 13px’,background:G.card2,borderRadius:12,marginBottom:18}},
+h(Avatar,{name:selEmp.name,size:36}),
+h(‘div’,null,h(‘div’,{style:{fontSize:14,fontWeight:600,color:G.text}},selEmp.name),h(‘div’,{style:{fontSize:11,color:G.sub}},periodLabel))
+),
+h(Inp,{label:‘Amount (RM)’,type:‘number’,value:af.amount,onChange:function(e){setAf(function(p){return Object.assign({},p,{amount:e.target.value});});},placeholder:‘e.g. 500’}),
+h(Inp,{label:‘Date’,type:‘date’,value:af.date,onChange:function(e){setAf(function(p){return Object.assign({},p,{date:e.target.value});});}}),
+h(Inp,{label:‘Reason (optional)’,value:af.note,onChange:function(e){setAf(function(p){return Object.assign({},p,{note:e.target.value});});},placeholder:‘e.g. Medical emergency’}),
+h(‘div’,{style:{display:‘flex’,flexDirection:‘column’,gap:9,marginTop:6}},
+h(Btn,{variant:‘danger’,onClick:addAdvance,style:{background:‘linear-gradient(135deg,#ef4444,#dc2626)’,color:’#fff’,boxShadow:‘0 4px 18px rgba(239,68,68,.35)’,border:‘none’}},‘Record Advance’),
+h(Btn,{variant:‘ghost’,onClick:function(){setSheet(null);}},‘Cancel’)
+)
+);
+
+var hoursSheet=h(Sheet,{open:sheet===‘hours’,onClose:function(){setSheet(null);},title:‘Log Hours & Allowance’},
+selEmp&&h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:10,padding:‘10px 13px’,background:G.card2,borderRadius:12,marginBottom:18}},
+h(Avatar,{name:selEmp.name,size:36}),
+h(‘div’,null,h(‘div’,{style:{fontSize:14,fontWeight:600,color:G.text}},selEmp.name),h(‘div’,{style:{fontSize:11,color:G.sub}},periodLabel))
+),
+h(Inp,{label:selEmp&&selEmp.payType===‘monthly’?‘Extra / Overtime Hours’:‘Regular Hours Worked’,type:‘number’,value:hf.hoursWorked,onChange:function(e){setHf(function(p){return Object.assign({},p,{hoursWorked:e.target.value});});},placeholder:‘e.g. 8’}),
+h(Inp,{label:‘Public Holiday Hours (2× pay)’,type:‘number’,value:hf.publicHolidayHours,onChange:function(e){setHf(function(p){return Object.assign({},p,{publicHolidayHours:e.target.value});});},placeholder:‘e.g. 8’}),
+h(‘div’,{style:{padding:‘12px 14px’,background:‘rgba(96,165,250,.08)’,border:‘1px solid rgba(96,165,250,.18)’,borderRadius:10,marginBottom:16,fontSize:13,color:’#93c5fd’,lineHeight:1.55}},‘📅 Public holiday hours are automatically calculated at 2× the hourly rate.’),
+h(‘div’,{style:{height:1,background:G.border2,margin:‘4px 0 16px’}}),
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:8,marginBottom:8}},
+h(‘span’,{style:{background:‘rgba(245,158,11,.15)’,color:G.gold,borderRadius:6,padding:‘3px 8px’,fontSize:11,fontWeight:700}},‘ALLOWANCE’),
+h(‘span’,{style:{fontSize:12,color:G.sub}},‘RM10 per day’)
+),
+h(Inp,{label:‘Days Attended’,type:‘number’,value:hf.allowanceDays,onChange:function(e){setHf(function(p){return Object.assign({},p,{allowanceDays:e.target.value});});},placeholder:‘e.g. 22’}),
+hf.allowanceDays&&+(hf.allowanceDays)>0&&h(‘div’,{style:{padding:‘10px 14px’,background:‘rgba(245,158,11,.08)’,border:‘1px solid rgba(245,158,11,.2)’,borderRadius:10,marginBottom:14,fontSize:13,color:G.gold}},
+‘💰 Total: ‘,h(‘strong’,null,‘RM ‘+fmt(+(hf.allowanceDays)*10)),’ (’+hf.allowanceDays+’ days × RM10)’
+),
+h(‘div’,{style:{display:‘flex’,flexDirection:‘column’,gap:9}},
+h(Btn,{onClick:saveHours},‘Save’),
+h(Btn,{variant:‘ghost’,onClick:function(){setSheet(null);}},‘Cancel’)
+)
+);
+
+var deleteSheet=h(Sheet,{open:sheet===‘deleteConfirm’,onClose:function(){setSheet(null);},title:‘Remove Employee’},
+selEmp&&h(‘div’,{style:{textAlign:‘center’,padding:‘8px 0 18px’}},
+h(Avatar,{name:selEmp.name,size:64}),
+h(‘div’,{style:{fontFamily:”‘Playfair Display’,serif”,fontSize:21,color:G.text,marginTop:12}},selEmp.name),
+h(‘div’,{style:{fontSize:13,color:G.sub,marginTop:5,marginBottom:22,lineHeight:1.6}},‘This will permanently remove this employee and all their payroll records.’),
+h(‘div’,{style:{display:‘flex’,flexDirection:‘column’,gap:9}},
+h(Btn,{variant:‘danger’,onClick:deleteEmployee,style:{background:‘linear-gradient(135deg,#ef4444,#dc2626)’,color:’#fff’,boxShadow:‘0 4px 18px rgba(239,68,68,.3)’,border:‘none’}},‘Remove Employee’),
+h(Btn,{variant:‘ghost’,onClick:function(){setSheet(null);}},‘Cancel’)
+)
+)
+);
+
+return h(‘div’,{style:{background:G.bg,minHeight:‘100vh’,fontFamily:”‘Plus Jakarta Sans’,sans-serif”,color:G.text,maxWidth:430,margin:‘0 auto’,position:‘relative’}},
+header,
+h(‘div’,{style:{paddingBottom:88}},
+screen===‘home’?homeScreen:null,
+screen===‘staff’?staffScreen:null,
+screen===‘detail’?detailScreen:null,
+screen===‘settings’?settingsScreen:null
+),
+bottomNav,
+empSheet, advSheet, hoursSheet, deleteSheet
+);
+}
+
+var container=document.getElementById(‘root’);
+var root=ReactDOM.createRoot(container);
+root.render(h(App,null));
+})();
+</script>
+
+</body>
+</html>
