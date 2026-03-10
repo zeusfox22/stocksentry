@@ -578,13 +578,9 @@ function adjM(d) {
 var dt=new Date(cY,cM-1+d); cY=dt.getFullYear(); cM=dt.getMonth()+1; render();
 }
 
-// init
+// init — script is at bottom of body so DOM is already ready
 load();
-window.addEventListener(‘DOMContentLoaded’, function() { render(); });
-// fallback if DOMContentLoaded already fired
-if (document.readyState === ‘interactive’ || document.readyState === ‘complete’) {
-setTimeout(function(){ render(); }, 0);
-}
+render();
 
 return { go:go, back:back, openDetail:openDetail, adjM:adjM, togPaid:togPaid, delAdv:delAdv,
 doPrint:doPrint, doBackup:doBackup, doRestore:doRestore, closeSheet:closeSheet,
