@@ -743,13 +743,12 @@ function genWaMsg(cid){
   var cust=state.customers.find(function(c){return c.id===Number(cid);});
   if(!cust)return'';
   var enriched=getEnriched();
-  var invs=enriched.filter(function(i){return i.customerId===cust.id&&i.displayStatus!=='paid';});
+  // Only include OVERDUE invoices in the message — never show current/not-yet-due
+  var invs=enriched.filter(function(i){return i.customerId===cust.id&&i.displayStatus==='overdue';});
   if(!invs.length)return'';
   var total=invs.reduce(function(s,i){return s+i.outstanding;},0);
-  var hasOD=invs.some(function(i){return i.displayStatus==='overdue';});
-  var lines=invs.map(function(i){return'• '+i.invoiceNo+' | Due: '+fdate(i.dueDate)+' | '+fmyr(i.outstanding)+(i.daysOverdue>0?' *('+i.daysOverdue+' days overdue)*':'');}).join('\n');
-  var opener=hasOD?'We would like to kindly remind you that the following invoice(s) are now overdue:':'This is a friendly reminder that the following invoice(s) will be due soon:';
-  return'Dear *'+cust.name+'*,\n\nWe hope this message finds you well.\n\n'+opener+'\n\n'+lines+'\n\n*Total Outstanding: '+fmyr(total)+'*\n\nKindly arrange payment at your earliest convenience. If payment has already been made, please disregard this message.\n\nThank you for your continued support.\n\nBest regards,\n*'+state.company+'*';
+  var lines=invs.map(function(i){return'• '+i.invoiceNo+' | Due: '+fdate(i.dueDate)+' | '+fmyr(i.outstanding)+' *('+i.daysOverdue+' days overdue)*';}).join('\n');
+  return'Dear *'+cust.name+'*,\n\nWe hope this message finds you well.\n\nWe would like to kindly remind you that the following invoice(s) are now overdue:\n\n'+lines+'\n\n*Total Outstanding: '+fmyr(total)+'*\n\nKindly arrange payment at your earliest convenience. If payment has already been made, please disregard this message.\n\nThank you for your continued support.\n\nBest regards,\n*'+state.company+'*';
 }
 function logWa(cid){
   var cust=state.customers.find(function(c){return c.id===Number(cid);});
