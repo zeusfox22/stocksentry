@@ -185,11 +185,15 @@ var cM = now.getMonth() + 1;
 var MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 var AC = ['#10b981','#6366f1','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316'];
 
-try { var _e = localStorage.getItem('pr_e'); if (_e) emps = JSON.parse(_e); } catch(x) {}
-try { var _p = localStorage.getItem('pr_p'); if (_p) pays = JSON.parse(_p); } catch(x) {}
+var _ls = false;
+try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); _ls = true; } catch(x) { _ls = false; }
+if (_ls) {
+  try { var _e = localStorage.getItem('pr_e'); if (_e) emps = JSON.parse(_e); } catch(x) {}
+  try { var _p = localStorage.getItem('pr_p'); if (_p) pays = JSON.parse(_p); } catch(x) {}
+}
 
-function sE() { try { localStorage.setItem('pr_e', JSON.stringify(emps)); } catch(x) {} }
-function sP() { try { localStorage.setItem('pr_p', JSON.stringify(pays)); } catch(x) {} }
+function sE() { if (_ls) { try { localStorage.setItem('pr_e', JSON.stringify(emps)); } catch(x) {} } }
+function sP() { if (_ls) { try { localStorage.setItem('pr_p', JSON.stringify(pays)); } catch(x) {} } }
 
 function uid() { return Math.random().toString(36).slice(2,9); }
 function fmt(n) {
