@@ -572,7 +572,16 @@ w.document.write(’<button class="pb" onclick="window.print()">Print / Save as 
 w.document.close();
 }
 
+try {
 render();
+} catch(err) {
+var pg = document.getElementById(‘page’);
+if (pg) pg.innerHTML = ‘<div style="padding:20px;color:#f87171;font-size:13px;line-height:1.7;background:#1a0505;margin:10px;border-radius:10px;border:1px solid #f87171"><strong>JS Error:</strong><br>’ + err.name + ‘: ’ + err.message + ‘<br><br>Line: ’ + (err.lineNumber||err.line||’?’) + ‘</div>’;
+}
+window.onerror = function(msg, src, line) {
+var pg = document.getElementById(‘page’);
+if (pg) pg.innerHTML = ‘<div style="padding:20px;color:#f87171;font-size:13px;line-height:1.7;background:#1a0505;margin:10px;border-radius:10px;border:1px solid #f87171"><strong>Error:</strong><br>’ + msg + ’<br>Line: ’ + line + ‘</div>’;
+};
 </script>
 
 </body>
