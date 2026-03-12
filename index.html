@@ -894,41 +894,54 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
       <div class="smc" id="sm-flag" onclick="setStaffMode('flag')"><div class="smci">&#128681;</div><div class="smcn">Flag Low Stock</div><div class="smcd">Report to boss</div></div>
       <div class="smc" id="sm-st" onclick="setStaffMode('st')"><div class="smci">&#128203;</div><div class="smcn">Stock Take</div><div class="smcd">Count physical stock</div></div>
     </div>
-    <!-- SCAN BUTTON - opens iPhone camera directly -->
-    <div style="width:100%;margin-bottom:16px">
-      <label for="scan-capture" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-        background:linear-gradient(135deg,#1a0a0a,#2a0808);border:2px solid #e81c1c;border-radius:16px;
-        padding:32px 20px;cursor:pointer;transition:.2s;width:100%;text-align:center">
-        <span style="font-size:64px;margin-bottom:12px">&#128247;</span>
-        <span style="font-size:18px;font-weight:900;color:#e81c1c;margin-bottom:6px">Tap to Scan Barcode</span>
-        <span style="font-size:12px;color:#888;font-family:monospace">Opens your iPhone camera</span>
-      </label>
-      <input type="file" id="scan-capture" accept="image/*" capture="environment" style="display:none" onchange="onPhotoCapture(event)">
+    <!-- STAFF SEARCH BOX -->
+    <div style="position:relative;margin-bottom:16px">
+      <input id="staff-search-inp" type="text"
+        placeholder="&#128269;  Search item by name, SKU or barcode..."
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        oninput="staffSearch(this.value)"
+        style="width:100%;padding:14px 16px;background:#181818;border:2px solid #2a2a2a;border-radius:12px;color:#f0f0f0;font-size:15px;outline:none;box-sizing:border-box">
+      <div id="staff-search-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1a1a1a;border:1px solid #2a2a2a;border-top:none;border-radius:0 0 12px 12px;z-index:200;max-height:320px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.6)"></div>
     </div>
-    <!-- Status message -->
-    <div id="scan-status" style="width:100%;text-align:center;font-size:13px;color:#888;font-family:monospace;margin-bottom:12px;min-height:20px"></div>
-    <div id="staff-st-bar" style="display:none;width:100%;background:#1a1a0a;border:1px solid rgba(249,115,22,.3);border-radius:10px;padding:12px 14px;margin-bottom:12px">
-      <div style="font-size:12px;font-weight:800;color:#f97316;margin-bottom:6px">&#128203; Stock Take Mode</div>
-      <div style="font-size:11px;color:#888;font-family:monospace">Scan barcode or take photo → enter physical count → Save</div>
-    </div>
-    <!-- Result panel -->
-    <div class="sres2" id="sr"><div id="sr-body"></div></div>
-    <div style="width:100%;margin-top:10px">
-      <div style="font-size:10px;color:#555;text-align:center;font-family:monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Bluetooth Scanner / Manual Entry</div>
-      <div style="display:flex;gap:8px">
-        <input type="text" id="staff-barcode-input"
-          placeholder="Scan or type barcode here..."
-          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-          style="flex:1;padding:13px 14px;background:#181818;border:2px solid #2a2a2a;border-radius:10px;
-            color:#f0f0f0;font-size:15px;font-family:monospace;outline:none;transition:.15s"
-          oninput="onBarcodeInput(this)"
-          onfocus="this.style.borderColor='#e81c1c'"
-          onblur="this.style.borderColor='#2a2a2a'">
-        <button onclick="triggerStaffScan()" style="padding:13px 16px;background:#e81c1c;color:#fff;
-          border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:900">&#8594;</button>
-      </div>
-      <div style="font-size:10px;color:#444;text-align:center;font-family:monospace;margin-top:5px">Bluetooth scanner will auto-detect &bull; or type and press Enter</div>
-    </div>
+
+```
+<!-- SCAN BUTTON - opens iPhone camera directly -->
+<div style="width:100%;margin-bottom:16px">
+  <label for="scan-capture" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#1a0a0a,#2a0808);border:2px solid #e81c1c;border-radius:16px;
+    padding:32px 20px;cursor:pointer;transition:.2s;width:100%;text-align:center">
+    <span style="font-size:64px;margin-bottom:12px">&#128247;</span>
+    <span style="font-size:18px;font-weight:900;color:#e81c1c;margin-bottom:6px">Tap to Scan Barcode</span>
+    <span style="font-size:12px;color:#888;font-family:monospace">Opens your iPhone camera</span>
+  </label>
+  <input type="file" id="scan-capture" accept="image/*" capture="environment" style="display:none" onchange="onPhotoCapture(event)">
+</div>
+<!-- Status message -->
+<div id="scan-status" style="width:100%;text-align:center;font-size:13px;color:#888;font-family:monospace;margin-bottom:12px;min-height:20px"></div>
+<div id="staff-st-bar" style="display:none;width:100%;background:#1a1a0a;border:1px solid rgba(249,115,22,.3);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+  <div style="font-size:12px;font-weight:800;color:#f97316;margin-bottom:6px">&#128203; Stock Take Mode</div>
+  <div style="font-size:11px;color:#888;font-family:monospace">Scan barcode or take photo → enter physical count → Save</div>
+</div>
+<!-- Result panel -->
+<div class="sres2" id="sr"><div id="sr-body"></div></div>
+<div style="width:100%;margin-top:10px">
+  <div style="font-size:10px;color:#555;text-align:center;font-family:monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Bluetooth Scanner / Manual Entry</div>
+  <div style="display:flex;gap:8px">
+    <input type="text" id="staff-barcode-input"
+      placeholder="Scan or type barcode here..."
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+      style="flex:1;padding:13px 14px;background:#181818;border:2px solid #2a2a2a;border-radius:10px;
+        color:#f0f0f0;font-size:15px;font-family:monospace;outline:none;transition:.15s"
+      oninput="onBarcodeInput(this)"
+      onfocus="this.style.borderColor='#e81c1c'"
+      onblur="this.style.borderColor='#2a2a2a'">
+    <button onclick="triggerStaffScan()" style="padding:13px 16px;background:#e81c1c;color:#fff;
+      border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:900">&#8594;</button>
+  </div>
+  <div style="font-size:10px;color:#444;text-align:center;font-family:monospace;margin-top:5px">Bluetooth scanner will auto-detect &bull; or type and press Enter</div>
+</div>
+```
+
   </div>
 </div>
 
@@ -2639,6 +2652,53 @@ function stPickItem(iid){
   document.getElementById('st-search-results').style.display='none';
   document.getElementById('st-search').value='';
   if(item) showSTCount(item);
+}
+
+
+// ---- STAFF SEARCH ----
+function staffSearch(val){
+  val=(val||'').trim();
+  var list=document.getElementById('staff-search-list');
+  if(!list) return;
+  if(!val){list.innerHTML='';list.style.display='none';return;}
+  var results=inv.filter(function(i){
+    return i.sku.toLowerCase().indexOf(val.toLowerCase())>=0||
+           i.name.toLowerCase().indexOf(val.toLowerCase())>=0||
+           (i.barcode&&i.barcode.indexOf(val)>=0);
+  }).slice(0,8);
+  if(!results.length){
+    list.innerHTML='<div style="padding:12px 14px;color:#888;font-size:13px;font-family:monospace">No items found</div>';
+    list.style.display='block';return;
+  }
+  list.style.display='block';
+  list.innerHTML=results.map(function(item){
+    var s=stat(item);
+    var sc={ok:'#22c55e',low:'#f97316',crit:'#e81c1c',out:'#e81c1c'}[s]||'#888';
+    var h='<div onclick="staffSelectItem('+item.id+')" style="padding:12px 14px;cursor:pointer;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center;background:#1a1a1a">';
+    h+='<div><div style="font-size:14px;font-weight:700">'+item.name+'</div>';
+    h+='<div style="font-size:10px;color:#666;font-family:monospace">'+item.sku+'</div></div>';
+    h+='<div style="text-align:right"><div style="font-size:20px;font-weight:900;color:'+sc+'">'+item.stk+'</div>';
+    h+='<div style="font-size:9px;color:#555;font-family:monospace">'+(item.uom||'')+'</div></div>';
+    h+='</div>';
+    return h;
+  }).join('');
+}
+
+function staffSelectItem(iid){
+  var item=inv.find(function(i){return i.id===iid;});
+  var list=document.getElementById('staff-search-list');
+  var inp=document.getElementById('staff-search-inp');
+  if(list){list.innerHTML='';list.style.display='none';}
+  if(inp) inp.value='';
+  if(!item) return;
+  if(smode==='st'){
+    if(!stSession||stSession.status!=='active'){toast('No active stock take. Ask boss to start one.','err');return;}
+    showSTCount(item);return;
+  }
+  bscanCode=item.sku;
+  setBM(smode==='recv'?'rest':'look');
+  bResult(item.sku);
+  var sr=document.getElementById('sr');if(sr)sr.classList.add('show');
 }
 
 // ---- TOAST ----
