@@ -15,26 +15,29 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --red:#e81c1c;--red2:#c41414;--rglow:rgba(232,28,28,.25);--rdim:rgba(232,28,28,.1);
-  --bg:#0a0a0a;--s1:#111;--s2:#181818;--s3:#222;
-  --b1:#2a2a2a;--b2:#3a3a3a;
-  --green:#22c55e;--gdim:rgba(34,197,94,.1);
-  --orange:#f97316;--odim:rgba(249,115,22,.1);
-  --blue:#3b82f6;--bdim:rgba(59,130,246,.1);
-  --gold:#f5c842;
-  --t1:#f0f0f0;--t2:#888;--t3:#444;
+  --red:#ff4757;--red2:#ff2d3f;--rglow:rgba(255,71,87,.3);--rdim:rgba(255,71,87,.12);
+  --bg:#0d0d0f;--s1:#13131a;--s2:#1a1a24;--s3:#22222e;
+  --b1:#2e2e3d;--b2:#3d3d52;
+  --green:#2ecc71;--gdim:rgba(46,204,113,.12);
+  --orange:#ff9f43;--odim:rgba(255,159,67,.12);
+  --blue:#54a0ff;--bdim:rgba(84,160,255,.12);
+  --purple:#a29bfe;--pdim:rgba(162,155,254,.12);
+  --cyan:#00cec9;--cdim:rgba(0,206,201,.12);
+  --gold:#ffd93d;
+  --t1:#f0f0f5;--t2:#9090a8;--t3:#4a4a5a;
   --font:'Montserrat',sans-serif;--mono:'JetBrains Mono',monospace
 }
 html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--font);overflow-x:hidden}
+.bmain{background:radial-gradient(ellipse 60% 40% at 80% 0%,rgba(84,160,255,.05),transparent 50%),radial-gradient(ellipse 40% 30% at 20% 80%,rgba(162,155,254,.04),transparent 50%),var(--bg)}
 
 /* LOGIN */
 #pg-login{min-height:100vh;display:flex;align-items:center;justify-content:center;
-background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(232,28,28,.1),transparent 60%)}
+background:radial-gradient(ellipse 80% 60% at 20% 0%,rgba(255,71,87,.15),transparent 50%),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(84,160,255,.1),transparent 50%),radial-gradient(ellipse 40% 30% at 50% 50%,rgba(162,155,254,.08),transparent 60%)}
 .lw{width:100%;max-width:400px;padding:20px}
 .llogo{text-align:center;margin-bottom:28px}
 .llogo img{width:200px;height:auto;filter:drop-shadow(0 4px 20px rgba(232,28,28,.3))}
 .llogo p{font-size:10px;color:var(–t2);letter-spacing:3px;text-transform:uppercase;font-family:var(–mono);margin-top:8px}
-.lcard{background:var(–s1);border:1px solid var(–b1);border-radius:18px;padding:26px;
+.lcard{background:rgba(19,19,26,.8);backdrop-filter:blur(20px);border:1px solid rgba(84,160,255,.15);box-shadow:0 24px 64px rgba(0,0,0,.6);border-radius:18px;padding:26px;
 box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .ltitle{font-size:10px;color:var(–t2);letter-spacing:2px;text-transform:uppercase;font-family:var(–mono);margin-bottom:10px}
 .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
@@ -64,7 +67,7 @@ box-shadow:0 4px 20px var(–rglow);transition:.15s;margin-top:4px}
 /* BOSS */
 #pg-boss{display:none;min-height:100vh}
 .blayout{display:flex;min-height:100vh}
-.sb{width:240px;background:var(–s1);border-right:1px solid var(–b1);
+.sb{width:240px;background:linear-gradient(180deg,#13131a 0%,#0f0f18 100%);border-right:1px solid var(–b1);
 display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;overflow:hidden}
 .sbtop{padding:18px;border-bottom:1px solid var(–b1);
 background:linear-gradient(180deg,rgba(232,28,28,.06),transparent)}
@@ -102,7 +105,7 @@ display:flex;align-items:center;justify-content:center;transition:.15s}
 .pbar{display:flex;align-items:flex-start;justify-content:space-between;
 margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(–b1);flex-wrap:wrap;gap:10px}
 .ptitle{font-size:22px;font-weight:900;letter-spacing:-.4px}
-.ptitle .hl{color:var(–red)}
+.ptitle .hl{background:linear-gradient(135deg,#ff4757,#ff9f43);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .pmeta{font-size:11px;color:#888;margin-top:3px;font-family:var(–mono)}
 .rline{width:36px;height:3px;background:linear-gradient(90deg,var(–red),transparent);
 border-radius:2px;margin:5px 0 0}
@@ -133,9 +136,9 @@ font-size:11px;font-family:var(–mono);font-weight:500;white-space:nowrap}
 
 /* STATS */
 .sgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
-.sc{background:var(–s1);border:1px solid var(–b1);border-radius:10px;
-padding:16px 18px;position:relative;overflow:hidden;transition:.2s}
-.sc:hover{transform:translateY(-2px);border-color:var(–b2)}
+.sc{background:linear-gradient(135deg,var(–s2),var(–s1));border:1px solid var(–b2);border-radius:14px;
+padding:16px 18px;position:relative;overflow:hidden;transition:.3s}
+.sc:hover{transform:translateY(-3px);border-color:var(–purple);box-shadow:0 8px 24px rgba(162,155,254,.1)}
 .slbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1.5px;
 font-family:var(–mono);margin-bottom:6px}
 .sval{font-size:30px;font-weight:900;line-height:1;letter-spacing:-1px}
@@ -526,8 +529,7 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
 <div id="pg-login">
   <div class="lw">
     <div class="llogo">
-      <img id="logo-img" src="" alt="GwiraPack">
-      <p>Stock Management System</p>
+      <div style="font-size:36px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px">GwiraPack</div><div style="font-size:11px;color:#888;font-family:monospace;letter-spacing:3px;text-transform:uppercase">Stock Management System</div>
     </div>
     <div class="lcard">
       <div class="ltitle">Select your role</div>
@@ -564,8 +566,7 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
 <div class="blayout">
   <aside class="sb">
     <div class="sbtop">
-      <img id="sb-logo" src="" alt="GwiraPack">
-      <p>Stock Manager</p>
+      <div style="font-size:18px;font-weight:900;letter-spacing:-0.5px;background:linear-gradient(135deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">GwiraPack</div><div style="font-size:9px;color:#666;font-family:monospace;letter-spacing:2px;text-transform:uppercase;margin-top:1px">Stock Manager</div>
     </div>
     <div class="sbscan" onclick="openScan()">
       <div class="si">&#128247;</div>
@@ -585,6 +586,7 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
       <div class="sbsec">More</div>
       <div class="sbi" id="nav-hist" onclick="goTo('hist',this)"><span class="ico">&#128203;</span><span>History</span></div>
       <div class="sbi" id="nav-rep" onclick="goTo('rep',this)"><span class="ico">&#128202;</span><span>Reports</span></div>
+      <div class="sbi" id="nav-data" onclick="goTo('data',this)"><span class="ico">&#128451;</span><span>Data</span></div>
       <div class="sbi" id="nav-set" onclick="goTo('set',this)"><span class="ico">&#9881;&#65039;</span><span>Settings</span></div>
     </nav>
     <div class="sbfoot">
@@ -684,7 +686,7 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
         <div style="font-size:13px;font-weight:700" id="st-progress-txt">0 / 0 items counted</div>
       </div>
       <div style="background:#111;border-radius:20px;height:10px;overflow:hidden">
-        <div id="st-progress-bar" style="height:100%;background:linear-gradient(90deg,#e81c1c,#f97316);border-radius:20px;width:0%;transition:.4s"></div>
+        <div id="st-progress-bar" style="height:100%;background:linear-gradient(90deg,#ff4757,#ff9f43,#ffd93d);border-radius:20px;width:0%;transition:.4s"></div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
@@ -810,6 +812,93 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
     <div class="rcd" onclick="exportLow()"><div class="rci">&#9888;&#65039;</div><div class="rct">Low Stock Report</div><p>Items below threshold with reorder quantities and costs.</p></div>
     <div class="rcd" onclick="exportAll()"><div class="rci">&#128230;</div><div class="rct">Full Inventory Export</div><p>Complete snapshot of all items, quantities and costs.</p></div>
     <div class="rcd" onclick="exportStaff()"><div class="rci">&#128101;</div><div class="rct">Staff Activity Report</div><p>All scans, flags and receives logged by staff.</p></div>
+  </div>
+</div>
+
+
+<!-- DATA MANAGEMENT VIEW -->
+<div id="v-data" style="display:none">
+  <div class="pbar">
+    <div>
+      <div class="ptitle">Data <span class="hl">Management</span></div>
+      <div class="rline"></div>
+      <div class="pmeta">Import from AutoCount &bull; Backup &bull; Restore</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px" id="data-stats"></div>
+
+  <!-- Import AutoCount File -->
+  <div style="background:#181818;border:1px solid #2a2a2a;border-radius:14px;padding:20px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:40px;height:40px;background:rgba(34,197,94,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">&#8679;</div>
+      <div>
+        <div style="font-size:15px;font-weight:800">Import from AutoCount</div>
+        <div style="font-size:12px;color:#888">Stock Balance Report or Item Maintenance (Excel / CSV)</div>
+      </div>
+    </div>
+    <div style="background:#111;border-radius:10px;padding:14px;margin-bottom:14px;font-size:12px;color:#888;line-height:1.8;font-family:monospace">
+      Supported files:<br>
+      &bull; <span style="color:#22c55e">Item_with_barcode.xlsx</span> — loads items + barcodes + UOM conversion<br>
+      &bull; <span style="color:#22c55e">stock_balance.xlsx</span> — loads items + current quantities<br>
+      &bull; Any AutoCount CSV/Excel export with Item Code + Description columns
+    </div>
+    <label style="display:block;background:linear-gradient(135deg,#0d3d0d,#155215);border:1.5px solid rgba(34,197,94,.4);border-radius:10px;padding:16px;text-align:center;cursor:pointer;font-size:15px;font-weight:800;color:#22c55e">
+      &#8679; Tap to Select AutoCount File
+      <input type="file" id="data-import-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="dataImportFile(event)">
+    </label>
+  </div>
+
+  <!-- Backup -->
+  <div style="background:#181818;border:1px solid #2a2a2a;border-radius:14px;padding:20px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:40px;height:40px;background:rgba(59,130,246,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">&#128451;</div>
+      <div>
+        <div style="font-size:15px;font-weight:800">Backup All Data</div>
+        <div style="font-size:12px;color:#888">Download a full backup — inventory, history, adjustments</div>
+      </div>
+    </div>
+    <button onclick="backupData()" style="width:100%;padding:14px;background:linear-gradient(135deg,#0d1f3d,#152552);border:1.5px solid rgba(59,130,246,.4);border-radius:10px;color:#3b82f6;font-size:15px;font-weight:800;cursor:pointer;font-family:'Montserrat',sans-serif">
+      &#8681; Download Backup (.json)
+    </button>
+  </div>
+
+  <!-- Restore -->
+  <div style="background:#181818;border:1px solid #2a2a2a;border-radius:14px;padding:20px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:40px;height:40px;background:rgba(249,115,22,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">&#8635;</div>
+      <div>
+        <div style="font-size:15px;font-weight:800">Restore from Backup</div>
+        <div style="font-size:12px;color:#888">Load a previously downloaded .json backup file</div>
+      </div>
+    </div>
+    <label style="display:block;background:#1a1200;border:1.5px solid rgba(249,115,22,.3);border-radius:10px;padding:14px;text-align:center;cursor:pointer;font-size:14px;font-weight:800;color:#f97316">
+      &#8635; Select Backup File (.json)
+      <input type="file" id="data-restore-input" accept=".json" style="display:none" onchange="restoreBackup(event)">
+    </label>
+  </div>
+
+  <!-- Export CSV -->
+  <div style="background:#181818;border:1px solid #2a2a2a;border-radius:14px;padding:20px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:40px;height:40px;background:rgba(168,85,247,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">&#128196;</div>
+      <div>
+        <div style="font-size:15px;font-weight:800">Export Inventory as CSV</div>
+        <div style="font-size:12px;color:#888">Full inventory list — import back into AutoCount or Excel</div>
+      </div>
+    </div>
+    <button onclick="exportInventoryCSV()" style="width:100%;padding:14px;background:#160d22;border:1.5px solid rgba(168,85,247,.3);border-radius:10px;color:#a855f7;font-size:14px;font-weight:800;cursor:pointer;font-family:'Montserrat',sans-serif">
+      &#8681; Export Inventory CSV
+    </button>
+  </div>
+
+  <!-- Danger Zone -->
+  <div style="background:#180808;border:1px solid rgba(232,28,28,.2);border-radius:14px;padding:20px">
+    <div style="font-size:12px;font-weight:800;color:#e81c1c;margin-bottom:12px;font-family:monospace;text-transform:uppercase;letter-spacing:1px">&#9888; Danger Zone</div>
+    <button onclick="clearAllData()" style="width:100%;padding:14px;background:transparent;border:1.5px solid rgba(232,28,28,.3);border-radius:10px;color:#e81c1c;font-size:14px;font-weight:800;cursor:pointer;font-family:'Montserrat',sans-serif">
+      &#128465; Clear All Data
+    </button>
   </div>
 </div>
 
@@ -1321,7 +1410,7 @@ document.getElementById('l-pin').addEventListener('keydown',function(e){
 });
 
 // ---- BOSS NAV ----
-var views=['inv','flags','alerts','fast','st','adj','sync','hist','rep','set'];
+var views=['inv','flags','alerts','fast','st','adj','sync','hist','rep','data','set'];
 function goTo(v,el){
   views.forEach(function(x){document.getElementById('v-'+x).style.display=x===v?'':'none';});
   document.querySelectorAll('.sbi').forEach(function(e){e.classList.remove('on');});
@@ -1333,6 +1422,7 @@ function goTo(v,el){
   if(v==='st')renderST();
   if(v==='adj')renderAdj();
   if(v==='fast')renderFast();
+  if(v==='data')renderData();
   if(v==='set'){document.getElementById('set-low').value=cfg.low;document.getElementById('set-crit').value=cfg.crit;}
 }
 
@@ -2699,6 +2789,193 @@ function staffSelectItem(iid){
   setBM(smode==='recv'?'rest':'look');
   bResult(item.sku);
   var sr=document.getElementById('sr');if(sr)sr.classList.add('show');
+}
+
+
+// ============================================================
+// DATA MANAGEMENT
+// ============================================================
+function renderData(){
+  var itemCount = inv.length;
+  var barcodeCount = inv.filter(function(i){return i.barcode;}).length;
+  var uomCount = inv.filter(function(i){return i.uoms&&i.uoms.length>1;}).length;
+  var lastImport = localStorage.getItem('gw_last_import') || 'Never';
+  var lastBackup = localStorage.getItem('gw_last_backup') || 'Never';
+
+  var el = document.getElementById('data-stats');
+  if(el){
+    el.innerHTML = 
+      '<div class="sc"><div class="slbl">Total Items</div><div class="sval" style="color:#f0f0f0">'+itemCount+'</div><div class="ssub">in system</div></div>'
+    + '<div class="sc"><div class="slbl">With Barcode</div><div class="sval" style="color:#22c55e">'+barcodeCount+'</div><div class="ssub">scannable</div></div>'
+    + '<div class="sc"><div class="slbl">UOM Conversion</div><div class="sval" style="color:#f97316">'+uomCount+'</div><div class="ssub">carton items</div></div>'
+    + '<div class="sc"><div class="slbl">Last Import</div><div class="sval" style="font-size:13px;color:#888">'+lastImport+'</div></div>';
+  }
+}
+
+function dataImportFile(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var ext = file.name.split('.').pop().toLowerCase();
+  toast('Reading file...','info');
+  var rd = new FileReader();
+  rd.onload = function(ev){
+    try{
+      var rows=[];
+      if(ext==='csv'){
+        var lines=ev.target.result.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+        if(!lines.length){toast('File is empty.','err');return;}
+        var hdrs=lines[0].split(',').map(function(h){return h.replace(/"/g,'').trim();});
+        rows=lines.slice(1).map(function(l){
+          var v=l.split(',').map(function(x){return x.replace(/"/g,'').trim();});
+          var o={}; hdrs.forEach(function(h,i){o[h]=v[i]||'';}); return o;
+        });
+      } else {
+        if(!window.XLSX){toast('Excel reader not loaded.','err');return;}
+        var wb=XLSX.read(ev.target.result,{type:'array'});
+        if(!wb.SheetNames.length){toast('Empty file.','err');return;}
+        rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      }
+      if(!rows.length){toast('No data found.','err');return;}
+
+      var samp=rows[0]||{};
+      var keys=Object.keys(samp);
+      function fc(){
+        var args=Array.prototype.slice.call(arguments);
+        return keys.find(function(k){return args.some(function(c){return k.toLowerCase().replace(/\s/g,'').indexOf(c.toLowerCase().replace(/\s/g,''))>=0;});});
+      }
+      var cCode=fc('Item Code','ItemCode','Code','SKU');
+      var cName=fc('Description','DESCRIPTION','Item Name','Name');
+      var cQty=fc('Qty','Quantity','Balance','Bal. Qty','Total Bal');
+      var cCost=fc('Average Cost','Avg Cost','Cost Per','Cost');
+      var cGrp=fc('Item Group','Group','Category');
+      var cUOM=fc('UOM','Unit');
+      var cRate=fc('UOM RATE','UOM Rate','Rate');
+      var cBarcode=fc('Barcode','Bar Code','BarCode');
+
+      if(!cCode||!cName){
+        toast('Cannot detect columns. Use AutoCount Stock Balance Report or Item Maintenance export.','err');
+        document.getElementById('data-import-input').value=''; return;
+      }
+
+      // Group by Item Code
+      var itemMap={};
+      rows.forEach(function(r){
+        var sku=String(r[cCode]||'').trim(); if(!sku) return;
+        var name=String(r[cName]||'').trim(); if(!name) return;
+        var uom=cUOM?String(r[cUOM]||'').trim().toUpperCase():'';
+        var rate=cRate?(parseFloat(r[cRate])||1):1;
+        var barcode=cBarcode?String(r[cBarcode]||'').trim():'';
+        var cost=cCost?(parseFloat(r[cCost])||0):0;
+        var qty=cQty?(parseFloat(r[cQty])||0):undefined;
+        var grp=cGrp?String(r[cGrp]||'').trim():'General';
+        if(!itemMap[sku]) itemMap[sku]={sku:sku,name:name,grp:grp,cost:0,qty:undefined,barcode:'',baseUOM:'',uoms:[]};
+        var entry=itemMap[sku];
+        if(parseFloat(rate)===1){
+          entry.baseUOM=uom;
+          if(barcode) entry.barcode=barcode;
+          if(cost>0) entry.cost=cost;
+          if(qty!==undefined) entry.qty=qty;
+        }
+        if(uom && rate) entry.uoms.push({uom:uom,rate:parseFloat(rate)||1,barcode:barcode});
+        if(barcode&&!entry.barcode) entry.barcode=barcode;
+        if(entry.qty===undefined&&qty!==undefined) entry.qty=qty;
+        if(!entry.cost&&cost>0) entry.cost=cost;
+      });
+
+      var updated=0, added=0;
+      Object.values(itemMap).forEach(function(d){
+        var ex=inv.find(function(it){return it.sku===d.sku;});
+        if(ex){
+          ex.name=d.name; ex.cat=d.grp;
+          if(d.cost>0) ex.cost=d.cost;
+          if(d.qty!==undefined) ex.stk=d.qty;
+          if(d.barcode) ex.barcode=d.barcode;
+          if(d.baseUOM) ex.uom=d.baseUOM;
+          if(d.uoms.length>1) ex.uoms=d.uoms;
+          updated++;
+        } else {
+          inv.push({id:nid++,name:d.name,sku:d.sku,cat:d.grp,
+            uom:d.baseUOM||'PCS',stk:d.qty||0,thr:cfg.low,
+            cost:d.cost||0,reo:50,note:'Import',
+            barcode:d.barcode||'',
+            uoms:d.uoms.length>1?d.uoms:[]});
+          added++;
+        }
+      });
+
+      adjs=[];save();renderInv();updateStats();renderData();
+      document.getElementById('data-import-input').value='';
+      localStorage.setItem('gw_last_import', new Date().toLocaleString());
+
+      var bc=Object.values(itemMap).filter(function(d){return d.barcode;}).length;
+      var uc=Object.values(itemMap).filter(function(d){return d.uoms.length>1;}).length;
+      toast(updated+' updated, '+added+' new items. '+bc+' barcodes, '+uc+' UOM conversions.','ok');
+      renderData();
+    }catch(err){
+      document.getElementById('data-import-input').value='';
+      toast('Error: '+(err.message||String(err)),'err');
+    }
+  };
+  rd.onerror=function(){toast('Could not read file.','err');document.getElementById('data-import-input').value='';};
+  if(ext==='csv') rd.readAsText(file); else rd.readAsArrayBuffer(file);
+}
+
+function backupData(){
+  var backup = {
+    v:2, t: new Date().toISOString(),
+    inv:inv, hist:hist, flgs:flgs, adjs:adjs, adjReqs:adjReqs,
+    cfg:cfg, nid:nid
+  };
+  var str = JSON.stringify(backup);
+  var blob = new Blob([str],{type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'GwiraPack_Backup_'+ds()+'.json';
+  a.click();
+  localStorage.setItem('gw_last_backup', new Date().toLocaleString());
+  toast('Backup downloaded!','ok');
+  renderData();
+}
+
+function restoreBackup(e){
+  var file = e.target.files[0]; if(!file) return;
+  var rd = new FileReader();
+  rd.onload = function(ev){
+    try{
+      var data = JSON.parse(ev.target.result);
+      if(!data.inv){toast('Invalid backup file.','err');return;}
+      if(!confirm('Restore backup from '+data.t+'? This will replace ALL current data.')) return;
+      inv=data.inv||[]; hist=data.hist||[]; flgs=data.flgs||[];
+      adjs=data.adjs||[]; adjReqs=data.adjReqs||[];
+      if(data.cfg) cfg=data.cfg;
+      if(data.nid) nid=data.nid;
+      save(); renderInv(); updateStats(); renderData();
+      document.getElementById('data-restore-input').value='';
+      toast('Backup restored! '+inv.length+' items loaded.','ok');
+    }catch(err){
+      toast('Error restoring: '+err.message,'err');
+      document.getElementById('data-restore-input').value='';
+    }
+  };
+  rd.readAsText(file);
+}
+
+function clearAllData(){
+  if(!confirm('WARNING: This will delete ALL inventory data. Are you sure?')) return;
+  if(!confirm('Are you 100% sure? This cannot be undone.')) return;
+  inv=[]; hist=[]; flgs=[]; adjs=[]; adjReqs=[]; stSession=null; nid=9;
+  localStorage.clear();
+  save(); renderInv(); updateStats(); renderData();
+  toast('All data cleared.','warn');
+}
+
+function exportInventoryCSV(){
+  var rows=[['Item Code','Description','Category','UOM','Stock','Threshold','Cost','Barcode','Supplier']];
+  inv.forEach(function(i){
+    rows.push([i.sku,i.name,i.cat,i.uom,i.stk,i.thr,i.cost,i.barcode||'',i.note||'']);
+  });
+  dlCSV(rows,'GwiraPack_Inventory_'+ds()+'.csv');
+  toast('Inventory exported as CSV.','ok');
 }
 
 // ---- TOAST ----
