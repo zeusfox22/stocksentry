@@ -502,6 +502,20 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
 .dout-warn{color:var(–orange);font-weight:700;font-family:var(–mono);font-size:13px}
 .dout-crit{color:var(–red);font-weight:700;font-family:var(–mono);font-size:13px;animation:blink 1.5s infinite}
 .dout-na{color:var(–t3);font-family:var(–mono);font-size:12px}
+
+/* Critical pulse animation */
+@keyframes critPulse {
+0%   { background: var(–s2); box-shadow: none; }
+50%  { background: rgba(232,28,28,0.18); box-shadow: 0 0 18px rgba(232,28,28,0.35); }
+100% { background: var(–s2); box-shadow: none; }
+}
+@keyframes lowPulse {
+0%   { background: var(–s2); box-shadow: none; }
+50%  { background: rgba(249,115,22,0.15); box-shadow: 0 0 14px rgba(249,115,22,0.25); }
+100% { background: var(–s2); box-shadow: none; }
+}
+.sc.pulse-crit { animation: critPulse 1.5s ease-in-out infinite; border-color: rgba(232,28,28,0.5) !important; }
+.sc.pulse-low  { animation: lowPulse 2s ease-in-out infinite; border-color: rgba(249,115,22,0.4) !important; }
 </style>
 
 </head>
@@ -878,6 +892,7 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
     <div class="smgrid">
       <div class="smc on" id="sm-recv" onclick="setStaffMode('recv')"><div class="smci">&#128229;</div><div class="smcn">Receive Stock</div><div class="smcd">Scan incoming items</div></div>
       <div class="smc" id="sm-flag" onclick="setStaffMode('flag')"><div class="smci">&#128681;</div><div class="smcn">Flag Low Stock</div><div class="smcd">Report to boss</div></div>
+      <div class="smc" id="sm-st" onclick="setStaffMode('st')"><div class="smci">&#128203;</div><div class="smcn">Stock Take</div><div class="smcd">Count physical stock</div></div>
     </div>
     <!-- SCAN BUTTON - opens iPhone camera directly -->
     <div style="width:100%;margin-bottom:16px">
@@ -892,6 +907,10 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
     </div>
     <!-- Status message -->
     <div id="scan-status" style="width:100%;text-align:center;font-size:13px;color:#888;font-family:monospace;margin-bottom:12px;min-height:20px"></div>
+    <div id="staff-st-bar" style="display:none;width:100%;background:#1a1a0a;border:1px solid rgba(249,115,22,.3);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:800;color:#f97316;margin-bottom:6px">&#128203; Stock Take Mode</div>
+      <div style="font-size:11px;color:#888;font-family:monospace">Scan barcode or take photo → enter physical count → Save</div>
+    </div>
     <!-- Result panel -->
     <div class="sres2" id="sr"><div id="sr-body"></div></div>
     <div style="width:100%;margin-top:10px">
@@ -952,15 +971,36 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
   <div class="mbox">
     <div class="mttl" id="stc-name">Count Item</div>
     <div class="msub" id="stc-sku" style="font-family:monospace;color:#666"></div>
-    <div style="background:#111;border-radius:10px;padding:14px;margin:16px 0;display:flex;gap:20px;align-items:center">
-      <div><div style="font-size:10px;color:#555;font-family:monospace;text-transform:uppercase;margin-bottom:3px">System Qty</div><div style="font-size:32px;font-weight:900;color:#666" id="stc-prev">—</div></div>
-      <div style="font-size:24px;color:#333">&#8594;</div>
+    <div style="background:#111;border-radius:10px;padding:12px 14px;margin:12px 0;display:flex;gap:16px;align-items:center">
+      <div><div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase;margin-bottom:3px">System Qty</div><div style="font-size:26px;font-weight:900;color:#666" id="stc-prev">—</div></div>
+      <div style="font-size:18px;color:#333">&#8594;</div>
       <div style="flex:1">
-        <div style="font-size:10px;color:#e81c1c;font-family:monospace;text-transform:uppercase;margin-bottom:6px;font-weight:700">Physical Count</div>
+        <div style="font-size:10px;color:#e81c1c;font-family:monospace;text-transform:uppercase;margin-bottom:6px;font-weight:700" id="stc-qty-lbl">Physical Count</div>
         <input type="number" id="stc-qty" min="0" placeholder="0"
-          style="width:100%;padding:14px;background:#181818;border:2px solid #e81c1c;border-radius:10px;color:#f0f0f0;font-size:28px;font-weight:800;outline:none;text-align:center;box-sizing:border-box"
-          onkeydown="if(event.key==='Enter')submitSTCount()">
+          style="width:100%;padding:12px;background:#181818;border:2px solid #e81c1c;border-radius:10px;color:#f0f0f0;font-size:26px;font-weight:800;outline:none;text-align:center;box-sizing:border-box"
+          oninput="calcSTTotal()" onkeydown="if(event.key==='Enter')submitSTCount()">
       </div>
+    </div>
+    <div id="stc-uom-section" style="display:none;background:#1a1200;border:1px solid rgba(249,115,22,.3);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:10px;color:#f97316;font-family:monospace;font-weight:700;margin-bottom:10px;text-transform:uppercase">&#128230; Carton Count</div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <div style="flex:1">
+          <div style="font-size:10px;color:#888;font-family:monospace;margin-bottom:4px" id="stc-carton-lbl">CTN</div>
+          <input type="number" id="stc-carton-qty" min="0" placeholder="0"
+            style="width:100%;padding:10px;background:#181818;border:2px solid #f97316;border-radius:8px;color:#f0f0f0;font-size:22px;font-weight:800;outline:none;text-align:center;box-sizing:border-box"
+            oninput="calcSTTotal()" onkeydown="if(event.key==='Enter')document.getElementById('stc-qty').focus()">
+        </div>
+        <div style="font-size:20px;color:#444;padding-bottom:8px">+</div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:#888;font-family:monospace;margin-bottom:4px">Loose pcs</div>
+          <input type="number" id="stc-qty-extra" min="0" placeholder="0"
+            style="width:100%;padding:10px;background:#181818;border:2px solid #555;border-radius:8px;color:#f0f0f0;font-size:22px;font-weight:800;outline:none;text-align:center;box-sizing:border-box"
+            oninput="calcSTTotal()" onkeydown="if(event.key==='Enter')submitSTCount()">
+        </div>
+      </div>
+      <div style="text-align:center;font-size:15px;font-weight:800;color:#f97316;margin-top:10px;font-family:monospace;min-height:22px" id="stc-total-preview"></div>
+      <input type="hidden" id="stc-uom-rate" value="1">
+      <input type="hidden" id="stc-uom-base" value="pcs">
     </div>
     <div style="font-size:11px;color:#555;text-align:center;font-family:monospace;margin-bottom:16px" id="stc-already"></div>
     <input type="hidden" id="stc-item-id">
@@ -1130,82 +1170,98 @@ function doLogin(){
 function triggerACImport() {
   document.getElementById('ac-quick-import').click();
 }
-function acQuickImport(e) {
-  var file = e.target.files[0];
-  if(!file) return;
-  toast('Reading AutoCount file...', 'info');
-  var ext = file.name.split('.').pop().toLowerCase();
-  var rd = new FileReader();
-  rd.onload = function(ev) {
-    try {
-      var rows = [];
-      if(ext === 'csv') {
-        var lines = ev.target.result.split('\n').map(function(l){return l.trim();}).filter(Boolean);
-        var hdrs = lines[0].split(',').map(function(h){return h.replace(/"/g,'').trim();});
-        rows = lines.slice(1).map(function(l){
-          var v = l.split(',').map(function(x){return x.replace(/"/g,'').trim();});
-          var o = {}; hdrs.forEach(function(h,i){o[h]=v[i]||'';});
-          return o;
+function acQuickImport(e){
+  var file=e.target.files[0]; if(!file) return;
+  var ext=file.name.split('.').pop().toLowerCase();
+  toast('Reading file...','info');
+  var rd=new FileReader();
+  rd.onload=function(ev){
+    try{
+      var rows=[];
+      if(ext==='csv'){
+        var lines=ev.target.result.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+        if(!lines.length){toast('File is empty.','err');return;}
+        var hdrs=lines[0].split(',').map(function(h){return h.replace(/"/g,'').trim();});
+        rows=lines.slice(1).map(function(l){
+          var v=l.split(',').map(function(x){return x.replace(/"/g,'').trim();});
+          var o={}; hdrs.forEach(function(h,i){o[h]=v[i]||'';}); return o;
         });
       } else {
-        var wb = XLSX.read(ev.target.result, {type:'array'});
-        rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
+        if(!window.XLSX){toast('Excel reader not loaded.','err');return;}
+        var wb=XLSX.read(ev.target.result,{type:'array'});
+        if(!wb.SheetNames.length){toast('Empty file.','err');return;}
+        rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
       }
-      var samp = rows[0] || {};
-      var keys = Object.keys(samp);
-      function fc() {
-        var args = Array.prototype.slice.call(arguments);
-        return keys.find(function(k){return args.some(function(c){return k.toLowerCase().indexOf(c.toLowerCase())>=0;});});
+      if(!rows.length){toast('No data found.','err');return;}
+      var samp=rows[0]||{};
+      var keys=Object.keys(samp);
+      function fc(){
+        var args=Array.prototype.slice.call(arguments);
+        return keys.find(function(k){return args.some(function(c){return k.toLowerCase().replace(/\s/g,'').indexOf(c.toLowerCase().replace(/\s/g,''))>=0;});});
       }
-      var cCode = fc('Item Code','Code','SKU','Barcode','item code');
-      var cName = fc('Description','Item Name','Name','description');
-      var cStk  = fc('Balance','Stock','Qty','Quantity','balance');
-      var cCost = fc('Unit Cost','Cost','Price','unit cost');
-      var cThr  = fc('Reorder','Min Qty','Threshold','reorder');
-      if(!cCode || !cName) {
-        toast('Could not detect AutoCount columns. Try the AC Sync tab for manual mapping.', 'err');
-        document.getElementById('ac-quick-import').value = '';
-        return;
-      }
-      var updated = 0, added = 0;
-      rows.forEach(function(r) {
-        var sku = String(r[cCode]||'').trim(); if(!sku) return;
-        var name = String(r[cName]||'').trim(); if(!name) return;
-        var stk  = cStk  ? (parseFloat(r[cStk])||0)  : undefined;
-        var cost = cCost ? (parseFloat(r[cCost])||0) : undefined;
-        var thr  = cThr  ? (parseFloat(r[cThr])||cfg.low) : cfg.low;
-        var ex = inv.find(function(i){return i.sku===sku;});
-        if(ex) {
-          if(stk  !== undefined) ex.stk  = stk;
-          if(cost !== undefined) ex.cost = cost;
-          ex.thr = thr;
-          ex.name = name;
+      var cCode=fc('Item Code','ItemCode','Code','SKU');
+      var cName=fc('Description','Item Name','Name','DESCRIPTION');
+      var cQty=fc('Qty','Quantity','Balance','Bal. Qty','Total Bal');
+      var cCost=fc('Average Cost','Avg Cost','Unit Cost','Cost Per','Cost');
+      var cGrp=fc('Item Group','Group','Category');
+      var cUOM=fc('UOM','Unit');
+      var cRate=fc('UOM RATE','UOM Rate','Rate');
+      var cBarcode=fc('Barcode','Bar Code','BarCode');
+      if(!cCode||!cName){toast('Cannot detect columns. Export from AutoCount Stock Balance Report or Item Maintenance.','err');document.getElementById('ac-quick-import').value='';return;}
+      // Group by Item Code to handle multiple UOM rows
+      var itemMap={};
+      rows.forEach(function(r){
+        var sku=String(r[cCode]||'').trim(); if(!sku) return;
+        var name=String(r[cName]||'').trim(); if(!name) return;
+        var uom=cUOM?String(r[cUOM]||'').trim().toUpperCase():'';
+        var rate=cRate?(parseFloat(r[cRate])||1):1;
+        var barcode=cBarcode?String(r[cBarcode]||'').trim():'';
+        var cost=cCost?(parseFloat(r[cCost])||0):0;
+        var qty=cQty?(parseFloat(r[cQty])||0):undefined;
+        var grp=cGrp?String(r[cGrp]||'').trim():'General';
+        if(!itemMap[sku]) itemMap[sku]={sku:sku,name:name,grp:grp,cost:0,qty:undefined,barcode:'',baseUOM:'',uoms:[]};
+        var entry=itemMap[sku];
+        if(rate===1||rate==='1'||parseFloat(rate)===1){
+          entry.baseUOM=uom;
+          if(barcode) entry.barcode=barcode;
+          if(cost>0) entry.cost=cost;
+          if(qty!==undefined) entry.qty=qty;
+        }
+        if(uom && rate) entry.uoms.push({uom:uom,rate:parseFloat(rate)||1,barcode:barcode});
+        if(barcode && !entry.barcode) entry.barcode=barcode;
+        if(!entry.qty && qty!==undefined) entry.qty=qty;
+        if(!entry.cost && cost>0) entry.cost=cost;
+      });
+      var updated=0,added=0;
+      Object.values(itemMap).forEach(function(d){
+        var ex=inv.find(function(it){return it.sku===d.sku;});
+        if(ex){
+          ex.name=d.name; ex.cat=d.grp;
+          if(d.cost>0) ex.cost=d.cost;
+          if(d.qty!==undefined) ex.stk=d.qty;
+          if(d.barcode) ex.barcode=d.barcode;
+          if(d.baseUOM) ex.uom=d.baseUOM;
+          if(d.uoms.length>1) ex.uoms=d.uoms;
           updated++;
         } else {
-          inv.push({id:nid++,name:name,sku:sku,cat:'pack',
-            stk:stk||0,thr:thr,cost:cost||0,reo:50,note:'AutoCount import'});
+          inv.push({id:nid++,name:d.name,sku:d.sku,cat:d.grp,uom:d.baseUOM||'PCS',
+            stk:d.qty||0,thr:cfg.low,cost:d.cost||0,reo:50,note:'AC Import',
+            barcode:d.barcode||'',uoms:d.uoms.length>1?d.uoms:[]});
           added++;
         }
       });
-      adjs = [];
-      save(); (function(){
-  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  if(isIOS&&!window.navigator.standalone){
-    var b=document.getElementById('pwa-banner');
-    if(b)b.style.display='block';
-  }
-})();
-
-renderInv(); updateStats();
-      document.getElementById('ac-quick-import').value = '';
-      toast('AutoCount import done: ' + updated + ' updated, ' + added + ' new items added.', 'ok');
-    } catch(err) {
-      toast('Error reading file: ' + err.message, 'err');
-      document.getElementById('ac-quick-import').value = '';
+      adjs=[];save();renderInv();updateStats();
+      document.getElementById('ac-quick-import').value='';
+      var bc=Object.values(itemMap).filter(function(d){return d.barcode;}).length;
+      var uc=Object.values(itemMap).filter(function(d){return d.uoms.length>1;}).length;
+      toast(updated+' updated, '+added+' new. '+bc+' barcodes, '+uc+' UOM conversions loaded.','ok');
+    }catch(err){
+      document.getElementById('ac-quick-import').value='';
+      toast('Error: '+(err.message||String(err)),'err');
     }
   };
-  if(ext === 'csv') rd.readAsText(file);
-  else rd.readAsArrayBuffer(file);
+  rd.onerror=function(){toast('Could not read file.','err');document.getElementById('ac-quick-import').value='';};
+  if(ext==='csv') rd.readAsText(file); else rd.readAsArrayBuffer(file);
 }
 
 function doScanRestock(){setBM('rest');bResult(bscanCode);}
@@ -1222,20 +1278,28 @@ renderInv(); updateStats(); updateFBadge();
   }
 }
 function doLogout(){
-  stopBCam(); stopSCam();
+  // Wrap everything in try/catch so nothing blocks logout
+  try{ stopBCam(); }catch(e){}
+  try{ stopSCam(); }catch(e){}
   usr=null; role=null;
-  document.getElementById('pg-boss').style.display='none';
-  document.getElementById('pg-staff').style.display='none';
-  document.getElementById('pg-login').style.display='flex';
-  document.getElementById('l-pin').value='';
-  document.getElementById('sr').classList.remove('show');
-  // Reset overlays
-  var so=document.getElementById('cam-tap-overlay');
-  if(so) so.style.display='none';
-  var bo=document.getElementById('boss-cam-overlay');
-  if(bo) bo.style.display='none';
-  document.getElementById('sv').style.display='block';
-  document.getElementById('bv').style.display='block';
+  try{
+    document.getElementById('pg-boss').style.display='none';
+    document.getElementById('pg-staff').style.display='none';
+    document.getElementById('pg-login').style.display='flex';
+    document.getElementById('l-pin').value='';
+    document.getElementById('sr').classList.remove('show');
+    var so=document.getElementById('cam-tap-overlay'); if(so) so.style.display='none';
+    var bo=document.getElementById('boss-cam-overlay'); if(bo) bo.style.display='none';
+    var sv=document.getElementById('sv'); if(sv) sv.style.display='block';
+    var bv=document.getElementById('bv'); if(bv) bv.style.display='block';
+    // Reset staff barcode input
+    var si=document.getElementById('staff-barcode-input'); if(si) si.value='';
+    // Clear PIN
+    var lp=document.getElementById('l-pin'); if(lp) lp.value='';
+  }catch(e){ 
+    // Force reload as last resort
+    window.location.reload(); 
+  }
 }
 
 // Enter key on PIN
@@ -1272,11 +1336,33 @@ function updateStats(){
   document.getElementById('st-ok').textContent=ok;
   document.getElementById('st-fl').textContent=pf;
   document.getElementById('inv-meta').textContent=tot+' items · '+new Date().toLocaleTimeString();
+  // Pulse cards based on status
+  var critCard = document.getElementById('st-crit');
+  var lowCard  = document.getElementById('st-low');
+  if(critCard){
+    var cp = critCard.closest('.sc');
+    if(cp){ cp.classList.toggle('pulse-crit', crit>0); }
+  }
+  if(lowCard){
+    var lp = lowCard.closest('.sc');
+    if(lp){ lp.classList.toggle('pulse-low', low>0 && crit===0); }
+  }
   var ab=document.getElementById('ab-badge');
   ab.textContent=crit+low; ab.className='sbadge'+(crit+low===0?' z':'');
   var banner=document.getElementById('ab');
   if(crit>0){banner.classList.remove('hide');document.getElementById('ab-cnt').textContent=crit+' item'+(crit>1?'s':'');}
   else banner.classList.add('hide');
+  // Pulse cards based on severity
+  var critCard = document.querySelector('.sc.sr');
+  var lowCard  = document.querySelector('.sc.so');
+  if(critCard){
+    if(crit>0) critCard.classList.add('alert-crit');
+    else critCard.classList.remove('alert-crit');
+  }
+  if(lowCard){
+    if(low>0) lowCard.classList.add('alert-low');
+    else lowCard.classList.remove('alert-low');
+  }
 }
 function updateFBadge(){
   var pf=flgs.filter(function(f){return !f.res;}).length;
@@ -1825,14 +1911,37 @@ function bConfirm(iid){
 // ---- STAFF SCANNER ----
 function setStaffMode(m){
   smode=m;
-  ['recv','flag'].forEach(function(x){document.getElementById('sm-'+x).classList.toggle('on',x===m);});
+  ['recv','flag','st'].forEach(function(x){
+    var el=document.getElementById('sm-'+x);
+    if(el) el.classList.toggle('on',x===m);
+  });
   document.getElementById('sr').classList.remove('show');
   sdeb=null;
+
+  // Show/hide stock take status bar
+  var stbar=document.getElementById('staff-st-bar');
+  if(stbar){
+    if(m==='st'){
+      stbar.style.display='';
+      if(stSession&&stSession.status==='active'){
+        var cnt=Object.keys(stSession.items).length;
+        stbar.querySelector('.st-bar-msg').textContent='Active: '+cnt+' / '+inv.length+' items counted. Scan to count.';
+      } else {
+        stbar.querySelector('.st-bar-msg').textContent='No active stock take — ask boss to start one first.';
+      }
+    } else {
+      stbar.style.display='none';
+    }
+  }
+
   if(!sScanner){
     focusStaffInput();
   } else {
-    document.getElementById('sv-st').textContent='Point camera at barcode';
-    document.getElementById('sv-st').className='camstxt';
+    var svst=document.getElementById('sv-st');
+    if(svst){
+      svst.textContent = m==='st' ? 'Scan item to count' : 'Point camera at barcode';
+      svst.className='camstxt';
+    }
   }
 }
 function startStaffCam(){
@@ -1845,6 +1954,10 @@ function stopSCam(){ if(sDecTimer){clearInterval(sDecTimer);sDecTimer=null;} try
 
 function staffManual(){ var inp=document.getElementById('staff-barcode-input'); if(inp){ inp.focus(); inp.select(); } }
 function onScan(code){
+  if(smode==='st'){
+    if(!stSession||stSession.status!=='active'){toast('No active stock take. Ask boss to start one.','err');return;}
+    stStaffScan(code); return;
+  }
   sscanCode=code;
   var item=inv.find(function(i){return i.sku===code;});
   var st=document.getElementById('sv-st');
@@ -2375,7 +2488,7 @@ function exportStockTake(){
 }
 function stScanItem(code){
   if(!stSession||stSession.status!=='active'){toast('No active stock take.','err');return;}
-  var item=inv.find(function(i){return i.sku===code||i.name.toLowerCase()===code.toLowerCase();});
+  var item=inv.find(function(i){return i.sku===code||(i.barcode&&i.barcode===code)||i.name.toLowerCase()===code.toLowerCase();});
   if(!item){toast('Item not found: '+code,'err');return;}
   showSTCount(item);
 }
@@ -2383,25 +2496,65 @@ function showSTCount(item){
   var already=stSession&&stSession.items[item.sku];
   document.getElementById('stc-name').textContent=item.name;
   document.getElementById('stc-sku').textContent=item.sku;
-  document.getElementById('stc-prev').textContent=item.stk;
+  document.getElementById('stc-prev').textContent=item.stk+(item.uom?' '+item.uom:'');
   document.getElementById('stc-already').textContent=already?'Previously counted: '+already.counted:'';
   document.getElementById('stc-qty').value=already?already.counted:'';
   document.getElementById('stc-item-id').value=item.id;
+  // UOM conversion
+  var uomDiv=document.getElementById('stc-uom-section');
+  var uoms=item.uoms&&item.uoms.length>1?item.uoms:[];
+  var bigUOMs=uoms.filter(function(u){return u.rate>1;});
+  if(uomDiv&&bigUOMs.length){
+    var bigUOM=bigUOMs.sort(function(a,b){return b.rate-a.rate;})[0];
+    document.getElementById('stc-carton-lbl').textContent=bigUOM.uom+' (1 '+bigUOM.uom+' = '+bigUOM.rate+' '+(item.uom||'pcs')+')';
+    document.getElementById('stc-carton-qty').value='';
+    document.getElementById('stc-uom-rate').value=bigUOM.rate;
+    document.getElementById('stc-uom-base').value=item.uom||'pcs';
+    document.getElementById('stc-total-preview').textContent='';
+    uomDiv.style.display='';
+    document.getElementById('stc-qty-lbl').textContent='+ Loose '+(item.uom||'pcs');
+  } else if(uomDiv){
+    uomDiv.style.display='none';
+    document.getElementById('stc-qty-lbl').textContent='Physical Count';
+  }
   document.getElementById('st-count-modal').classList.add('open');
-  setTimeout(function(){document.getElementById('stc-qty').focus();document.getElementById('stc-qty').select();},200);
+  setTimeout(function(){
+    var cq=document.getElementById('stc-carton-qty');
+    var uomSec=document.getElementById('stc-uom-section');
+    if(cq&&uomSec&&uomSec.style.display!=='none') cq.focus();
+    else {document.getElementById('stc-qty').focus();document.getElementById('stc-qty').select();}
+  },200);
+}
+function calcSTTotal(){
+  var cartons=parseFloat(document.getElementById('stc-carton-qty').value)||0;
+  var rate=parseFloat(document.getElementById('stc-uom-rate').value)||1;
+  var pieces=parseFloat(document.getElementById('stc-qty-extra').value)||0;
+  var total=(cartons*rate)+pieces;
+  var base=document.getElementById('stc-uom-base').value||'pcs';
+  var el=document.getElementById('stc-total-preview');
+  if(el) el.textContent=total>0?'= '+total+' '+base+' total':'';
 }
 function submitSTCount(){
   var iid=parseInt(document.getElementById('stc-item-id').value);
-  var qty=parseFloat(document.getElementById('stc-qty').value);
-  if(isNaN(qty)||qty<0){toast('Enter a valid quantity.','err');return;}
   var item=inv.find(function(i){return i.id===iid;});
   if(!item) return;
+  var uomDiv=document.getElementById('stc-uom-section');
+  var qty=0;
+  if(uomDiv&&uomDiv.style.display!=='none'){
+    var cartons=parseFloat(document.getElementById('stc-carton-qty').value)||0;
+    var rate=parseFloat(document.getElementById('stc-uom-rate').value)||1;
+    var pieces=parseFloat(document.getElementById('stc-qty-extra').value)||0;
+    qty=(cartons*rate)+pieces;
+  } else {
+    qty=parseFloat(document.getElementById('stc-qty').value)||0;
+  }
+  if(isNaN(qty)||qty<0){toast('Enter a valid quantity.','err');return;}
   stSession.items[item.sku]={iid:item.id,name:item.name,sku:item.sku,prevStk:item.stk,counted:qty,countedBy:usr,countedAt:new Date().toLocaleString()};
   localStorage.setItem('gw_st',JSON.stringify(stSession));
   document.getElementById('st-count-modal').classList.remove('open');
   renderST();
   var diff=qty-item.stk;
-  toast(item.name+': counted '+qty+' (was '+item.stk+', diff '+(diff>=0?'+':'')+diff+')','ok');
+  toast(item.name+': '+qty+' '+(item.uom||'')+' (diff '+(diff>=0?'+':'')+diff+')','ok');
 }
 function updateSTProgress(){
   if(!stSession) return;
