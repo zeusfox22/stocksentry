@@ -3,521 +3,451 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>GwiraPack Payroll</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f4f3ef;
-    --surface: #ffffff;
-    --surface2: #f9f8f5;
-    --teal: #1a6b6b;
-    --teal-light: #2a8a8a;
-    --teal-faint: #e8f4f4;
-    --gold: #c49a2a;
-    --gold-light: #f5e8c0;
-    --text: #1a1a1a;
-    --text2: #555;
-    --text3: #999;
-    --border: #e2e0d8;
-    --red: #c0392b;
-    --red-light: #fdecea;
-    --green: #1a7a4a;
-    --green-light: #e8f5ee;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+:root {
+  --bg: #f4f3ef;
+  --surface: #ffffff;
+  --surface2: #f9f8f5;
+  --teal: #1a6b6b;
+  --teal-light: #2a8a8a;
+  --teal-faint: #e8f4f4;
+  --gold: #c49a2a;
+  --gold-light: #f5e8c0;
+  --text: #1a1a1a;
+  --text2: #555;
+  --text3: #999;
+  --border: #e2e0d8;
+  --red: #c0392b;
+  --red-light: #fdecea;
+  --green: #1a7a4a;
+  --green-light: #e8f5ee;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* LAYOUT */
-.app { display: flex; min-height: 100vh; }
-.sidebar { width: 220px; background: var(–teal); color: white; padding: 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
-.sidebar-brand { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.15); }
-.sidebar-brand .logo { font-family: ‘DM Serif Display’, serif; font-size: 20px; color: #fff; }
-.sidebar-brand .sub { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
-.sidebar-nav { flex: 1; padding: 12px 0; }
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 20px; cursor: pointer; color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 500; transition: all 0.15s; border-left: 3px solid transparent; }
-.nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
-.nav-item.active { background: rgba(255,255,255,0.15); color: white; border-left-color: var(–gold); }
-.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
-.main { margin-left: 220px; flex: 1; padding: 0; }
-.topbar { background: var(–surface); border-bottom: 1px solid var(–border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-.topbar-title { font-family: ‘DM Serif Display’, serif; font-size: 22px; color: var(–text); }
-.topbar-month { display: flex; align-items: center; gap: 10px; }
-.month-badge { background: var(–gold-light); color: var(–gold); font-weight: 700; font-size: 13px; padding: 6px 14px; border-radius: 20px; }
-.content { padding: 28px 32px; }
+.topbar {
+background: var(–teal);
+padding: 14px 16px 12px;
+padding-top: calc(14px + env(safe-area-inset-top));
+display: flex;
+align-items: center;
+justify-content: space-between;
+position: sticky;
+top: 0;
+z-index: 50;
+}
+.topbar-brand { font-family: ‘DM Serif Display’, serif; font-size: 18px; color: white; }
+.topbar-sub { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.topbar-right select {
+background: rgba(255,255,255,0.15);
+color: white;
+border: 1px solid rgba(255,255,255,0.3);
+border-radius: 8px;
+padding: 5px 10px;
+font-size: 13px;
+font-family: inherit;
+outline: none;
+-webkit-appearance: none;
+appearance: none;
+}
+.topbar-right select option { background: #1a6b6b; color: white; }
+.page-label { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 600; white-space: nowrap; }
+
+.content { padding: 16px; padding-bottom: 90px; }
+
+/* BOTTOM NAV */
+.bottom-nav {
+position: fixed;
+bottom: 0; left: 0; right: 0;
+background: var(–teal);
+display: flex;
+z-index: 200;
+border-top: 1px solid rgba(255,255,255,0.15);
+padding-bottom: env(safe-area-inset-bottom);
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+scrollbar-width: none;
+}
+.bottom-nav::-webkit-scrollbar { display: none; }
+.bni {
+flex: 0 0 auto;
+min-width: 60px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 8px 6px 8px;
+cursor: pointer;
+color: rgba(255,255,255,0.55);
+font-size: 9px;
+font-weight: 700;
+gap: 3px;
+border-top: 3px solid transparent;
+text-transform: uppercase;
+letter-spacing: 0.4px;
+transition: all 0.15s;
+-webkit-user-select: none;
+user-select: none;
+}
+.bni .ico { font-size: 20px; line-height: 1; }
+.bni.active { color: white; border-top-color: var(–gold); background: rgba(255,255,255,0.1); }
+
+/* VIEWS */
+.view { display: none; }
+.view.active { display: block; }
 
 /* CARDS */
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
-.stat-card { background: var(–surface); border-radius: var(–radius); padding: 20px; box-shadow: var(–shadow); border: 1px solid var(–border); }
-.stat-card .label { font-size: 12px; color: var(–text3); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 8px; }
-.stat-card .value { font-size: 26px; font-weight: 700; color: var(–teal); }
-.stat-card .sub { font-size: 12px; color: var(–text3); margin-top: 4px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.stat-card { background: var(–surface); border-radius: var(–radius); padding: 16px; box-shadow: var(–shadow); border: 1px solid var(–border); }
+.stat-card .lbl { font-size: 10px; color: var(–text3); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; margin-bottom: 6px; }
+.stat-card .val { font-size: 22px; font-weight: 700; color: var(–teal); line-height: 1; }
+.stat-card .sub { font-size: 11px; color: var(–text3); margin-top: 4px; }
 
-/* TABLES */
-.card { background: var(–surface); border-radius: var(–radius); box-shadow: var(–shadow); border: 1px solid var(–border); overflow: hidden; margin-bottom: 24px; }
-.card-header { padding: 16px 20px; border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; }
-.card-title { font-weight: 700; font-size: 15px; color: var(–text); }
-.card-body { padding: 0; }
-table { width: 100%; border-collapse: collapse; }
-th { background: var(–surface2); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(–text3); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(–border); }
-td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(–border); vertical-align: middle; }
+.card { background: var(–surface); border-radius: var(–radius); box-shadow: var(–shadow); border: 1px solid var(–border); margin-bottom: 16px; overflow: hidden; }
+.card-header { padding: 14px 16px; border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-weight: 700; font-size: 14px; }
+
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; min-width: 380px; }
+th { background: var(–surface2); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(–text3); padding: 9px 12px; text-align: left; border-bottom: 1px solid var(–border); }
+td { padding: 11px 12px; font-size: 13px; border-bottom: 1px solid var(–border); vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(–surface2); }
 
 /* BUTTONS */
-.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(–radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; }
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: var(–radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; -webkit-appearance: none; }
 .btn-primary { background: var(–teal); color: white; }
-.btn-primary:hover { background: var(–teal-light); }
 .btn-gold { background: var(–gold); color: white; }
-.btn-gold:hover { background: #b8891e; }
 .btn-outline { background: transparent; color: var(–teal); border: 1.5px solid var(–teal); }
-.btn-outline:hover { background: var(–teal-faint); }
 .btn-danger { background: var(–red); color: white; }
-.btn-danger:hover { background: #a93226; }
 .btn-ghost { background: transparent; color: var(–text2); border: 1.5px solid var(–border); }
-.btn-ghost:hover { background: var(–surface2); }
 .btn-sm { padding: 5px 10px; font-size: 12px; }
-.btn-icon { padding: 6px 8px; }
 
 /* BADGES */
-.badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; }
+.badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap; }
 .badge-teal { background: var(–teal-faint); color: var(–teal); }
-.badge-gold { background: var(–gold-light); color: var(–gold); }
+.badge-gold { background: var(–gold-light); color: #7a5a00; }
 .badge-red { background: var(–red-light); color: var(–red); }
 .badge-green { background: var(–green-light); color: var(–green); }
 
+/* EMPLOYEE CARDS */
+.emp-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.emp-card { background: var(–surface); border-radius: var(–radius); border: 1.5px solid var(–border); padding: 16px; }
+.emp-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.emp-meta { font-size: 12px; color: var(–text3); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.emp-actions { margin-top: 12px; display: flex; gap: 8px; }
+
 /* FORMS */
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 0; }
-.form-group.full { grid-column: 1 / -1; }
-label { font-size: 12px; font-weight: 700; color: var(–text2); text-transform: uppercase; letter-spacing: 0.4px; }
-input, select, textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(–border); border-radius: var(–radius-sm); font-size: 14px; font-family: inherit; color: var(–text); background: var(–surface); transition: border 0.15s; outline: none; }
-input:focus, select:focus, textarea:focus { border-color: var(–teal); }
-input[type=“number”] { -moz-appearance: textfield; }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 11px; font-weight: 700; color: var(–text2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+.form-row input, .form-row select {
+width: 100%; padding: 10px 12px;
+border: 1.5px solid var(–border);
+border-radius: var(–radius-sm);
+font-size: 16px; font-family: inherit;
+color: var(–text); background: var(–surface);
+outline: none;
+-webkit-appearance: none;
+appearance: none;
+}
+.form-row input:focus, .form-row select:focus { border-color: var(–teal); }
+.form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 /* MODAL */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; display: none; align-items: flex-end; justify-content: center; }
 .modal-overlay.open { display: flex; }
-.modal { background: var(–surface); border-radius: var(–radius); width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: var(–shadow-lg); }
-.modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(–surface); z-index: 1; }
+.modal {
+background: var(–surface);
+border-radius: 20px 20px 0 0;
+width: 100%;
+max-height: 90vh;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+padding-bottom: env(safe-area-inset-bottom);
+}
+.modal-handle { width: 36px; height: 4px; background: var(–border); border-radius: 2px; margin: 12px auto 0; }
+.modal-header { padding: 16px 20px 12px; border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; }
 .modal-title { font-weight: 700; font-size: 17px; }
-.modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(–text3); padding: 0 4px; line-height: 1; }
-.modal-body { padding: 20px 24px; }
-.modal-footer { padding: 16px 24px; border-top: 1px solid var(–border); display: flex; gap: 10px; justify-content: flex-end; }
+.modal-close { background: none; border: none; font-size: 28px; cursor: pointer; color: var(–text3); line-height: 1; padding: 0; }
+.modal-body { padding: 16px 20px; }
+.modal-footer { padding: 12px 20px 20px; display: flex; gap: 10px; }
+.modal-footer .btn { flex: 1; justify-content: center; padding: 13px; font-size: 15px; border-radius: 10px; }
 
-/* TABS */
-.tabs { display: flex; gap: 0; border-bottom: 2px solid var(–border); margin-bottom: 24px; }
-.tab { padding: 10px 20px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(–text3); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
-.tab.active { color: var(–teal); border-bottom-color: var(–teal); }
-.tab:hover { color: var(–text); }
+.confirm-sheet { background: var(–surface); border-radius: 20px 20px 0 0; width: 100%; padding: 20px 20px 0; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+.confirm-msg { font-size: 15px; color: var(–text2); text-align: center; margin-bottom: 20px; margin-top: 8px; }
+.confirm-sheet .btn { width: 100%; justify-content: center; padding: 14px; font-size: 16px; margin-bottom: 10px; border-radius: 12px; }
 
-/* EMPLOYEE GRID */
-.emp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-.emp-card { background: var(–surface); border-radius: var(–radius); border: 1.5px solid var(–border); padding: 18px 20px; cursor: pointer; transition: all 0.15s; }
-.emp-card:hover { border-color: var(–teal); box-shadow: var(–shadow); transform: translateY(-2px); }
-.emp-card .emp-name { font-size: 16px; font-weight: 700; color: var(–text); margin-bottom: 4px; }
-.emp-card .emp-meta { font-size: 13px; color: var(–text3); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.emp-card .emp-actions { margin-top: 14px; display: flex; gap: 8px; }
+/* PAYSLIP */
+.payslip { background: white; padding: 24px 20px; }
+.ps-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(–teal); }
+.ps-company { font-family: ‘DM Serif Display’, serif; font-size: 18px; color: var(–teal); }
+.ps-company-sub { font-size: 11px; color: var(–text3); margin-top: 2px; }
+.ps-title { font-size: 16px; font-weight: 700; text-align: right; }
+.ps-period { font-size: 12px; color: var(–text3); text-align: right; }
+.ps-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.pil { font-size: 10px; color: var(–text3); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; }
+.piv { font-size: 13px; font-weight: 600; margin-top: 2px; }
+.ps-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 13px; }
+.ps-table th { background: var(–teal); color: white; padding: 8px 10px; font-size: 11px; font-weight: 700; text-align: left; }
+.ps-table td { padding: 8px 10px; border-bottom: 1px solid #f0ede6; }
+.amt { text-align: right; font-weight: 600; }
+.ded { color: var(–red); }
+.ps-net { background: var(–teal); color: white; padding: 14px 16px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.nl { font-size: 13px; font-weight: 600; }
+.na { font-size: 20px; font-weight: 700; }
+.ps-footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid var(–border); display: flex; justify-content: space-between; font-size: 10px; color: var(–text3); }
+.ps-sig-line { width: 120px; border-top: 1px solid #999; margin: 28px 0 4px; }
 
-/* PAYSLIP PRINT */
-.payslip { background: white; padding: 32px; max-width: 680px; margin: 0 auto; border-radius: var(–radius); box-shadow: var(–shadow-lg); border: 1px solid var(–border); }
-.payslip-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid var(–teal); }
-.payslip-company { font-family: ‘DM Serif Display’, serif; font-size: 22px; color: var(–teal); }
-.payslip-company-sub { font-size: 12px; color: var(–text3); margin-top: 4px; }
-.payslip-title { font-size: 18px; font-weight: 700; color: var(–text); text-align: right; }
-.payslip-period { font-size: 13px; color: var(–text3); text-align: right; margin-top: 4px; }
-.payslip-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-.payslip-info-item .pi-label { font-size: 11px; color: var(–text3); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
-.payslip-info-item .pi-value { font-size: 14px; font-weight: 600; color: var(–text); margin-top: 2px; }
-.payslip-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-.payslip-table th { background: var(–teal); color: white; padding: 8px 12px; font-size: 12px; font-weight: 700; text-align: left; }
-.payslip-table td { padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #f0ede6; }
-.payslip-table .amount { text-align: right; font-weight: 600; }
-.payslip-table .deduct { color: var(–red); }
-.payslip-total-row td { font-weight: 700; font-size: 14px; background: #f9f8f5; }
-.payslip-net { background: var(–teal); color: white; padding: 14px 16px; border-radius: var(–radius-sm); display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
-.payslip-net .label { font-size: 14px; font-weight: 600; }
-.payslip-net .amount { font-size: 22px; font-weight: 700; }
-.payslip-footer { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(–border); display: flex; justify-content: space-between; font-size: 11px; color: var(–text3); }
-.payslip-sig { text-align: right; }
-.payslip-sig-line { width: 140px; border-top: 1px solid var(–text3); margin: 32px 0 4px auto; }
+/* MISC */
+.empty { text-align: center; padding: 40px 20px; color: var(–text3); }
+.empty .ei { font-size: 36px; margin-bottom: 10px; }
+.empty p { font-size: 13px; }
+.alert { padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; }
+.alert-warn { background: var(–gold-light); color: #7a5c00; border-left: 3px solid var(–gold); }
+.fw7 { font-weight: 700; }
+.red { color: var(–red); }
+.grn { color: var(–green); }
+.teal { color: var(–teal); }
+.small { font-size: 11px; color: var(–text3); }
 
-/* EMPTY STATE */
-.empty { text-align: center; padding: 48px 20px; color: var(–text3); }
-.empty-icon { font-size: 40px; margin-bottom: 12px; }
-.empty p { font-size: 14px; }
-
-/* ALERT */
-.alert { padding: 12px 16px; border-radius: var(–radius-sm); font-size: 13px; margin-bottom: 16px; }
-.alert-warning { background: var(–gold-light); color: #7a5c00; border-left: 3px solid var(–gold); }
-
-/* MONTH SELECTOR */
-.month-selector { display: flex; align-items: center; gap: 10px; }
-.month-selector select { padding: 7px 12px; border-radius: var(–radius-sm); border: 1.5px solid var(–border); font-size: 14px; font-family: inherit; cursor: pointer; }
-
-/* PRINT */
 @media print {
-.no-print { display: none !important; }
-.main { margin-left: 0 !important; }
-.sidebar { display: none !important; }
-.topbar { display: none !important; }
+.bottom-nav, .topbar, .modal-footer, .no-print { display: none !important; }
 .content { padding: 0 !important; }
 body { background: white !important; }
-.payslip { box-shadow: none !important; border: none !important; max-width: 100% !important; }
 }
-
-/* BOTTOM NAV for mobile/tablet */
-.bottom-nav { display: none; }
-
-@media (max-width: 768px) {
-.sidebar { display: none; }
-.main { margin-left: 0; padding-bottom: 70px; }
-.content { padding: 14px; }
-.topbar { padding: 12px 16px; }
-.form-grid { grid-template-columns: 1fr; }
-.stat-grid { grid-template-columns: 1fr 1fr; }
-
-```
-.bottom-nav {
-  display: flex;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: var(--teal);
-  z-index: 200;
-  border-top: 2px solid rgba(255,255,255,0.15);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.bottom-nav-item {
-  flex: 1;
-  min-width: 60px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 4px 10px;
-  cursor: pointer;
-  color: rgba(255,255,255,0.6);
-  font-size: 10px;
-  font-weight: 600;
-  gap: 3px;
-  transition: all 0.15s;
-  border-top: 3px solid transparent;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-.bottom-nav-item .bn-icon { font-size: 18px; line-height: 1; }
-.bottom-nav-item.active { color: white; border-top-color: var(--gold); background: rgba(255,255,255,0.1); }
-.bottom-nav-item:hover { color: white; }
-```
-
-}
-
-.divider { height: 1px; background: var(–border); margin: 20px 0; }
-.text-right { text-align: right; }
-.text-red { color: var(–red); }
-.text-green { color: var(–green); }
-.text-teal { color: var(–teal); }
-.fw-bold { font-weight: 700; }
-.mt-12 { margin-top: 12px; }
-.mt-20 { margin-top: 20px; }
-.flex { display: flex; }
-.items-center { align-items: center; }
-.gap-8 { gap: 8px; }
-.justify-between { justify-content: space-between; }
-
-/* View pages */
-.view { display: none; }
-.view.active { display: block; }
 </style>
 
 </head>
 <body>
-<div class="app">
 
-  <!-- SIDEBAR -->
+<div class="topbar no-print">
+  <div>
+    <div class="topbar-brand">GwiraPack</div>
+    <div class="topbar-sub">Payroll Manager</div>
+  </div>
+  <div class="topbar-right">
+    <span class="page-label" id="page-label">Dashboard</span>
+    <select id="global-month" onchange="onMonthChange()"></select>
+  </div>
+</div>
 
-  <nav class="sidebar no-print">
-    <div class="sidebar-brand">
-      <div class="logo">GwiraPack</div>
-      <div class="sub">Payroll Manager</div>
-    </div>
-    <div class="sidebar-nav">
-      <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard">
-        <span class="icon">📊</span> Dashboard
-      </div>
-      <div class="nav-item" onclick="showView('employees')" id="nav-employees">
-        <span class="icon">👥</span> Employees
-      </div>
-      <div class="nav-item" onclick="showView('attendance')" id="nav-attendance">
-        <span class="icon">🕐</span> Attendance
-      </div>
-      <div class="nav-item" onclick="showView('advances')" id="nav-advances">
-        <span class="icon">💸</span> Advances
-      </div>
-      <div class="nav-item" onclick="showView('leaves')" id="nav-leaves">
-        <span class="icon">📅</span> Leave
-      </div>
-      <div class="nav-item" onclick="showView('allowances')" id="nav-allowances">
-        <span class="icon">💰</span> Daily Allowance
-      </div>
-      <div class="nav-item" onclick="showView('payroll')" id="nav-payroll">
-        <span class="icon">🧾</span> Payroll & Slips
-      </div>
-    </div>
-  </nav>
-
-  <!-- MAIN -->
-
-  <div class="main">
-    <div class="topbar no-print">
-      <div class="topbar-title" id="page-title">Dashboard</div>
-      <div class="topbar-month">
-        <div class="month-selector">
-          <span style="font-size:13px;color:var(--text3);">Month:</span>
-          <select id="global-month" onchange="onMonthChange()"></select>
-        </div>
-      </div>
-    </div>
-
-```
 <div class="content">
 
-  <!-- DASHBOARD -->
   <div class="view active" id="view-dashboard">
     <div class="stat-grid" id="dash-stats"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" id="dash-bottom"></div>
+    <div id="dash-cards"></div>
   </div>
 
-  <!-- EMPLOYEES -->
   <div class="view" id="view-employees">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:20px;">
-      <button class="btn btn-primary" onclick="openAddEmployee()">＋ Add Employee</button>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+      <button class="btn btn-primary" onclick="openAddEmployee()">+ Add Employee</button>
     </div>
     <div class="emp-grid" id="emp-grid"></div>
   </div>
 
-  <!-- ATTENDANCE -->
   <div class="view" id="view-attendance">
     <div class="card">
       <div class="card-header">
-        <div class="card-title">Attendance / Hours Worked</div>
-        <button class="btn btn-primary btn-sm" onclick="openAddAttendance()">＋ Log Hours</button>
+        <div class="card-title">Hours Worked</div>
+        <button class="btn btn-primary btn-sm" onclick="openAddAttendance()">+ Log</button>
       </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Employee</th><th>Date</th><th>Hours</th><th>Type</th><th></th></tr></thead>
-          <tbody id="attendance-table"></tbody>
-        </table>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Employee</th><th>Date</th><th>Hours</th><th>Pay</th><th></th></tr></thead>
+        <tbody id="att-tbody"></tbody></table>
       </div>
     </div>
   </div>
 
-  <!-- ADVANCES -->
   <div class="view" id="view-advances">
     <div class="card">
       <div class="card-header">
         <div class="card-title">Advance Salary</div>
-        <button class="btn btn-primary btn-sm" onclick="openAddAdvance()">＋ Record Advance</button>
+        <button class="btn btn-primary btn-sm" onclick="openAddAdvance()">+ Add</button>
       </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Employee</th><th>Date</th><th>Amount (RM)</th><th>Note</th><th></th></tr></thead>
-          <tbody id="advances-table"></tbody>
-        </table>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Employee</th><th>Date</th><th>Amount</th><th>Note</th><th></th></tr></thead>
+        <tbody id="adv-tbody"></tbody></table>
       </div>
     </div>
   </div>
 
-  <!-- LEAVES -->
   <div class="view" id="view-leaves">
     <div class="card">
       <div class="card-header">
         <div class="card-title">Leave Records</div>
-        <button class="btn btn-primary btn-sm" onclick="openAddLeave()">＋ Record Leave</button>
+        <button class="btn btn-primary btn-sm" onclick="openAddLeave()">+ Add</button>
       </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Employee</th><th>Date</th><th>Type</th><th>Days</th><th>Reason</th><th></th></tr></thead>
-          <tbody id="leaves-table"></tbody>
-        </table>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Employee</th><th>Date</th><th>Type</th><th>Days</th><th></th></tr></thead>
+        <tbody id="lv-tbody"></tbody></table>
       </div>
     </div>
   </div>
 
-  <!-- DAILY ALLOWANCE -->
   <div class="view" id="view-allowances">
-    <div class="alert alert-warning">
-      💡 Daily RM10 allowance is recorded separately and will appear on salary slips but is <strong>not</strong> part of the basic salary.
-    </div>
+    <div class="alert alert-warn">Daily allowance (RM10) is extra — shows on slip but not counted as basic salary.</div>
     <div class="card">
       <div class="card-header">
-        <div class="card-title">Daily RM10 Allowance</div>
-        <button class="btn btn-primary btn-sm" onclick="openAddAllowance()">＋ Record Allowance</button>
+        <div class="card-title">Daily Allowance</div>
+        <button class="btn btn-primary btn-sm" onclick="openAddAllowance()">+ Add</button>
       </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Employee</th><th>Date</th><th>Amount (RM)</th><th></th></tr></thead>
-          <tbody id="allowances-table"></tbody>
-        </table>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Employee</th><th>Date</th><th>Amount</th><th></th></tr></thead>
+        <tbody id="al-tbody"></tbody></table>
       </div>
     </div>
   </div>
 
-  <!-- PAYROLL -->
   <div class="view" id="view-payroll">
-    <div id="payslip-list"></div>
+    <div id="payroll-content"></div>
   </div>
 
-</div><!-- /content -->
-```
+</div>
 
-  </div><!-- /main -->
-</div><!-- /app -->
+<nav class="bottom-nav no-print">
+  <div class="bni active" id="bn-dashboard" onclick="showView('dashboard')"><span class="ico">📊</span>Home</div>
+  <div class="bni" id="bn-employees" onclick="showView('employees')"><span class="ico">👥</span>Staff</div>
+  <div class="bni" id="bn-attendance" onclick="showView('attendance')"><span class="ico">🕐</span>Hours</div>
+  <div class="bni" id="bn-advances" onclick="showView('advances')"><span class="ico">💸</span>Advance</div>
+  <div class="bni" id="bn-leaves" onclick="showView('leaves')"><span class="ico">📅</span>Leave</div>
+  <div class="bni" id="bn-allowances" onclick="showView('allowances')"><span class="ico">💰</span>Allowance</div>
+  <div class="bni" id="bn-payroll" onclick="showView('payroll')"><span class="ico">🧾</span>Payroll</div>
+</nav>
 
-<!-- ============ MODALS ============ -->
+<!-- Employee Modal -->
 
-<!-- Add Employee -->
-
-<div class="modal-overlay" id="modal-employee">
+<div class="modal-overlay" id="modal-emp">
   <div class="modal">
+    <div class="modal-handle"></div>
     <div class="modal-header">
       <div class="modal-title" id="emp-modal-title">Add Employee</div>
-      <button class="modal-close" onclick="closeModal('modal-employee')">×</button>
+      <button class="modal-close" onclick="closeModal('modal-emp')">x</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="emp-id">
-      <div class="form-grid">
-        <div class="form-group full"><label>Full Name *</label><input id="emp-name" placeholder="e.g. Ahmad bin Razak"></div>
-        <div class="form-group"><label>IC Number</label><input id="emp-ic" placeholder="880101-01-1234"></div>
-        <div class="form-group"><label>Phone</label><input id="emp-phone" placeholder="012-3456789"></div>
-        <div class="form-group"><label>Pay Type *</label>
+      <div class="form-row"><label>Full Name *</label><input id="emp-name" placeholder="Ahmad bin Razak" autocomplete="off"></div>
+      <div class="form-2col">
+        <div class="form-row"><label>IC Number</label><input id="emp-ic" placeholder="880101-01-1234"></div>
+        <div class="form-row"><label>Phone</label><input id="emp-phone" placeholder="012-3456789" type="tel"></div>
+      </div>
+      <div class="form-2col">
+        <div class="form-row"><label>Pay Type *</label>
           <select id="emp-type" onchange="togglePayRate()">
-            <option value="monthly">Monthly Salary</option>
-            <option value="hourly">Hourly Rate</option>
+            <option value="monthly">Monthly</option>
+            <option value="hourly">Hourly</option>
           </select>
         </div>
-        <div class="form-group" id="rate-group">
-          <label id="rate-label">Monthly Salary (RM) *</label>
-          <input id="emp-rate" type="number" min="0" step="0.01" placeholder="1800.00">
+        <div class="form-row"><label id="emp-rate-lbl">Monthly Salary (RM) *</label>
+          <input id="emp-rate" type="number" min="0" step="0.01" placeholder="1800.00" inputmode="decimal">
         </div>
-        <div class="form-group"><label>Join Date</label><input id="emp-join" type="date"></div>
-        <div class="form-group"><label>Department / Role</label><input id="emp-role" placeholder="e.g. Driver, Sales"></div>
+      </div>
+      <div class="form-2col">
+        <div class="form-row"><label>Join Date</label><input id="emp-join" type="date"></div>
+        <div class="form-row"><label>Role</label><input id="emp-role" placeholder="Driver, Sales..."></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-employee')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveEmployee()">Save Employee</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-emp')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEmployee()">Save</button>
     </div>
   </div>
 </div>
 
-<!-- Add Attendance -->
+<!-- Attendance Modal -->
 
-<div class="modal-overlay" id="modal-attendance">
+<div class="modal-overlay" id="modal-att">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Log Hours Worked</div>
-      <button class="modal-close" onclick="closeModal('modal-attendance')">×</button>
-    </div>
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Log Hours</div><button class="modal-close" onclick="closeModal('modal-att')">x</button></div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group full"><label>Employee *</label>
-          <select id="att-emp"></select>
-        </div>
-        <div class="form-group"><label>Date *</label><input id="att-date" type="date"></div>
-        <div class="form-group"><label>Hours Worked *</label><input id="att-hours" type="number" min="0" max="24" step="0.5" placeholder="8"></div>
+      <div class="form-row"><label>Employee *</label><select id="att-emp"></select></div>
+      <div class="form-2col">
+        <div class="form-row"><label>Date *</label><input id="att-date" type="date"></div>
+        <div class="form-row"><label>Hours *</label><input id="att-hours" type="number" min="0.5" max="24" step="0.5" value="8" inputmode="decimal"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-attendance')">Cancel</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-att')">Cancel</button>
       <button class="btn btn-primary" onclick="saveAttendance()">Save</button>
     </div>
   </div>
 </div>
 
-<!-- Add Advance -->
+<!-- Advance Modal -->
 
-<div class="modal-overlay" id="modal-advance">
+<div class="modal-overlay" id="modal-adv">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Record Advance Salary</div>
-      <button class="modal-close" onclick="closeModal('modal-advance')">×</button>
-    </div>
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Record Advance</div><button class="modal-close" onclick="closeModal('modal-adv')">x</button></div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group full"><label>Employee *</label>
-          <select id="adv-emp"></select>
-        </div>
-        <div class="form-group"><label>Date *</label><input id="adv-date" type="date"></div>
-        <div class="form-group"><label>Amount (RM) *</label><input id="adv-amount" type="number" min="0" step="0.01" placeholder="400.00"></div>
-        <div class="form-group full"><label>Note</label><input id="adv-note" placeholder="e.g. Weekly advance, medical"></div>
+      <div class="form-row"><label>Employee *</label><select id="adv-emp"></select></div>
+      <div class="form-2col">
+        <div class="form-row"><label>Date *</label><input id="adv-date" type="date"></div>
+        <div class="form-row"><label>Amount (RM) *</label><input id="adv-amount" type="number" min="0" step="0.01" placeholder="400.00" inputmode="decimal"></div>
       </div>
+      <div class="form-row"><label>Note</label><input id="adv-note" placeholder="e.g. Weekly advance"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-advance')">Cancel</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-adv')">Cancel</button>
       <button class="btn btn-primary" onclick="saveAdvance()">Save</button>
     </div>
   </div>
 </div>
 
-<!-- Add Leave -->
+<!-- Leave Modal -->
 
-<div class="modal-overlay" id="modal-leave">
+<div class="modal-overlay" id="modal-lv">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Record Leave</div>
-      <button class="modal-close" onclick="closeModal('modal-leave')">×</button>
-    </div>
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Record Leave</div><button class="modal-close" onclick="closeModal('modal-lv')">x</button></div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group full"><label>Employee *</label>
-          <select id="lv-emp"></select>
-        </div>
-        <div class="form-group"><label>Date *</label><input id="lv-date" type="date"></div>
-        <div class="form-group"><label>Number of Days *</label><input id="lv-days" type="number" min="0.5" step="0.5" value="1"></div>
-        <div class="form-group"><label>Leave Type *</label>
+      <div class="form-row"><label>Employee *</label><select id="lv-emp"></select></div>
+      <div class="form-2col">
+        <div class="form-row"><label>Date *</label><input id="lv-date" type="date"></div>
+        <div class="form-row"><label>Days *</label><input id="lv-days" type="number" min="0.5" step="0.5" value="1" inputmode="decimal"></div>
+      </div>
+      <div class="form-2col">
+        <div class="form-row"><label>Type *</label>
           <select id="lv-type">
             <option value="Annual">Annual Leave</option>
-            <option value="MC">Medical Leave (MC)</option>
-            <option value="Emergency">Emergency Leave</option>
+            <option value="MC">Medical (MC)</option>
+            <option value="Emergency">Emergency</option>
             <option value="Unpaid">Unpaid Leave</option>
             <option value="Other">Other</option>
           </select>
         </div>
-        <div class="form-group full"><label>Reason / Note</label><input id="lv-reason" placeholder="Optional"></div>
+        <div class="form-row"><label>Reason</label><input id="lv-reason" placeholder="Optional"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-leave')">Cancel</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-lv')">Cancel</button>
       <button class="btn btn-primary" onclick="saveLeave()">Save</button>
     </div>
   </div>
 </div>
 
-<!-- Add Allowance -->
+<!-- Allowance Modal -->
 
-<div class="modal-overlay" id="modal-allowance">
+<div class="modal-overlay" id="modal-al">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Record Daily Allowance</div>
-      <button class="modal-close" onclick="closeModal('modal-allowance')">×</button>
-    </div>
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Record Allowance</div><button class="modal-close" onclick="closeModal('modal-al')">x</button></div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group full"><label>Employee *</label>
-          <select id="al-emp"></select>
-        </div>
-        <div class="form-group"><label>Date *</label><input id="al-date" type="date"></div>
-        <div class="form-group"><label>Amount (RM)</label><input id="al-amount" type="number" min="0" step="0.01" value="10"></div>
+      <div class="form-row"><label>Employee *</label><select id="al-emp"></select></div>
+      <div class="form-2col">
+        <div class="form-row"><label>Date *</label><input id="al-date" type="date"></div>
+        <div class="form-row"><label>Amount (RM)</label><input id="al-amount" type="number" min="0" step="0.01" value="10" inputmode="decimal"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-allowance')">Cancel</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-al')">Cancel</button>
       <button class="btn btn-primary" onclick="saveAllowance()">Save</button>
     </div>
   </div>
@@ -525,114 +455,142 @@ body { background: white !important; }
 
 <!-- Payslip Modal -->
 
-<div class="modal-overlay" id="modal-payslip">
-  <div class="modal" style="max-width:720px;">
+<div class="modal-overlay" id="modal-slip">
+  <div class="modal" style="max-height:95vh;">
+    <div class="modal-handle"></div>
     <div class="modal-header no-print">
       <div class="modal-title">Salary Slip</div>
-      <button class="modal-close" onclick="closeModal('modal-payslip')">×</button>
+      <button class="modal-close" onclick="closeModal('modal-slip')">x</button>
     </div>
-    <div class="modal-body" id="payslip-content"></div>
+    <div id="slip-content" style="overflow-y:auto;max-height:70vh;"></div>
     <div class="modal-footer no-print">
-      <button class="btn btn-ghost" onclick="closeModal('modal-payslip')">Close</button>
-      <button class="btn btn-gold" onclick="printPayslip()">🖨 Print Slip</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-slip')">Close</button>
+      <button class="btn btn-gold" onclick="printSlip()">Print / Save PDF</button>
     </div>
   </div>
 </div>
 
-<!-- Confirm Delete -->
+<!-- Confirm Modal -->
 
 <div class="modal-overlay" id="modal-confirm">
-  <div class="modal" style="max-width:380px;">
-    <div class="modal-header">
-      <div class="modal-title">Confirm Delete</div>
-      <button class="modal-close" onclick="closeModal('modal-confirm')">×</button>
-    </div>
-    <div class="modal-body">
-      <p id="confirm-msg" style="font-size:14px;color:var(--text2);">Are you sure you want to delete this record?</p>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancel</button>
-      <button class="btn btn-danger" id="confirm-ok">Delete</button>
-    </div>
+  <div class="confirm-sheet">
+    <div class="modal-handle"></div>
+    <p class="confirm-msg" id="confirm-msg">Are you sure?</p>
+    <button class="btn btn-danger" id="confirm-ok">Delete</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancel</button>
   </div>
 </div>
 
-<!-- BOTTOM NAV (mobile/tablet) -->
-
-<nav class="bottom-nav no-print" id="bottom-nav">
-  <div class="bottom-nav-item active" id="bnav-dashboard" onclick="showView('dashboard')"><span class="bn-icon">📊</span><span>Home</span></div>
-  <div class="bottom-nav-item" id="bnav-employees" onclick="showView('employees')"><span class="bn-icon">👥</span><span>Staff</span></div>
-  <div class="bottom-nav-item" id="bnav-attendance" onclick="showView('attendance')"><span class="bn-icon">🕐</span><span>Hours</span></div>
-  <div class="bottom-nav-item" id="bnav-advances" onclick="showView('advances')"><span class="bn-icon">💸</span><span>Advance</span></div>
-  <div class="bottom-nav-item" id="bnav-leaves" onclick="showView('leaves')"><span class="bn-icon">📅</span><span>Leave</span></div>
-  <div class="bottom-nav-item" id="bnav-allowances" onclick="showView('allowances')"><span class="bn-icon">💰</span><span>Allowance</span></div>
-  <div class="bottom-nav-item" id="bnav-payroll" onclick="showView('payroll')"><span class="bn-icon">🧾</span><span>Payroll</span></div>
-</nav>
-
 <script>
-// ============ DATA LAYER ============
-const DB_KEY = 'gwirapack_payroll_v2';
+var DB_KEY = 'gwirapack_v3';
+var db = { employees: [], advances: [], leaves: [], allowances: [], attendance: [] };
 
 function loadDB() {
   try {
-    const raw = localStorage.getItem(DB_KEY);
-    if (raw) return JSON.parse(raw);
+    var raw = localStorage.getItem(DB_KEY);
+    if (raw) { db = JSON.parse(raw); }
   } catch(e) {}
-  return { employees: [], advances: [], leaves: [], allowances: [], attendance: [] };
+  if (!db.employees) db.employees = [];
+  if (!db.advances) db.advances = [];
+  if (!db.leaves) db.leaves = [];
+  if (!db.allowances) db.allowances = [];
+  if (!db.attendance) db.attendance = [];
 }
 
-function saveDB(db) {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
+function saveDB() {
+  try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e) {}
 }
 
-let db = loadDB();
+loadDB();
 
 function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2,5);
+  return Math.random().toString(36).substr(2,9) + Date.now().toString(36);
 }
 
-// ============ MONTH UTILITIES ============
-function getMonthOptions() {
-  const months = [];
-  const now = new Date();
-  for (let i = 0; i < 18; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const val = d.toISOString().substr(0,7);
-    const label = d.toLocaleDateString('en-MY', {month:'long', year:'numeric'});
-    months.push({val, label});
+function today() {
+  var d = new Date();
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart('0', 2);
+  var day = String(d.getDate()).padStart('0', 2);
+  // padStart polyfill
+  if (m.length < 2) m = '0' + m;
+  if (day.length < 2) day = '0' + day;
+  return y + '-' + m + '-' + day;
+}
+
+function padZ(n) { return n < 10 ? '0' + n : '' + n; }
+
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + padZ(d.getMonth()+1) + '-' + padZ(d.getDate());
+}
+
+function monthOf(s) { return s ? s.substr(0,7) : ''; }
+
+var MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function fmtDate(s) {
+  if (!s) return '-';
+  var p = s.split('-');
+  return parseInt(p[2]) + ' ' + MONTHS_SHORT[parseInt(p[1])-1] + ' ' + p[0];
+}
+
+function fmtMonth(ym) {
+  var p = ym.split('-');
+  return MONTHS_LONG[parseInt(p[1])-1] + ' ' + p[0];
+}
+
+function daysInMonth(ym) {
+  var p = ym.split('-');
+  return new Date(parseInt(p[0]), parseInt(p[1]), 0).getDate();
+}
+
+function rm(n) { return 'RM ' + (Math.round(n * 100) / 100).toFixed(2); }
+
+function empName(id) {
+  for (var i = 0; i < db.employees.length; i++) {
+    if (db.employees[i].id === id) return db.employees[i].name;
   }
-  return months;
+  return 'Unknown';
 }
 
-function getCurrentMonth() {
-  return document.getElementById('global-month').value;
-}
-
-function onMonthChange() {
-  renderCurrentView();
-}
-
+// Month selector
 function initMonthSelector() {
-  const sel = document.getElementById('global-month');
-  const months = getMonthOptions();
-  sel.innerHTML = months.map(m => `<option value="${m.val}">${m.label}</option>`).join('');
+  var sel = document.getElementById('global-month');
+  var html = '';
+  var now = new Date();
+  for (var i = 0; i < 18; i++) {
+    var y = now.getFullYear();
+    var mo = now.getMonth() - i;
+    while (mo < 0) { mo += 12; y--; }
+    var val = y + '-' + padZ(mo+1);
+    var lbl = MONTHS_SHORT[mo] + ' ' + y;
+    html += '<option value="' + val + '">' + lbl + '</option>';
+  }
+  sel.innerHTML = html;
 }
 
-// ============ NAVIGATION ============
-let currentView = 'dashboard';
+function getMonth() { return document.getElementById('global-month').value; }
+function onMonthChange() { renderCurrentView(); }
+
+// Navigation
+var currentView = 'dashboard';
+var lvColors = { Annual:'badge-teal', MC:'badge-green', Emergency:'badge-gold', Unpaid:'badge-red', Other:'badge-teal' };
 
 function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
+  var views = document.querySelectorAll('.view');
+  for (var i = 0; i < views.length; i++) views[i].classList.remove('active');
+  var bnis = document.querySelectorAll('.bni');
+  for (var i = 0; i < bnis.length; i++) bnis[i].classList.remove('active');
   document.getElementById('view-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
-  const bn = document.getElementById('bnav-' + name);
+  var bn = document.getElementById('bn-' + name);
   if (bn) bn.classList.add('active');
   currentView = name;
-  const titles = {dashboard:'Dashboard',employees:'Employees',attendance:'Attendance',advances:'Advances',leaves:'Leave Records',allowances:'Daily Allowance',payroll:'Payroll & Salary Slips'};
-  document.getElementById('page-title').textContent = titles[name] || name;
+  var labels = {dashboard:'Dashboard',employees:'Employees',attendance:'Hours Worked',advances:'Advances',leaves:'Leave',allowances:'Daily Allowance',payroll:'Payroll'};
+  document.getElementById('page-label').textContent = labels[name] || name;
   renderCurrentView();
+  window.scrollTo(0, 0);
 }
 
 function renderCurrentView() {
@@ -645,17 +603,33 @@ function renderCurrentView() {
   else if (currentView === 'payroll') renderPayroll();
 }
 
-// ============ MODAL HELPERS ============
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function confirmDelete(msg, onConfirm) {
+function confirmDel(msg, fn) {
   document.getElementById('confirm-msg').textContent = msg;
-  document.getElementById('confirm-ok').onclick = () => { onConfirm(); closeModal('modal-confirm'); };
+  document.getElementById('confirm-ok').onclick = function() { fn(); closeModal('modal-confirm'); };
   openModal('modal-confirm');
 }
 
-// ============ EMPLOYEE FUNCTIONS ============
+function fillEmpSelect(selId, typeFilter) {
+  var sel = document.getElementById(selId);
+  var list = db.employees;
+  if (typeFilter) {
+    list = [];
+    for (var i = 0; i < db.employees.length; i++) {
+      if (db.employees[i].type === typeFilter) list.push(db.employees[i]);
+    }
+  }
+  if (!list.length) { sel.innerHTML = '<option value="">No employees</option>'; return; }
+  var html = '';
+  for (var i = 0; i < list.length; i++) {
+    html += '<option value="' + list[i].id + '">' + list[i].name + '</option>';
+  }
+  sel.innerHTML = html;
+}
+
+// EMPLOYEES
 function openAddEmployee() {
   document.getElementById('emp-modal-title').textContent = 'Add Employee';
   document.getElementById('emp-id').value = '';
@@ -664,14 +638,15 @@ function openAddEmployee() {
   document.getElementById('emp-phone').value = '';
   document.getElementById('emp-type').value = 'monthly';
   document.getElementById('emp-rate').value = '';
-  document.getElementById('emp-join').value = new Date().toISOString().substr(0,10);
+  document.getElementById('emp-join').value = todayStr();
   document.getElementById('emp-role').value = '';
   togglePayRate();
-  openModal('modal-employee');
+  openModal('modal-emp');
 }
 
 function editEmployee(id) {
-  const e = db.employees.find(x => x.id === id);
+  var e = null;
+  for (var i = 0; i < db.employees.length; i++) { if (db.employees[i].id === id) { e = db.employees[i]; break; } }
   if (!e) return;
   document.getElementById('emp-modal-title').textContent = 'Edit Employee';
   document.getElementById('emp-id').value = e.id;
@@ -683,564 +658,452 @@ function editEmployee(id) {
   document.getElementById('emp-join').value = e.joinDate || '';
   document.getElementById('emp-role').value = e.role || '';
   togglePayRate();
-  openModal('modal-employee');
+  openModal('modal-emp');
 }
 
 function togglePayRate() {
-  const type = document.getElementById('emp-type').value;
-  document.getElementById('rate-label').textContent = type === 'monthly' ? 'Monthly Salary (RM) *' : 'Hourly Rate (RM) *';
-  document.getElementById('emp-rate').placeholder = type === 'monthly' ? '1800.00' : '8.00';
+  var t = document.getElementById('emp-type').value;
+  document.getElementById('emp-rate-lbl').textContent = t === 'monthly' ? 'Monthly Salary (RM) *' : 'Hourly Rate (RM) *';
 }
 
 function saveEmployee() {
-  const id = document.getElementById('emp-id').value;
-  const name = document.getElementById('emp-name').value.trim();
-  const rate = parseFloat(document.getElementById('emp-rate').value);
-  if (!name) return alert('Name is required');
-  if (!rate) return alert('Rate/Salary is required');
-  const emp = {
+  var id = document.getElementById('emp-id').value;
+  var name = document.getElementById('emp-name').value.trim();
+  var rate = parseFloat(document.getElementById('emp-rate').value);
+  if (!name) { alert('Name is required'); return; }
+  if (!rate || rate <= 0) { alert('Enter a valid rate'); return; }
+  var emp = {
     id: id || uid(),
-    name,
+    name: name,
     ic: document.getElementById('emp-ic').value.trim(),
     phone: document.getElementById('emp-phone').value.trim(),
     type: document.getElementById('emp-type').value,
-    rate,
+    rate: rate,
     joinDate: document.getElementById('emp-join').value,
     role: document.getElementById('emp-role').value.trim()
   };
   if (id) {
-    const idx = db.employees.findIndex(x => x.id === id);
-    db.employees[idx] = emp;
+    for (var i = 0; i < db.employees.length; i++) { if (db.employees[i].id === id) { db.employees[i] = emp; break; } }
   } else {
     db.employees.push(emp);
   }
-  saveDB(db);
-  closeModal('modal-employee');
+  saveDB();
+  closeModal('modal-emp');
   renderEmployees();
 }
 
 function deleteEmployee(id) {
-  confirmDelete('Delete this employee and all their records?', () => {
-    db.employees = db.employees.filter(x => x.id !== id);
-    db.advances = db.advances.filter(x => x.employeeId !== id);
-    db.leaves = db.leaves.filter(x => x.employeeId !== id);
-    db.allowances = db.allowances.filter(x => x.employeeId !== id);
-    db.attendance = db.attendance.filter(x => x.employeeId !== id);
-    saveDB(db);
-    renderEmployees();
+  confirmDel('Delete this employee and all their records?', function() {
+    db.employees = db.employees.filter(function(x){ return x.id !== id; });
+    db.advances = db.advances.filter(function(x){ return x.employeeId !== id; });
+    db.leaves = db.leaves.filter(function(x){ return x.employeeId !== id; });
+    db.allowances = db.allowances.filter(function(x){ return x.employeeId !== id; });
+    db.attendance = db.attendance.filter(function(x){ return x.employeeId !== id; });
+    saveDB(); renderEmployees();
   });
 }
 
 function renderEmployees() {
-  const grid = document.getElementById('emp-grid');
+  var grid = document.getElementById('emp-grid');
   if (!db.employees.length) {
-    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">👥</div><p>No employees yet.<br>Click "Add Employee" to get started.</p></div>`;
+    grid.innerHTML = '<div class="empty"><div class="ei">👥</div><p>No employees yet.<br>Tap "+ Add Employee" to start.</p></div>';
     return;
   }
-  grid.innerHTML = db.employees.map(e => {
-    const typeBadge = e.type === 'monthly'
-      ? `<span class="badge badge-teal">Monthly</span>`
-      : `<span class="badge badge-gold">Hourly</span>`;
-    const rateLabel = e.type === 'monthly' ? `RM ${e.rate.toFixed(2)}/mo` : `RM ${e.rate.toFixed(2)}/hr`;
-    return `
-    <div class="emp-card">
-      <div class="emp-name">${e.name}</div>
-      <div class="emp-meta">
-        ${typeBadge}
-        <span>${rateLabel}</span>
-        ${e.role ? `<span>· ${e.role}</span>` : ''}
-      </div>
-      ${e.ic ? `<div style="font-size:12px;color:var(--text3);margin-top:4px;">IC: ${e.ic}</div>` : ''}
-      <div class="emp-actions">
-        <button class="btn btn-outline btn-sm" onclick="editEmployee('${e.id}')">✏️ Edit</button>
-        <button class="btn btn-ghost btn-sm" onclick="deleteEmployee('${e.id}')">🗑 Delete</button>
-      </div>
-    </div>`;
-  }).join('');
+  var html = '';
+  for (var i = 0; i < db.employees.length; i++) {
+    var e = db.employees[i];
+    var badge = e.type === 'monthly' ? '<span class="badge badge-teal">Monthly</span>' : '<span class="badge badge-gold">Hourly</span>';
+    var rateStr = e.type === 'monthly' ? rm(e.rate)+'/mo' : rm(e.rate)+'/hr';
+    html += '<div class="emp-card">' +
+      '<div class="emp-name">' + e.name + '</div>' +
+      '<div class="emp-meta">' + badge + ' <span>' + rateStr + '</span>' + (e.role ? ' <span>· '+e.role+'</span>' : '') + '</div>' +
+      (e.ic ? '<div class="small" style="margin-top:4px">IC: '+e.ic+'</div>' : '') +
+      '<div class="emp-actions">' +
+        '<button class="btn btn-outline btn-sm" onclick="editEmployee(\''+e.id+'\')">Edit</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="deleteEmployee(\''+e.id+'\')">Delete</button>' +
+      '</div></div>';
+  }
+  grid.innerHTML = html;
 }
 
-// ============ EMPLOYEE DROPDOWN HELPER ============
-function populateEmpDropdown(selId, filterType) {
-  const sel = document.getElementById(selId);
-  let emps = db.employees;
-  if (filterType) emps = emps.filter(e => e.type === filterType);
-  sel.innerHTML = emps.length
-    ? emps.map(e => `<option value="${e.id}">${e.name}</option>`).join('')
-    : `<option value="">No employees</option>`;
-}
-
-function empName(id) {
-  const e = db.employees.find(x => x.id === id);
-  return e ? e.name : 'Unknown';
-}
-
-function fmtDate(d) {
-  if (!d) return '-';
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-MY', {day:'2-digit',month:'short',year:'numeric'});
-}
-
-function monthOf(d) { return d ? d.substr(0,7) : ''; }
-
-// ============ ATTENDANCE ============
+// ATTENDANCE
 function openAddAttendance() {
-  const hourlyEmps = db.employees.filter(e => e.type === 'hourly');
-  if (!hourlyEmps.length) { alert('No hourly employees found. Attendance logging is for hourly employees.'); return; }
-  populateEmpDropdown('att-emp', 'hourly');
-  document.getElementById('att-date').value = new Date().toISOString().substr(0,10);
-  document.getElementById('att-hours').value = 8;
-  openModal('modal-attendance');
+  var hourly = db.employees.filter(function(e){ return e.type === 'hourly'; });
+  if (!hourly.length) { alert('No hourly employees found.'); return; }
+  fillEmpSelect('att-emp', 'hourly');
+  document.getElementById('att-date').value = todayStr();
+  document.getElementById('att-hours').value = '8';
+  openModal('modal-att');
 }
 
 function saveAttendance() {
-  const empId = document.getElementById('att-emp').value;
-  const date = document.getElementById('att-date').value;
-  const hours = parseFloat(document.getElementById('att-hours').value);
-  if (!empId || !date || !hours) return alert('Fill all fields');
-  db.attendance.push({ id: uid(), employeeId: empId, date, hours });
-  saveDB(db);
-  closeModal('modal-attendance');
-  renderAttendance();
-}
-
-function deleteAttendance(id) {
-  confirmDelete('Delete this attendance record?', () => {
-    db.attendance = db.attendance.filter(x => x.id !== id);
-    saveDB(db);
-    renderAttendance();
-  });
+  var empId = document.getElementById('att-emp').value;
+  var date = document.getElementById('att-date').value;
+  var hours = parseFloat(document.getElementById('att-hours').value);
+  if (!empId || !date || !hours) { alert('Fill all fields'); return; }
+  db.attendance.push({ id: uid(), employeeId: empId, date: date, hours: hours });
+  saveDB(); closeModal('modal-att'); renderAttendance();
 }
 
 function renderAttendance() {
-  const month = getCurrentMonth();
-  const tbody = document.getElementById('attendance-table');
-  const recs = db.attendance.filter(a => monthOf(a.date) === month).sort((a,b) => b.date.localeCompare(a.date));
+  var month = getMonth();
+  var tbody = document.getElementById('att-tbody');
+  var recs = db.attendance.filter(function(a){ return monthOf(a.date) === month; });
+  recs.sort(function(a,b){ return b.date > a.date ? 1 : -1; });
   if (!recs.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">🕐</div><p>No attendance records for this month.</p></div></td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="ei">🕐</div><p>No hours logged this month.</p></div></td></tr>';
     return;
   }
-  const emp = (id) => db.employees.find(e => e.id === id);
-  tbody.innerHTML = recs.map(a => {
-    const e = emp(a.employeeId);
-    const rate = e ? e.rate : 0;
-    const pay = (rate * a.hours).toFixed(2);
-    return `<tr>
-      <td><strong>${empName(a.employeeId)}</strong></td>
-      <td>${fmtDate(a.date)}</td>
-      <td>${a.hours} hrs</td>
-      <td><span class="badge badge-gold">Hourly · RM ${pay}</span></td>
-      <td><button class="btn btn-ghost btn-sm btn-icon" onclick="deleteAttendance('${a.id}')">🗑</button></td>
-    </tr>`;
-  }).join('');
+  var html = '';
+  for (var i = 0; i < recs.length; i++) {
+    var a = recs[i];
+    var e = null;
+    for (var j = 0; j < db.employees.length; j++) { if (db.employees[j].id === a.employeeId) { e = db.employees[j]; break; } }
+    var pay = e ? (e.rate * a.hours).toFixed(2) : '0.00';
+    html += '<tr><td class="fw7">'+empName(a.employeeId)+'</td><td>'+fmtDate(a.date)+'</td><td>'+a.hours+'h</td><td class="teal fw7">RM '+pay+'</td>' +
+      '<td><button class="btn btn-ghost btn-sm" onclick="delAtt(\''+a.id+'\')">Del</button></td></tr>';
+  }
+  tbody.innerHTML = html;
 }
 
-// ============ ADVANCES ============
+function delAtt(id) {
+  confirmDel('Delete this record?', function() {
+    db.attendance = db.attendance.filter(function(x){ return x.id !== id; });
+    saveDB(); renderAttendance();
+  });
+}
+
+// ADVANCES
 function openAddAdvance() {
   if (!db.employees.length) { alert('Add employees first.'); return; }
-  populateEmpDropdown('adv-emp');
-  document.getElementById('adv-date').value = new Date().toISOString().substr(0,10);
-  document.getElementById('adv-amount').value = 400;
+  fillEmpSelect('adv-emp');
+  document.getElementById('adv-date').value = todayStr();
+  document.getElementById('adv-amount').value = '400';
   document.getElementById('adv-note').value = '';
-  openModal('modal-advance');
+  openModal('modal-adv');
 }
 
 function saveAdvance() {
-  const empId = document.getElementById('adv-emp').value;
-  const date = document.getElementById('adv-date').value;
-  const amount = parseFloat(document.getElementById('adv-amount').value);
-  const note = document.getElementById('adv-note').value.trim();
-  if (!empId || !date || !amount) return alert('Fill all required fields');
-  db.advances.push({ id: uid(), employeeId: empId, date, amount, note });
-  saveDB(db);
-  closeModal('modal-advance');
-  renderAdvances();
-}
-
-function deleteAdvance(id) {
-  confirmDelete('Delete this advance record?', () => {
-    db.advances = db.advances.filter(x => x.id !== id);
-    saveDB(db);
-    renderAdvances();
-  });
+  var empId = document.getElementById('adv-emp').value;
+  var date = document.getElementById('adv-date').value;
+  var amount = parseFloat(document.getElementById('adv-amount').value);
+  var note = document.getElementById('adv-note').value.trim();
+  if (!empId || !date || !amount) { alert('Fill all required fields'); return; }
+  db.advances.push({ id: uid(), employeeId: empId, date: date, amount: amount, note: note });
+  saveDB(); closeModal('modal-adv'); renderAdvances();
 }
 
 function renderAdvances() {
-  const month = getCurrentMonth();
-  const tbody = document.getElementById('advances-table');
-  const recs = db.advances.filter(a => monthOf(a.date) === month).sort((a,b) => b.date.localeCompare(a.date));
+  var month = getMonth();
+  var tbody = document.getElementById('adv-tbody');
+  var recs = db.advances.filter(function(a){ return monthOf(a.date) === month; });
+  recs.sort(function(a,b){ return b.date > a.date ? 1 : -1; });
   if (!recs.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">💸</div><p>No advances recorded for this month.</p></div></td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="ei">💸</div><p>No advances this month.</p></div></td></tr>';
     return;
   }
-  tbody.innerHTML = recs.map(a => `<tr>
-    <td><strong>${empName(a.employeeId)}</strong></td>
-    <td>${fmtDate(a.date)}</td>
-    <td class="fw-bold text-red">RM ${a.amount.toFixed(2)}</td>
-    <td>${a.note || '-'}</td>
-    <td><button class="btn btn-ghost btn-sm btn-icon" onclick="deleteAdvance('${a.id}')">🗑</button></td>
-  </tr>`).join('');
+  var html = '';
+  for (var i = 0; i < recs.length; i++) {
+    var a = recs[i];
+    html += '<tr><td class="fw7">'+empName(a.employeeId)+'</td><td>'+fmtDate(a.date)+'</td><td class="red fw7">RM '+a.amount.toFixed(2)+'</td><td>'+(a.note||'-')+'</td>' +
+      '<td><button class="btn btn-ghost btn-sm" onclick="delAdv(\''+a.id+'\')">Del</button></td></tr>';
+  }
+  tbody.innerHTML = html;
 }
 
-// ============ LEAVES ============
+function delAdv(id) {
+  confirmDel('Delete this advance?', function() {
+    db.advances = db.advances.filter(function(x){ return x.id !== id; });
+    saveDB(); renderAdvances();
+  });
+}
+
+// LEAVES
 function openAddLeave() {
   if (!db.employees.length) { alert('Add employees first.'); return; }
-  populateEmpDropdown('lv-emp');
-  document.getElementById('lv-date').value = new Date().toISOString().substr(0,10);
-  document.getElementById('lv-days').value = 1;
+  fillEmpSelect('lv-emp');
+  document.getElementById('lv-date').value = todayStr();
+  document.getElementById('lv-days').value = '1';
   document.getElementById('lv-type').value = 'Annual';
   document.getElementById('lv-reason').value = '';
-  openModal('modal-leave');
+  openModal('modal-lv');
 }
 
 function saveLeave() {
-  const empId = document.getElementById('lv-emp').value;
-  const date = document.getElementById('lv-date').value;
-  const days = parseFloat(document.getElementById('lv-days').value);
-  const type = document.getElementById('lv-type').value;
-  const reason = document.getElementById('lv-reason').value.trim();
-  if (!empId || !date || !days) return alert('Fill all required fields');
-  db.leaves.push({ id: uid(), employeeId: empId, date, days, type, reason });
-  saveDB(db);
-  closeModal('modal-leave');
-  renderLeaves();
+  var empId = document.getElementById('lv-emp').value;
+  var date = document.getElementById('lv-date').value;
+  var days = parseFloat(document.getElementById('lv-days').value);
+  var type = document.getElementById('lv-type').value;
+  var reason = document.getElementById('lv-reason').value.trim();
+  if (!empId || !date || !days) { alert('Fill all required fields'); return; }
+  db.leaves.push({ id: uid(), employeeId: empId, date: date, days: days, type: type, reason: reason });
+  saveDB(); closeModal('modal-lv'); renderLeaves();
 }
 
-function deleteLeave(id) {
-  confirmDelete('Delete this leave record?', () => {
-    db.leaves = db.leaves.filter(x => x.id !== id);
-    saveDB(db);
-    renderLeaves();
+function renderLeaves() {
+  var month = getMonth();
+  var tbody = document.getElementById('lv-tbody');
+  var recs = db.leaves.filter(function(l){ return monthOf(l.date) === month; });
+  recs.sort(function(a,b){ return b.date > a.date ? 1 : -1; });
+  if (!recs.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="ei">📅</div><p>No leaves this month.</p></div></td></tr>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < recs.length; i++) {
+    var l = recs[i];
+    var bc = lvColors[l.type] || 'badge-teal';
+    html += '<tr><td class="fw7">'+empName(l.employeeId)+'</td><td>'+fmtDate(l.date)+'</td>' +
+      '<td><span class="badge '+bc+'">'+l.type+'</span></td><td>'+l.days+'d</td>' +
+      '<td><button class="btn btn-ghost btn-sm" onclick="delLeave(\''+l.id+'\')">Del</button></td></tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+function delLeave(id) {
+  confirmDel('Delete this leave?', function() {
+    db.leaves = db.leaves.filter(function(x){ return x.id !== id; });
+    saveDB(); renderLeaves();
   });
 }
 
-const leaveColors = { Annual:'badge-teal', MC:'badge-green', Emergency:'badge-gold', Unpaid:'badge-red', Other:'badge-teal' };
-
-function renderLeaves() {
-  const month = getCurrentMonth();
-  const tbody = document.getElementById('leaves-table');
-  const recs = db.leaves.filter(a => monthOf(a.date) === month).sort((a,b) => b.date.localeCompare(a.date));
-  if (!recs.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">📅</div><p>No leave records for this month.</p></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = recs.map(a => `<tr>
-    <td><strong>${empName(a.employeeId)}</strong></td>
-    <td>${fmtDate(a.date)}</td>
-    <td><span class="badge ${leaveColors[a.type]||'badge-teal'}">${a.type}</span></td>
-    <td>${a.days} day${a.days > 1 ? 's' : ''}</td>
-    <td>${a.reason || '-'}</td>
-    <td><button class="btn btn-ghost btn-sm btn-icon" onclick="deleteLeave('${a.id}')">🗑</button></td>
-  </tr>`).join('');
-}
-
-// ============ ALLOWANCES ============
+// ALLOWANCES
 function openAddAllowance() {
   if (!db.employees.length) { alert('Add employees first.'); return; }
-  populateEmpDropdown('al-emp');
-  document.getElementById('al-date').value = new Date().toISOString().substr(0,10);
-  document.getElementById('al-amount').value = 10;
-  openModal('modal-allowance');
+  fillEmpSelect('al-emp');
+  document.getElementById('al-date').value = todayStr();
+  document.getElementById('al-amount').value = '10';
+  openModal('modal-al');
 }
 
 function saveAllowance() {
-  const empId = document.getElementById('al-emp').value;
-  const date = document.getElementById('al-date').value;
-  const amount = parseFloat(document.getElementById('al-amount').value);
-  if (!empId || !date || !amount) return alert('Fill all required fields');
-  db.allowances.push({ id: uid(), employeeId: empId, date, amount });
-  saveDB(db);
-  closeModal('modal-allowance');
-  renderAllowances();
-}
-
-function deleteAllowance(id) {
-  confirmDelete('Delete this allowance record?', () => {
-    db.allowances = db.allowances.filter(x => x.id !== id);
-    saveDB(db);
-    renderAllowances();
-  });
+  var empId = document.getElementById('al-emp').value;
+  var date = document.getElementById('al-date').value;
+  var amount = parseFloat(document.getElementById('al-amount').value);
+  if (!empId || !date || !amount) { alert('Fill all required fields'); return; }
+  db.allowances.push({ id: uid(), employeeId: empId, date: date, amount: amount });
+  saveDB(); closeModal('modal-al'); renderAllowances();
 }
 
 function renderAllowances() {
-  const month = getCurrentMonth();
-  const tbody = document.getElementById('allowances-table');
-  const recs = db.allowances.filter(a => monthOf(a.date) === month).sort((a,b) => b.date.localeCompare(a.date));
+  var month = getMonth();
+  var tbody = document.getElementById('al-tbody');
+  var recs = db.allowances.filter(function(a){ return monthOf(a.date) === month; });
+  recs.sort(function(a,b){ return b.date > a.date ? 1 : -1; });
   if (!recs.length) {
-    tbody.innerHTML = `<tr><td colspan="4"><div class="empty"><div class="empty-icon">💰</div><p>No allowances recorded for this month.</p></div></td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="ei">💰</div><p>No allowances this month.</p></div></td></tr>';
     return;
   }
-  tbody.innerHTML = recs.map(a => `<tr>
-    <td><strong>${empName(a.employeeId)}</strong></td>
-    <td>${fmtDate(a.date)}</td>
-    <td class="fw-bold text-teal">RM ${a.amount.toFixed(2)}</td>
-    <td><button class="btn btn-ghost btn-sm btn-icon" onclick="deleteAllowance('${a.id}')">🗑</button></td>
-  </tr>`).join('');
+  var html = '';
+  for (var i = 0; i < recs.length; i++) {
+    var a = recs[i];
+    html += '<tr><td class="fw7">'+empName(a.employeeId)+'</td><td>'+fmtDate(a.date)+'</td><td class="grn fw7">RM '+a.amount.toFixed(2)+'</td>' +
+      '<td><button class="btn btn-ghost btn-sm" onclick="delAl(\''+a.id+'\')">Del</button></td></tr>';
+  }
+  tbody.innerHTML = html;
 }
 
-// ============ PAYROLL CALCULATION ============
-function calcPayroll(empId, month) {
-  const emp = db.employees.find(e => e.id === empId);
-  if (!emp) return null;
-
-  // Working days in month
-  const [yr, mo] = month.split('-').map(Number);
-  const daysInMonth = new Date(yr, mo, 0).getDate();
-
-  let grossSalary = 0;
-  let hoursDetail = [];
-
-  if (emp.type === 'monthly') {
-    grossSalary = emp.rate;
-  } else {
-    // Hourly: sum up attendance hours
-    const attRecs = db.attendance.filter(a => a.employeeId === empId && monthOf(a.date) === month);
-    const totalHours = attRecs.reduce((s, a) => s + a.hours, 0);
-    grossSalary = totalHours * emp.rate;
-    hoursDetail = attRecs;
-  }
-
-  // Leaves
-  const leaveRecs = db.leaves.filter(l => l.employeeId === empId && monthOf(l.date) === month);
-  const unpaidDays = leaveRecs.filter(l => l.type === 'Unpaid').reduce((s, l) => s + l.days, 0);
-  const unpaidDeduction = emp.type === 'monthly' ? (emp.rate / daysInMonth) * unpaidDays : 0;
-  const totalLeaveDays = leaveRecs.reduce((s, l) => s + l.days, 0);
-
-  // Advances
-  const advRecs = db.advances.filter(a => a.employeeId === empId && monthOf(a.date) === month);
-  const totalAdvance = advRecs.reduce((s, a) => s + a.amount, 0);
-
-  // Daily allowances
-  const alRecs = db.allowances.filter(a => a.employeeId === empId && monthOf(a.date) === month);
-  const totalAllowance = alRecs.reduce((s, a) => s + a.amount, 0);
-
-  const netSalary = grossSalary - unpaidDeduction - totalAdvance;
-
-  return {
-    emp, month, daysInMonth,
-    grossSalary, unpaidDeduction, unpaidDays,
-    totalAdvance, advRecs,
-    totalAllowance, alRecs,
-    leaveRecs, totalLeaveDays,
-    hoursDetail,
-    netSalary, totalPay: netSalary + totalAllowance
-  };
-}
-
-// ============ PAYROLL VIEW ============
-function renderPayroll() {
-  const month = getCurrentMonth();
-  const [yr, mo] = month.split('-').map(Number);
-  const monthLabel = new Date(yr, mo - 1, 1).toLocaleDateString('en-MY', {month:'long', year:'numeric'});
-
-  let html = `<div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
-    <h3 style="font-size:16px;font-weight:700;">Salary Slips — ${monthLabel}</h3>
-  </div>`;
-
-  if (!db.employees.length) {
-    html += `<div class="empty"><div class="empty-icon">🧾</div><p>No employees yet.</p></div>`;
-    document.getElementById('payslip-list').innerHTML = html;
-    return;
-  }
-
-  html += `<div class="card"><table>
-    <thead><tr>
-      <th>Employee</th><th>Type</th><th>Basic Salary</th><th>Deductions</th><th>Allowance</th><th>Net Pay</th><th></th>
-    </tr></thead><tbody>`;
-
-  let grandTotal = 0;
-  db.employees.forEach(emp => {
-    const p = calcPayroll(emp.id, month);
-    grandTotal += p.totalPay;
-    const deductStr = p.unpaidDeduction > 0 || p.totalAdvance > 0
-      ? `<span class="text-red">-RM ${(p.unpaidDeduction + p.totalAdvance).toFixed(2)}</span>`
-      : `<span class="text-green">—</span>`;
-    html += `<tr>
-      <td><strong>${emp.name}</strong>${emp.role ? `<br><span style="font-size:11px;color:var(--text3)">${emp.role}</span>` : ''}</td>
-      <td><span class="badge ${emp.type==='monthly'?'badge-teal':'badge-gold'}">${emp.type}</span></td>
-      <td class="fw-bold">RM ${p.grossSalary.toFixed(2)}</td>
-      <td>${deductStr}</td>
-      <td class="text-teal">RM ${p.totalAllowance.toFixed(2)}</td>
-      <td class="fw-bold" style="font-size:15px;color:var(--teal)">RM ${p.totalPay.toFixed(2)}</td>
-      <td><button class="btn btn-gold btn-sm" onclick="viewPayslip('${emp.id}','${month}')">🧾 Slip</button></td>
-    </tr>`;
+function delAl(id) {
+  confirmDel('Delete this allowance?', function() {
+    db.allowances = db.allowances.filter(function(x){ return x.id !== id; });
+    saveDB(); renderAllowances();
   });
-
-  html += `</tbody><tfoot><tr style="background:var(--teal-faint)">
-    <td colspan="5" class="fw-bold" style="text-align:right;padding-right:16px;">Total Payroll:</td>
-    <td class="fw-bold" style="font-size:16px;color:var(--teal)">RM ${grandTotal.toFixed(2)}</td>
-    <td></td>
-  </tr></tfoot></table></div>`;
-
-  document.getElementById('payslip-list').innerHTML = html;
 }
 
-// ============ PAYSLIP ============
-function viewPayslip(empId, month) {
-  const p = calcPayroll(empId, month);
-  const [yr, mo] = month.split('-').map(Number);
-  const monthLabel = new Date(yr, mo - 1, 1).toLocaleDateString('en-MY', {month:'long', year:'numeric'});
-  const today = new Date().toLocaleDateString('en-MY', {day:'2-digit',month:'long',year:'numeric'});
-
-  let hoursRow = '';
-  if (p.emp.type === 'hourly') {
-    const totalHours = p.hoursDetail.reduce((s, a) => s + a.hours, 0);
-    hoursRow = `<tr><td>Hours Worked × Rate</td><td>${totalHours} hrs × RM ${p.emp.rate.toFixed(2)}</td><td class="amount">RM ${p.grossSalary.toFixed(2)}</td></tr>`;
+// PAYROLL CALC
+function calcPayroll(empId, month) {
+  var emp = null;
+  for (var i = 0; i < db.employees.length; i++) { if (db.employees[i].id === empId) { emp = db.employees[i]; break; } }
+  if (!emp) return null;
+  var numDays = daysInMonth(month);
+  var gross = 0;
+  var attRecs = [];
+  if (emp.type === 'monthly') {
+    gross = emp.rate;
   } else {
-    hoursRow = `<tr><td>Basic Salary</td><td>${monthLabel}</td><td class="amount">RM ${p.grossSalary.toFixed(2)}</td></tr>`;
+    attRecs = db.attendance.filter(function(a){ return a.employeeId === empId && monthOf(a.date) === month; });
+    var totalHours = 0;
+    for (var i = 0; i < attRecs.length; i++) totalHours += attRecs[i].hours;
+    gross = totalHours * emp.rate;
   }
+  var leaveRecs = db.leaves.filter(function(l){ return l.employeeId === empId && monthOf(l.date) === month; });
+  var unpaidDays = 0;
+  for (var i = 0; i < leaveRecs.length; i++) { if (leaveRecs[i].type === 'Unpaid') unpaidDays += leaveRecs[i].days; }
+  var unpaidDeduction = emp.type === 'monthly' ? (emp.rate / numDays) * unpaidDays : 0;
+  var advRecs = db.advances.filter(function(a){ return a.employeeId === empId && monthOf(a.date) === month; });
+  var totalAdvance = 0;
+  for (var i = 0; i < advRecs.length; i++) totalAdvance += advRecs[i].amount;
+  var alRecs = db.allowances.filter(function(a){ return a.employeeId === empId && monthOf(a.date) === month; });
+  var totalAllowance = 0;
+  for (var i = 0; i < alRecs.length; i++) totalAllowance += alRecs[i].amount;
+  var netSalary = gross - unpaidDeduction - totalAdvance;
+  return { emp:emp, month:month, numDays:numDays, gross:gross, unpaidDays:unpaidDays, unpaidDeduction:unpaidDeduction, totalAdvance:totalAdvance, advRecs:advRecs, totalAllowance:totalAllowance, alRecs:alRecs, leaveRecs:leaveRecs, attRecs:attRecs, netSalary:netSalary, totalPay:netSalary+totalAllowance };
+}
 
-  let leaveRows = '';
-  if (p.leaveRecs.length) {
-    const grouped = {};
-    p.leaveRecs.forEach(l => { grouped[l.type] = (grouped[l.type]||0) + l.days; });
-    leaveRows = Object.entries(grouped).map(([type, days]) =>
-      `<tr><td colspan="2">Leave — ${type}</td><td class="amount badge-info">${days} day${days>1?'s':''}</td></tr>`
-    ).join('');
+// PAYROLL VIEW
+function renderPayroll() {
+  var month = getMonth();
+  var ml = fmtMonth(month);
+  var html = '';
+  if (!db.employees.length) {
+    document.getElementById('payroll-content').innerHTML = '<div class="empty"><div class="ei">🧾</div><p>No employees yet.</p></div>';
+    return;
   }
+  html += '<div style="margin-bottom:14px;font-weight:700;font-size:15px;">Salary — ' + ml + '</div>';
+  var grand = 0;
+  for (var i = 0; i < db.employees.length; i++) {
+    var emp = db.employees[i];
+    var p = calcPayroll(emp.id, month);
+    grand += p.totalPay;
+    var deductTotal = p.unpaidDeduction + p.totalAdvance;
+    var badge = emp.type === 'monthly' ? '<span class="badge badge-teal">Monthly</span>' : '<span class="badge badge-gold">Hourly</span>';
+    html += '<div class="card" style="margin-bottom:12px;">' +
+      '<div class="card-header">' +
+        '<div><div class="fw7" style="font-size:15px;">' + emp.name + '</div>' +
+          '<div style="margin-top:4px;display:flex;gap:6px;align-items:center;">' + badge + (emp.role ? '<span class="small">'+emp.role+'</span>' : '') + '</div>' +
+        '</div>' +
+        '<button class="btn btn-gold btn-sm" onclick="viewPayslip(\''+emp.id+'\',\''+month+'\')">Slip</button>' +
+      '</div>' +
+      '<div style="padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">' +
+        '<div><div class="small">Basic</div><div class="fw7" style="font-size:13px;">'+rm(p.gross)+'</div></div>' +
+        '<div><div class="small">Deductions</div><div class="fw7 red" style="font-size:13px;">'+(deductTotal>0?'-'+rm(deductTotal):'—')+'</div></div>' +
+        '<div><div class="small">Net Pay</div><div class="fw7 teal" style="font-size:14px;">'+rm(p.totalPay)+'</div></div>' +
+      '</div></div>';
+  }
+  html += '<div style="background:var(--teal);color:white;padding:16px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;">' +
+    '<div class="fw7">TOTAL PAYROLL</div><div style="font-size:20px;font-weight:700;">'+rm(grand)+'</div></div>';
+  document.getElementById('payroll-content').innerHTML = html;
+}
 
-  let deductRows = '';
+// PAYSLIP
+function viewPayslip(empId, month) {
+  var p = calcPayroll(empId, month);
+  var ml = fmtMonth(month);
+  var tStr = fmtDate(todayStr());
+  var earningsRows = '';
+  if (p.emp.type === 'hourly') {
+    var totalHours = 0;
+    for (var i = 0; i < p.attRecs.length; i++) totalHours += p.attRecs[i].hours;
+    earningsRows += '<tr><td>Hours Worked x Rate</td><td>'+totalHours+' hrs x '+rm(p.emp.rate)+'</td><td class="amt">'+rm(p.gross)+'</td></tr>';
+  } else {
+    earningsRows += '<tr><td>Basic Salary</td><td>'+ml+'</td><td class="amt">'+rm(p.gross)+'</td></tr>';
+  }
+  var leaveRows = '';
+  var lvGroups = {};
+  for (var i = 0; i < p.leaveRecs.length; i++) {
+    var lt = p.leaveRecs[i].type;
+    lvGroups[lt] = (lvGroups[lt]||0) + p.leaveRecs[i].days;
+  }
+  for (var lt in lvGroups) {
+    leaveRows += '<tr><td colspan="2">Leave — '+lt+'</td><td class="amt" style="color:#888;">'+lvGroups[lt]+' day(s)</td></tr>';
+  }
+  var deductRows = '';
   if (p.unpaidDeduction > 0) {
-    deductRows += `<tr><td>Unpaid Leave Deduction</td><td>${p.unpaidDays} day${p.unpaidDays>1?'s':''}</td><td class="amount deduct">- RM ${p.unpaidDeduction.toFixed(2)}</td></tr>`;
+    deductRows += '<tr><td>Unpaid Leave</td><td>'+p.unpaidDays+' day(s)</td><td class="amt ded">- '+rm(p.unpaidDeduction)+'</td></tr>';
   }
-  if (p.totalAdvance > 0) {
-    p.advRecs.forEach(a => {
-      deductRows += `<tr><td>Advance Salary</td><td>${fmtDate(a.date)}${a.note?' · '+a.note:''}</td><td class="amount deduct">- RM ${a.amount.toFixed(2)}</td></tr>`;
-    });
+  for (var i = 0; i < p.advRecs.length; i++) {
+    var a = p.advRecs[i];
+    deductRows += '<tr><td>Advance Salary</td><td>'+fmtDate(a.date)+(a.note?' - '+a.note:'')+'</td><td class="amt ded">- '+rm(a.amount)+'</td></tr>';
   }
-
-  let allowanceRows = '';
-  if (p.alRecs.length) {
-    const totalDays = p.alRecs.length;
-    const totalAmt = p.totalAllowance;
-    allowanceRows = `<tr style="background:#f0faf5"><td>Daily Allowance</td><td>${totalDays} day${totalDays>1?'s':''} × RM ${(totalAmt/totalDays).toFixed(2)}</td><td class="amount text-green">RM ${totalAmt.toFixed(2)}</td></tr>`;
+  var alRows = '';
+  if (p.alRecs.length > 0) {
+    alRows = '<tr style="background:#f0faf5"><td>Daily Allowance</td><td>'+p.alRecs.length+' day(s)</td><td class="amt" style="color:var(--green)">'+rm(p.totalAllowance)+'</td></tr>';
   }
-
-  const html = `
-  <div class="payslip" id="printable-payslip">
-    <div class="payslip-header">
-      <div>
-        <div class="payslip-company">G Wira Trading (M) Sdn Bhd</div>
-        <div class="payslip-company-sub">GwiraPack · Klang, Selangor</div>
-      </div>
-      <div>
-        <div class="payslip-title">SALARY SLIP</div>
-        <div class="payslip-period">${monthLabel}</div>
-      </div>
-    </div>
-
-    <div class="payslip-info-grid">
-      <div class="payslip-info-item">
-        <div class="pi-label">Employee Name</div>
-        <div class="pi-value">${p.emp.name}</div>
-      </div>
-      ${p.emp.role ? `<div class="payslip-info-item"><div class="pi-label">Position</div><div class="pi-value">${p.emp.role}</div></div>` : '<div></div>'}
-      ${p.emp.ic ? `<div class="payslip-info-item"><div class="pi-label">IC Number</div><div class="pi-value">${p.emp.ic}</div></div>` : '<div></div>'}
-      <div class="payslip-info-item">
-        <div class="pi-label">Pay Type</div>
-        <div class="pi-value">${p.emp.type === 'monthly' ? 'Monthly Salary' : 'Hourly Rate'}</div>
-      </div>
-      <div class="payslip-info-item">
-        <div class="pi-label">Period</div>
-        <div class="pi-value">${monthLabel}</div>
-      </div>
-      <div class="payslip-info-item">
-        <div class="pi-label">Date Issued</div>
-        <div class="pi-value">${today}</div>
-      </div>
-    </div>
-
-    <table class="payslip-table">
-      <thead><tr><th>Description</th><th>Details</th><th style="text-align:right">Amount</th></tr></thead>
-      <tbody>
-        <tr style="background:#f0f8f8"><td colspan="3" style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--teal)">Earnings</td></tr>
-        ${hoursRow}
-        ${leaveRows}
-        ${deductRows ? `<tr style="background:#fdf5f5"><td colspan="3" style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--red)">Deductions</td></tr>${deductRows}` : ''}
-        ${allowanceRows ? `<tr style="background:#f0faf5"><td colspan="3" style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--green)">Allowances (Non-Salary)</td></tr>${allowanceRows}` : ''}
-        <tr class="payslip-total-row">
-          <td colspan="2" style="text-align:right">Net Salary (after deductions):</td>
-          <td class="amount">RM ${p.netSalary.toFixed(2)}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="payslip-net">
-      <div>
-        <div class="label">TOTAL TAKE-HOME PAY</div>
-        <div style="font-size:11px;opacity:0.8;margin-top:2px;">Net Salary + Allowances</div>
-      </div>
-      <div class="amount">RM ${p.totalPay.toFixed(2)}</div>
-    </div>
-
-    <div class="payslip-footer">
-      <div>
-        <div>This is a computer-generated salary slip.</div>
-        <div>G Wira Trading (M) Sdn Bhd · GwiraPack</div>
-      </div>
-      <div class="payslip-sig">
-        <div class="payslip-sig-line"></div>
-        <div>Authorised Signature</div>
-      </div>
-    </div>
-  </div>`;
-
-  document.getElementById('payslip-content').innerHTML = html;
-  openModal('modal-payslip');
+  var html = '<div class="payslip">' +
+    '<div class="ps-header">' +
+      '<div><div class="ps-company">G Wira Trading (M) Sdn Bhd</div><div class="ps-company-sub">GwiraPack - Klang, Selangor</div></div>' +
+      '<div><div class="ps-title">SALARY SLIP</div><div class="ps-period">'+ml+'</div></div>' +
+    '</div>' +
+    '<div class="ps-info">' +
+      '<div><div class="pil">Employee</div><div class="piv">'+p.emp.name+'</div></div>' +
+      (p.emp.role?'<div><div class="pil">Position</div><div class="piv">'+p.emp.role+'</div></div>':'<div></div>') +
+      (p.emp.ic?'<div><div class="pil">IC No.</div><div class="piv">'+p.emp.ic+'</div></div>':'<div></div>') +
+      '<div><div class="pil">Pay Type</div><div class="piv">'+(p.emp.type==='monthly'?'Monthly':'Hourly')+'</div></div>' +
+      '<div><div class="pil">Period</div><div class="piv">'+ml+'</div></div>' +
+      '<div><div class="pil">Date Issued</div><div class="piv">'+tStr+'</div></div>' +
+    '</div>' +
+    '<table class="ps-table"><thead><tr><th>Description</th><th>Details</th><th style="text-align:right">Amount</th></tr></thead><tbody>' +
+      '<tr style="background:#f0f8f8"><td colspan="3" style="font-weight:700;font-size:10px;text-transform:uppercase;color:var(--teal)">Earnings</td></tr>' +
+      earningsRows + leaveRows +
+      (deductRows?'<tr style="background:#fdf5f5"><td colspan="3" style="font-weight:700;font-size:10px;text-transform:uppercase;color:var(--red)">Deductions</td></tr>'+deductRows:'') +
+      (alRows?'<tr style="background:#f0faf5"><td colspan="3" style="font-weight:700;font-size:10px;text-transform:uppercase;color:var(--green)">Allowances (Non-Salary)</td></tr>'+alRows:'') +
+      '<tr style="background:#f9f8f5;font-weight:700;"><td colspan="2" style="text-align:right">Net Salary (after deductions):</td><td class="amt">'+rm(p.netSalary)+'</td></tr>' +
+    '</tbody></table>' +
+    '<div class="ps-net"><div class="nl">TOTAL TAKE-HOME PAY<div style="font-size:10px;opacity:0.75;margin-top:2px;">Net Salary + Allowances</div></div><div class="na">'+rm(p.totalPay)+'</div></div>' +
+    '<div class="ps-footer"><div><div>Computer-generated salary slip.</div><div>G Wira Trading (M) Sdn Bhd</div></div>' +
+    '<div style="text-align:right"><div class="ps-sig-line"></div><div>Authorised Signature</div></div></div>' +
+    '</div>';
+  document.getElementById('slip-content').innerHTML = html;
+  openModal('modal-slip');
 }
 
-function printPayslip() {
-  const el = document.getElementById('printable-payslip');
-  const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head>
-    <title>Salary Slip - GwiraPack</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: 'DM Sans', sans-serif; padding: 20px; }
-      ${document.querySelector('style').textContent}
-    </style>
+function printSlip() {
+  var el = document.getElementById('slip-content').innerHTML;
+  var w = window.open('', '_blank');
+  if (!w) { alert('Please allow pop-ups to print.'); return; }
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Salary Slip - GwiraPack</title><style>body{font-family:-apple-system,sans-serif;padding:20px;background:white;}' +
+    '.ps-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #1a6b6b;}' +
+    '.ps-company{font-size:18px;font-weight:700;color:#1a6b6b;}.ps-company-sub{font-size:11px;color:#999;}.ps-title{font-size:16px;font-weight:700;text-align:right;}.ps-period{font-size:12px;color:#999;text-align:right;}' +
+    '.ps-info{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}.pil{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:0.4px;font-weight:700;}.piv{font-size:13px;font-weight:600;margin-top:2px;}' +
+    '.ps-table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:13px;}.ps-table th{background:#1a6b6b;color:white;padding:8px 10px;font-size:11px;font-weight:700;text-align:left;}' +
+    '.ps-table td{padding:8px 10px;border-bottom:1px solid #f0ede6;}.amt{text-align:right;font-weight:600;}.ded{color:#c0392b;}' +
+    '.ps-net{background:#1a6b6b;color:white;padding:14px 16px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;margin-top:12px;}' +
+    '.nl{font-size:13px;font-weight:600;}.na{font-size:20px;font-weight:700;}' +
+    '.ps-footer{margin-top:24px;padding-top:14px;border-top:1px solid #e2e0d8;display:flex;justify-content:space-between;font-size:10px;color:#999;}' +
+    '.ps-sig-line{width:120px;border-top:1px solid #999;margin:28px 0 4px;}' +
+    '</style></head><body>' + el + '</body></html>');
 
-```
-</head><body>${el.outerHTML}</body></html>`);
-```
-
-win.document.close();
-win.onload = () => { win.print(); };
+w.document.close();
+setTimeout(function(){ w.print(); }, 500);
 }
 
-// ============ DASHBOARD ============
+// DASHBOARD
 function renderDashboard() {
-const month = getCurrentMonth();
-const [yr, mo] = month.split(’-’).map(Number);
-const monthLabel = new Date(yr, mo-1,1).toLocaleDateString(‘en-MY’,{month:‘long’,year:‘numeric’});
+var month = getMonth();
+var ml = fmtMonth(month);
+var totalEmps = db.employees.length;
+var totalAdvances = 0, totalLeaves = 0, totalAllowances = 0, totalPayroll = 0;
+for (var i = 0; i < db.advances.length; i++) { if (monthOf(db.advances[i].date) === month) totalAdvances += db.advances[i].amount; }
+for (var i = 0; i < db.leaves.length; i++) { if (monthOf(db.leaves[i].date) === month) totalLeaves += db.leaves[i].days; }
+for (var i = 0; i < db.allowances.length; i++) { if (monthOf(db.allowances[i].date) === month) totalAllowances += db.allowances[i].amount; }
+for (var i = 0; i < db.employees.length; i++) { var p = calcPayroll(db.employees[i].id, month); if (p) totalPayroll += p.totalPay; }
 
-const totalEmps = db.employees.length;
-const totalAdvances = db.advances.filter(a => monthOf(a.date)===month).reduce((s,a)=>s+a.amount,0);
-const totalLeaves = db.leaves.filter(l => monthOf(l.date)===month).reduce((s,l)=>s+l.days,0);
-const totalAllowances = db.allowances.filter(a => monthOf(a.date)===month).reduce((s,a)=>s+a.amount,0);
-let totalPayroll = 0;
-db.employees.forEach(e => {
-const p = calcPayroll(e.id, month);
-totalPayroll += p.totalPay;
-});
+var monthly = 0, hourly = 0;
+for (var i = 0; i < db.employees.length; i++) { if (db.employees[i].type === ‘monthly’) monthly++; else hourly++; }
 
-document.getElementById(‘dash-stats’).innerHTML = ` <div class="stat-card"> <div class="label">Total Employees</div> <div class="value">${totalEmps}</div> <div class="sub">${db.employees.filter(e=>e.type==='monthly').length} monthly · ${db.employees.filter(e=>e.type==='hourly').length} hourly</div> </div> <div class="stat-card"> <div class="label">Total Payroll</div> <div class="value">RM ${totalPayroll.toFixed(2)}</div> <div class="sub">${monthLabel}</div> </div> <div class="stat-card"> <div class="label">Advances Given</div> <div class="value" style="color:var(--red)">RM ${totalAdvances.toFixed(2)}</div> <div class="sub">This month</div> </div> <div class="stat-card"> <div class="label">Daily Allowances</div> <div class="value" style="color:var(--green)">RM ${totalAllowances.toFixed(2)}</div> <div class="sub">${db.allowances.filter(a=>monthOf(a.date)===month).length} days recorded</div> </div> <div class="stat-card"> <div class="label">Leave Days</div> <div class="value" style="color:var(--gold)">${totalLeaves}</div> <div class="sub">This month</div> </div>`;
+document.getElementById(‘dash-stats’).innerHTML =
+‘<div class="stat-card"><div class="lbl">Employees</div><div class="val">’+totalEmps+’</div><div class="sub">’+monthly+’ monthly / ‘+hourly+’ hourly</div></div>’ +
+‘<div class="stat-card"><div class="lbl">Total Payroll</div><div class="val" style="font-size:17px;color:var(--teal)">’+rm(totalPayroll)+’</div><div class="sub">’+ml+’</div></div>’ +
+‘<div class="stat-card"><div class="lbl">Advances</div><div class="val red" style="font-size:17px;">’+rm(totalAdvances)+’</div><div class="sub">This month</div></div>’ +
+‘<div class="stat-card"><div class="lbl">Allowances</div><div class="val grn" style="font-size:17px;">’+rm(totalAllowances)+’</div><div class="sub">Daily (RM10)</div></div>’ +
+‘<div class="stat-card"><div class="lbl">Leave Days</div><div class="val" style="color:var(--gold);">’+totalLeaves+’</div><div class="sub">This month</div></div>’;
 
-// Recent activity
-const recentAdvances = db.advances.filter(a=>monthOf(a.date)===month).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
-const recentLeaves = db.leaves.filter(l=>monthOf(l.date)===month).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+var recentAdv = [];
+for (var i = 0; i < db.advances.length; i++) { if (monthOf(db.advances[i].date) === month) recentAdv.push(db.advances[i]); }
+recentAdv.sort(function(a,b){ return b.date > a.date ? 1 : -1; });
+recentAdv = recentAdv.slice(0,4);
 
-let advHtml = recentAdvances.length
-? recentAdvances.map(a=>`<tr><td><strong>${empName(a.employeeId)}</strong></td><td>${fmtDate(a.date)}</td><td class="fw-bold text-red">RM ${a.amount.toFixed(2)}</td></tr>`).join(’’)
-: `<tr><td colspan="3"><div class="empty" style="padding:24px"><p>No advances this month</p></div></td></tr>`;
+var recentLv = [];
+for (var i = 0; i < db.leaves.length; i++) { if (monthOf(db.leaves[i].date) === month) recentLv.push(db.leaves[i]); }
+recentLv.sort(function(a,b){ return b.date > a.date ? 1 : -1; });
+recentLv = recentLv.slice(0,4);
 
-let lvHtml = recentLeaves.length
-? recentLeaves.map(l=>`<tr><td><strong>${empName(l.employeeId)}</strong></td><td>${fmtDate(l.date)}</td><td><span class="badge ${leaveColors[l.type]||'badge-teal'}">${l.type}</span></td></tr>`).join(’’)
-: `<tr><td colspan="3"><div class="empty" style="padding:24px"><p>No leaves this month</p></div></td></tr>`;
+var advRows = recentAdv.length
+? recentAdv.map(function(a){ return ‘<tr><td class="fw7">’+empName(a.employeeId)+’</td><td>’+fmtDate(a.date)+’</td><td class="red fw7">’+rm(a.amount)+’</td></tr>’; }).join(’’)
+: ‘<tr><td colspan="3"><div class="empty" style="padding:20px"><p>None this month</p></div></td></tr>’;
 
-document.getElementById(‘dash-bottom’).innerHTML = ` <div class="card"> <div class="card-header"><div class="card-title">Recent Advances</div><button class="btn btn-outline btn-sm" onclick="showView('advances')">View All</button></div> <div class="card-body"><table><thead><tr><th>Employee</th><th>Date</th><th>Amount</th></tr></thead><tbody>${advHtml}</tbody></table></div> </div> <div class="card"> <div class="card-header"><div class="card-title">Recent Leaves</div><button class="btn btn-outline btn-sm" onclick="showView('leaves')">View All</button></div> <div class="card-body"><table><thead><tr><th>Employee</th><th>Date</th><th>Type</th></tr></thead><tbody>${lvHtml}</tbody></table></div> </div>`;
+var lvRows = recentLv.length
+? recentLv.map(function(l){ return ‘<tr><td class="fw7">’+empName(l.employeeId)+’</td><td>’+fmtDate(l.date)+’</td><td><span class="badge '+(lvColors[l.type]||'badge-teal')+'">’+l.type+’</span></td></tr>’; }).join(’’)
+: ‘<tr><td colspan="3"><div class="empty" style="padding:20px"><p>None this month</p></div></td></tr>’;
+
+document.getElementById(‘dash-cards’).innerHTML =
+‘<div class="card"><div class="card-header"><div class="card-title">Recent Advances</div><button class="btn btn-outline btn-sm" onclick="showView(\'advances\')">See All</button></div>’ +
+‘<div class="tbl-wrap"><table><thead><tr><th>Employee</th><th>Date</th><th>Amount</th></tr></thead><tbody>’+advRows+’</tbody></table></div></div>’ +
+‘<div class="card"><div class="card-header"><div class="card-title">Recent Leaves</div><button class="btn btn-outline btn-sm" onclick="showView(\'leaves\')">See All</button></div>’ +
+‘<div class="tbl-wrap"><table><thead><tr><th>Employee</th><th>Date</th><th>Type</th></tr></thead><tbody>’+lvRows+’</tbody></table></div></div>’;
 }
 
-// ============ INIT ============
+// INIT
 initMonthSelector();
 renderCurrentView();
 </script>
