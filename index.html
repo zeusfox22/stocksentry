@@ -952,6 +952,12 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
     <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#aaa" onclick="goTo('alerts',null);mobileNav('alerts');closeMobileMore()">
       <span style="font-size:18px">&#9888;&#65039;</span><span>Alerts</span>
     </div>
+    <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#aaa" onclick="goTo('st',null);mobileNav('st');closeMobileMore()">
+      <span style="font-size:18px">&#128203;</span><span>Stock Take</span>
+    </div>
+    <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#aaa" onclick="goTo('adj',null);mobileNav('adj');closeMobileMore()">
+      <span style="font-size:18px">&#9881;&#65039;</span><span>Adjustments</span>
+    </div>
     <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#aaa" onclick="goTo('hist',null);mobileNav('hist');closeMobileMore()">
       <span style="font-size:18px">&#128203;</span><span>History</span>
     </div>
@@ -960,6 +966,9 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
     </div>
     <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#aaa" onclick="goTo('set',null);mobileNav('set');closeMobileMore()">
       <span style="font-size:18px">&#9881;&#65039;</span><span>Settings</span>
+    </div>
+    <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#ffd93d" onclick="goTo('data',null);mobileNav('data');closeMobileMore()">
+      <span style="font-size:18px">&#128451;</span><span>Data & Backup</span>
     </div>
     <div style="border-top:1px solid #2a2a2a;margin:4px 0"></div>
     <div class="bni" style="flex-direction:row;gap:10px;justify-content:flex-start;padding:10px 12px;color:#e81c1c" onclick="doLogout()">
@@ -973,219 +982,71 @@ border-radius:50%;font-size:12px;font-weight:800;font-family:var(–mono)}
 <!-- STAFF PAGE -->
 
 <div id="pg-staff" style="display:none">
-  <div class="sh">
-    <img id="sh-logo" src="" alt="GwiraPack">
-    <div class="sup"><span>&#128100;</span><span id="sh-name">Staff</span><span class="slo" onclick="doLogout()">Logout</span></div>
-  </div>
-  <div class="sbody">
-    <div class="smgrid">
-      <div class="smc on" id="sm-recv" onclick="setStaffMode('recv')"><div class="smci">&#128229;</div><div class="smcn">Receive Stock</div><div class="smcd">Scan incoming items</div></div>
-      <div class="smc" id="sm-flag" onclick="setStaffMode('flag')"><div class="smci">&#128681;</div><div class="smcn">Flag Low Stock</div><div class="smcd">Report to boss</div></div>
-      <div class="smc" id="sm-st" onclick="setStaffMode('st')"><div class="smci">&#128203;</div><div class="smcn">Stock Take</div><div class="smcd">Count physical stock</div></div>
-    </div>
-    <!-- STAFF SEARCH BOX -->
-    <div style="position:relative;margin-bottom:16px">
-      <input id="staff-search-inp" type="text"
-        placeholder="&#128269;  Search item by name, SKU or barcode..."
-        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-        oninput="staffSearch(this.value)"
-        style="width:100%;padding:14px 16px;background:#181818;border:2px solid #2a2a2a;border-radius:12px;color:#f0f0f0;font-size:15px;outline:none;box-sizing:border-box">
-      <div id="staff-search-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1a1a1a;border:1px solid #2a2a2a;border-top:none;border-radius:0 0 12px 12px;z-index:200;max-height:320px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.6)"></div>
-    </div>
-
-```
-<!-- SCAN BUTTON - opens iPhone camera directly -->
-<div style="width:100%;margin-bottom:16px">
-  <label for="scan-capture" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:linear-gradient(135deg,#1a0a0a,#2a0808);border:2px solid #e81c1c;border-radius:16px;
-    padding:32px 20px;cursor:pointer;transition:.2s;width:100%;text-align:center">
-    <span style="font-size:64px;margin-bottom:12px">&#128247;</span>
-    <span style="font-size:18px;font-weight:900;color:#e81c1c;margin-bottom:6px">Tap to Scan Barcode</span>
-    <span style="font-size:12px;color:#888;font-family:monospace">Opens your iPhone camera</span>
-  </label>
-  <input type="file" id="scan-capture" accept="image/*" capture="environment" style="display:none" onchange="onPhotoCapture(event)">
-</div>
-<!-- Status message -->
-<div id="scan-status" style="width:100%;text-align:center;font-size:13px;color:#888;font-family:monospace;margin-bottom:12px;min-height:20px"></div>
-<div id="staff-st-bar" style="display:none;width:100%;background:#1a1a0a;border:1px solid rgba(249,115,22,.3);border-radius:10px;padding:12px 14px;margin-bottom:12px">
-  <div style="font-size:12px;font-weight:800;color:#f97316;margin-bottom:6px">&#128203; Stock Take Mode</div>
-  <div style="font-size:11px;color:#888;font-family:monospace">Scan barcode or take photo → enter physical count → Save</div>
-</div>
-<!-- Result panel -->
-<div class="sres2" id="sr"><div id="sr-body"></div></div>
-<div style="width:100%;margin-top:10px">
-  <div style="font-size:10px;color:#555;text-align:center;font-family:monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Bluetooth Scanner / Manual Entry</div>
-  <div style="display:flex;gap:8px">
-    <input type="text" id="staff-barcode-input"
-      placeholder="Scan or type barcode here..."
-      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-      style="flex:1;padding:13px 14px;background:#181818;border:2px solid #2a2a2a;border-radius:10px;
-        color:#f0f0f0;font-size:15px;font-family:monospace;outline:none;transition:.15s"
-      oninput="onBarcodeInput(this)"
-      onfocus="this.style.borderColor='#e81c1c'"
-      onblur="this.style.borderColor='#2a2a2a'">
-    <button onclick="triggerStaffScan()" style="padding:13px 16px;background:#e81c1c;color:#fff;
-      border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:900">&#8594;</button>
-  </div>
-  <div style="font-size:10px;color:#444;text-align:center;font-family:monospace;margin-top:5px">Bluetooth scanner will auto-detect &bull; or type and press Enter</div>
-</div>
-```
-
-  </div>
-</div>
-
-<!-- BOSS SCANNER MODAL -->
-
-<div class="mover" id="scan-modal">
-  <div class="mbox" style="width:460px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-      <div class="mttl" style="color:var(--red)">&#128247; Quick Scan</div>
-      <div style="display:flex;gap:5px;align-items:center">
-        <span class="fch on" id="bm-look" onclick="setBM('look')">Look Up</span>
-        <span class="fch" id="bm-rest" onclick="setBM('rest')">Restock</span>
-        <span class="fch" id="bm-ded" onclick="setBM('ded')">Deduct</span>
-        <button class="btn bg" style="padding:5px 9px" onclick="closeScan()">&#10005;</button>
-      </div>
-    </div>
-    <label for="boss-scan-capture" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-      background:linear-gradient(135deg,#0a0a1a,#080828);border:2px solid #e81c1c;border-radius:12px;
-      padding:28px 20px;cursor:pointer;width:100%;text-align:center;margin-bottom:12px">
-      <span style="font-size:52px;margin-bottom:10px">&#128247;</span>
-      <span style="font-size:15px;font-weight:800;color:#e81c1c;margin-bottom:4px">Tap to Open Camera</span>
-      <span style="font-size:11px;color:#888;font-family:monospace">Point at barcode and take photo</span>
-    </label>
-    <input type="file" id="boss-scan-capture" accept="image/*" capture="environment" style="display:none" onchange="onBossPhotoCapture(event)">
-    <div id="boss-scan-status" style="text-align:center;font-size:12px;color:#888;font-family:monospace;margin-bottom:8px;min-height:18px"></div>
-    <div id="scan-res" style="margin-bottom:10px"></div>
+  <div style="background:#13131a;border-bottom:1px solid #2e2e3d;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">
     <div>
-      <label class="flbl" style="margin-bottom:5px;display:block">Or enter barcode manually</label>
-      <div style="display:flex;gap:7px">
-        <input class="finp" type="text" id="b-manual" placeholder="SKU / Barcode" style="flex:1">
-        <button class="btn br" onclick="bManual()">Look Up</button>
-      </div>
+      <div style="font-size:18px;font-weight:900;background:linear-gradient(135deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">GwiraPack</div>
+      <div style="font-size:10px;color:#555;font-family:monospace">Staff: <span id="sh-name" style="color:#a29bfe">-</span></div>
     </div>
+    <button onclick="doLogout()" style="background:#1a1a24;border:1px solid #2e2e3d;border-radius:8px;color:#666;font-size:12px;padding:8px 14px;cursor:pointer;font-family:monospace">Logout</button>
+  </div>
+  <div style="padding:16px;max-width:500px;margin:0 auto;box-sizing:border-box">
+
+```
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+  <div id="sm-recv" onclick="setStaffMode('recv')" style="border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer;border:2px solid #ff4757;background:linear-gradient(135deg,rgba(255,71,87,.15),rgba(255,45,106,.08))">
+    <div style="font-size:28px;margin-bottom:6px">&#128229;</div>
+    <div style="font-size:11px;font-weight:800;color:#ff6b7a">Receive<br>Stock</div>
+  </div>
+  <div id="sm-flag" onclick="setStaffMode('flag')" style="border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer;border:2px solid #2e2e3d;background:#1a1a24">
+    <div style="font-size:28px;margin-bottom:6px">&#128681;</div>
+    <div style="font-size:11px;font-weight:800;color:#666">Flag Low<br>Stock</div>
+  </div>
+  <div id="sm-st" onclick="setStaffMode('st')" style="border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer;border:2px solid #2e2e3d;background:#1a1a24">
+    <div style="font-size:28px;margin-bottom:6px">&#128203;</div>
+    <div style="font-size:11px;font-weight:800;color:#666">Stock<br>Take</div>
   </div>
 </div>
 
-<!-- STOCK TAKE COUNT MODAL -->
-
-<div class="mover" id="st-count-modal">
-  <div class="mbox">
-    <div class="mttl" id="stc-name">Count Item</div>
-    <div class="msub" id="stc-sku" style="font-family:monospace;color:#666"></div>
-    <div style="background:#111;border-radius:10px;padding:12px 14px;margin:12px 0;display:flex;gap:16px;align-items:center">
-      <div><div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase;margin-bottom:3px">System Qty</div><div style="font-size:26px;font-weight:900;color:#666" id="stc-prev">—</div></div>
-      <div style="font-size:18px;color:#333">&#8594;</div>
-      <div style="flex:1">
-        <div style="font-size:10px;color:#e81c1c;font-family:monospace;text-transform:uppercase;margin-bottom:6px;font-weight:700" id="stc-qty-lbl">Physical Count</div>
-        <input type="number" id="stc-qty" min="0" placeholder="0"
-          style="width:100%;padding:12px;background:#181818;border:2px solid #e81c1c;border-radius:10px;color:#f0f0f0;font-size:26px;font-weight:800;outline:none;text-align:center;box-sizing:border-box"
-          oninput="calcSTTotal()" onkeydown="if(event.key==='Enter')submitSTCount()">
-      </div>
-    </div>
-    <div id="stc-uom-section" style="display:none;background:#1a1200;border:1px solid rgba(249,115,22,.3);border-radius:10px;padding:14px;margin-bottom:12px">
-      <div style="font-size:10px;color:#f97316;font-family:monospace;font-weight:700;margin-bottom:10px;text-transform:uppercase">&#128230; Carton Count</div>
-      <div style="display:flex;gap:8px;align-items:flex-end">
-        <div style="flex:1">
-          <div style="font-size:10px;color:#888;font-family:monospace;margin-bottom:4px" id="stc-carton-lbl">CTN</div>
-          <input type="number" id="stc-carton-qty" min="0" placeholder="0"
-            style="width:100%;padding:10px;background:#181818;border:2px solid #f97316;border-radius:8px;color:#f0f0f0;font-size:22px;font-weight:800;outline:none;text-align:center;box-sizing:border-box"
-            oninput="calcSTTotal()" onkeydown="if(event.key==='Enter')document.getElementById('stc-qty').focus()">
-        </div>
-        <div style="font-size:20px;color:#444;padding-bottom:8px">+</div>
-        <div style="flex:1">
-          <div style="font-size:10px;color:#888;font-family:monospace;margin-bottom:4px">Loose pcs</div>
-          <input type="number" id="stc-qty-extra" min="0" placeholder="0"
-            style="width:100%;padding:10px;background:#181818;border:2px solid #555;border-radius:8px;color:#f0f0f0;font-size:22px;font-weight:800;outline:none;text-align:center;box-sizing:border-box"
-            oninput="calcSTTotal()" onkeydown="if(event.key==='Enter')submitSTCount()">
-        </div>
-      </div>
-      <div style="text-align:center;font-size:15px;font-weight:800;color:#f97316;margin-top:10px;font-family:monospace;min-height:22px" id="stc-total-preview"></div>
-      <input type="hidden" id="stc-uom-rate" value="1">
-      <input type="hidden" id="stc-uom-base" value="pcs">
-    </div>
-    <div style="font-size:11px;color:#555;text-align:center;font-family:monospace;margin-bottom:16px" id="stc-already"></div>
-    <input type="hidden" id="stc-item-id">
-    <div class="mfoot">
-      <button class="btn bg" onclick="document.getElementById('st-count-modal').classList.remove('open')">Cancel</button>
-      <button class="btn br" onclick="submitSTCount()" style="font-size:15px;padding:12px 28px">&#10003; Save Count</button>
-    </div>
+<div id="staff-st-bar" style="display:none;background:#1a1200;border:1.5px solid rgba(255,159,67,.35);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:12px;font-weight:800;color:#ff9f43;font-family:monospace">&#128203; STOCK TAKE</div>
+    <div id="st-staff-progress" style="font-size:11px;color:#888;font-family:monospace">0/0</div>
   </div>
+  <div style="background:#111;border-radius:4px;height:5px;overflow:hidden;margin-bottom:8px">
+    <div id="st-staff-bar" style="height:100%;background:linear-gradient(90deg,#ff9f43,#ffd93d);width:0%;transition:.3s"></div>
+  </div>
+  <div class="st-bar-msg" style="font-size:11px;color:#888;font-family:monospace">Search or scan to count</div>
 </div>
 
-<!-- ADJUSTMENT MODAL -->
-
-<div class="mover" id="adj-modal">
-  <div class="mbox">
-    <div class="mttl">New Stock Adjustment</div>
-    <div class="msub">Requires boss approval before stock is updated.</div>
-    <div style="display:grid;gap:12px">
-      <div class="fgrp"><label class="flbl">Item *</label>
-        <select class="finp" id="adj-item-sel" onchange="onAdjItemChange()"><option value="">-- Select item --</option></select>
-      </div>
-      <div id="adj-preview" style="display:none;background:#111;border-radius:8px;padding:12px">
-        <div style="font-size:12px;color:#888;margin-bottom:6px">Current stock: <strong id="adj-cur-name" style="color:#f0f0f0"></strong></div>
-        <div style="display:flex;gap:20px;align-items:center">
-          <div><div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase">Current</div><div style="font-size:26px;font-weight:900" id="adj-cur-stk">—</div></div>
-          <div style="font-size:18px;color:#444">&#8594;</div>
-          <div><div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase">After</div><div style="font-size:26px;font-weight:900" id="adj-new-stk">—</div></div>
-          <div><div style="font-size:9px;color:#555;font-family:monospace;text-transform:uppercase">Change</div><div style="font-size:22px;font-weight:800" id="adj-delta">—</div></div>
-        </div>
-      </div>
-      <div class="fgrp"><label class="flbl">Type *</label>
-        <select class="finp" id="adj-type" onchange="updateAdjPreview()">
-          <option value="damage">Damage (reduce stock)</option>
-          <option value="lost">Lost / Missing (reduce stock)</option>
-          <option value="recount">Recount (set exact qty)</option>
-          <option value="return_sup">Return to Supplier</option>
-          <option value="received">Extra Stock Received</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="fgrp"><label class="flbl">Quantity *</label>
-        <input class="finp" type="number" id="adj-qty" placeholder="Enter quantity" min="0" oninput="updateAdjPreview()">
-      </div>
-      <div class="fgrp"><label class="flbl">Reason *</label>
-        <input class="finp" type="text" id="adj-reason" placeholder="e.g. Dropped and damaged during unloading">
-      </div>
-      <div class="fgrp"><label class="flbl">Notes</label>
-        <input class="finp" type="text" id="adj-note" placeholder="Optional extra details">
-      </div>
-    </div>
-    <div class="mfoot">
-      <button class="btn bg" onclick="document.getElementById('adj-modal').classList.remove('open')">Cancel</button>
-      <button class="btn br" onclick="submitAdj()">Submit for Approval</button>
-    </div>
-  </div>
+<div style="position:relative;margin-bottom:12px">
+  <input id="staff-search-inp" type="text" placeholder="&#128269; Search name, SKU or barcode..."
+    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+    oninput="staffSearch(this.value)"
+    style="width:100%;padding:14px 16px;background:#1a1a24;border:2px solid #2e2e3d;border-radius:14px;color:#f0f0f5;font-size:15px;outline:none;box-sizing:border-box;font-family:'Montserrat',sans-serif">
+  <div id="staff-search-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1a1a24;border:1px solid #2e2e3d;border-top:none;border-radius:0 0 14px 14px;z-index:200;max-height:280px;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.8)"></div>
 </div>
 
-<!-- ITEM MODAL -->
+<label for="scan-capture" style="display:flex;align-items:center;gap:14px;background:#1a0808;border:2px solid rgba(255,71,87,.4);border-radius:14px;padding:18px 20px;cursor:pointer;margin-bottom:12px">
+  <span style="font-size:36px">&#128247;</span>
+  <div>
+    <div style="font-size:16px;font-weight:900;color:#ff4757;margin-bottom:2px">Scan Barcode</div>
+    <div style="font-size:12px;color:#666;font-family:monospace">Tap to open camera</div>
+  </div>
+</label>
+<input type="file" id="scan-capture" accept="image/*" capture="environment" style="display:none" onchange="onPhotoCapture(event)">
 
-<div class="mover" id="item-modal">
-  <div class="mbox">
-    <div class="mttl" id="im-t">Add New Item</div>
-    <div class="msub" id="im-s">Fill in the item details.</div>
-    <div class="fgrid">
-      <div class="fgrp ff"><label class="flbl">Item Name *</label><input class="finp" type="text" id="f-name" placeholder="e.g. Bubble Wrap Roll 50m"></div>
-      <div class="fgrp"><label class="flbl">SKU / Barcode *</label><input class="finp" type="text" id="f-sku" placeholder="e.g. GW-001"></div>
-      <div class="fgrp"><label class="flbl">Category</label>
-        <select class="finp" id="f-cat">
-          <option value="pack">Packaging</option><option value="elec">Electronics</option>
-          <option value="food">Food</option><option value="cloth">Clothing</option>
-          <option value="tool">Tools</option><option value="off">Office</option>
-        </select>
-      </div>
-      <div class="fgrp"><label class="flbl">Current Stock</label><input class="finp" type="number" id="f-stk" placeholder="0" min="0"></div>
-      <div class="fgrp"><label class="flbl">Low Stock Threshold</label><input class="finp" type="number" id="f-thr" placeholder="20"></div>
-      <div class="fgrp"><label class="flbl">Unit Cost (RM)</label><input class="finp" type="number" id="f-cost" placeholder="0.00" step="0.01"></div>
-      <div class="fgrp"><label class="flbl">Reorder Qty</label><input class="finp" type="number" id="f-reo" placeholder="50"></div>
-      <div class="fgrp ff"><label class="flbl">Supplier / Notes</label><input class="finp" type="text" id="f-note" placeholder="Supplier name or notes"></div>
-    </div>
-    <div class="mfoot"><button class="btn bg" onclick="closeItem()">Cancel</button><button class="btn br" onclick="saveItem()">Save Item</button></div>
+<div id="scan-status" style="text-align:center;font-size:12px;color:#666;font-family:monospace;margin-bottom:10px;min-height:16px"></div>
+<div id="sr" style="margin-bottom:12px"></div>
+<input type="text" id="staff-barcode-input" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" onkeydown="if(event.key==='Enter'){onBarcodeInput();}" autocomplete="off">
+<div id="sv" style="display:none;position:relative;margin-bottom:14px">
+  <div id="sv-reader" style="border-radius:14px;overflow:hidden"></div>
+  <button onclick="stopSCam()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px">Close</button>
+  <div id="sv-st" class="camstxt">Point camera at barcode</div>
+</div>
+```
+
   </div>
 </div>
-
-<div class="twrap" id="tw"></div>
 
 <script>
 // ---- DATA ----
@@ -2600,7 +2461,7 @@ function showSTCount(item){
   document.getElementById('stc-name').textContent=item.name;
   document.getElementById('stc-sku').textContent=item.sku;
   document.getElementById('stc-prev').textContent=item.stk+(item.uom?' '+item.uom:'');
-  document.getElementById('stc-already').textContent=already?'Previously counted: '+already.counted:'';
+  var ael=document.getElementById('stc-already');if(ael){if(already&&already.locations&&already.locations.length){ael.innerHTML='<b style=color:#ffd93d>Total so far: '+already.counted+' '+(item.uom||'')+'</b><br><small style=color:#666>'+already.locations.map(function(l){return l.loc+': +'+l.qty;}).join(' | ')+'</small>';}else if(already){ael.innerHTML='<b style=color:#ffd93d>Total so far: '+already.counted+' '+(item.uom||'')+'</b>';}else{ael.textContent='First count';ael.style.color='#555';}}var locEl2=document.getElementById('stc-location-label');if(locEl2)locEl2.value='';
   document.getElementById('stc-qty').value=already?already.counted:'';
   document.getElementById('stc-item-id').value=item.id;
   // UOM conversion
@@ -2652,12 +2513,11 @@ function submitSTCount(){
     qty=parseFloat(document.getElementById('stc-qty').value)||0;
   }
   if(isNaN(qty)||qty<0){toast('Enter a valid quantity.','err');return;}
-  stSession.items[item.sku]={iid:item.id,name:item.name,sku:item.sku,prevStk:item.stk,counted:qty,countedBy:usr,countedAt:new Date().toLocaleString()};
+  var ex2=stSession.items[item.sku];var prev2=ex2?ex2.counted:0;var tot2=prev2+qty;var locs2=ex2&&ex2.locations?ex2.locations:[];var locEl=document.getElementById("stc-location-label");var locLbl=locEl?locEl.value.trim():"";if(!locLbl)locLbl="Entry "+(locs2.length+1);locs2.push({qty:qty,loc:locLbl,time:new Date().toLocaleTimeString()});stSession.items[item.sku]={iid:item.id,name:item.name,sku:item.sku,prevStk:item.stk,counted:tot2,locations:locs2,countedBy:usr,countedAt:new Date().toLocaleString()};
   localStorage.setItem('gw_st',JSON.stringify(stSession));
   document.getElementById('st-count-modal').classList.remove('open');
   renderST();
-  var diff=qty-item.stk;
-  toast(item.name+': '+qty+' '+(item.uom||'')+' (diff '+(diff>=0?'+':'')+diff+')','ok');
+  var diff2=tot2-item.stk;toast('+'+qty+' = '+tot2+' '+(item.uom||'')+' total  diff '+(diff2>=0?'+':'')+diff2,'ok');
 }
 function updateSTProgress(){
   if(!stSession) return;
