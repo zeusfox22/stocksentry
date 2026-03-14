@@ -1,1435 +1,921 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Zeus PayTrack"/>
-<title>⚡ Zeus PayTrack</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GwiraPack Payroll</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{height:100%;background:#0d0f14}
-body{min-height:100%;background:#0d0f14;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;overflow-x:hidden;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
-button,input,select,textarea{font-family:inherit;font-size:16px}
-::-webkit-scrollbar{display:none}
-/* ── iPhone 15 layout ── */
-.app{
-  min-height:100vh;
-  min-height:-webkit-fill-available;
-  padding-bottom:calc(80px + env(safe-area-inset-bottom));
-}
-/* Header — clears Dynamic Island (top safe area) */
-.header{
-  background:linear-gradient(135deg,#111827,#1a2035);
-  border-bottom:1px solid #1e2d4a;
-  padding:10px 16px;
-  padding-top:calc(10px + env(safe-area-inset-top));
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;
-}
-.header-logo{width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.header-title{font-size:16px;font-weight:700;color:#f1f5f9}
-.header-sub{font-size:12px;color:#64748b}
-/* Bottom nav — clears home indicator */
-.nav{
-  position:fixed;bottom:0;left:0;right:0;
-  background:#111827;
-  border-top:1px solid #1e2d4a;
-  display:flex;z-index:100;
-  padding-bottom:env(safe-area-inset-bottom);
-  padding-left:env(safe-area-inset-left);
-  padding-right:env(safe-area-inset-right);
-}
-.nav-btn{flex:1;padding:10px 4px 8px;border:none;cursor:pointer;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;color:#64748b;position:relative;transition:color .15s;min-height:52px;-webkit-touch-callout:none}
-.nav-btn.active{color:#60a5fa}
-.nav-btn.active::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:#60a5fa;border-radius:0 0 2px 2px}
-.nav-icon{font-size:22px;line-height:1}
-.nav-label{font-size:10px;font-weight:600;letter-spacing:0.2px}
-.nav-badge{position:absolute;top:6px;right:calc(50% - 18px);background:#f87171;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:700}
-/* Content */
-.content{padding:12px 14px;padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
-.page{display:none}.page.active{display:block}
-.card{background:#111827;border:1px solid #1e2d4a;border-radius:16px;overflow:hidden;margin-bottom:12px}
-.card-header{padding:14px 16px;border-bottom:1px solid #1e2d4a;display:flex;justify-content:space-between;align-items:center}
-.card-title{font-weight:600;font-size:15px;color:#e2e8f0}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.stat-card{background:#111827;border-radius:14px;padding:16px;position:relative;overflow:hidden}
-.stat-label{font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
-.stat-value{font-size:24px;font-weight:800;letter-spacing:-0.5px}
-.stat-sub{font-size:12px;color:#64748b;margin-top:3px}
-/* Invoice rows — min 44pt tap target */
-.inv-row{padding:14px 16px;border-bottom:1px solid #1e2d4a;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;border-left:3px solid transparent;transition:background .15s;min-height:64px}
-.inv-row:active{background:#131c2e}
-.inv-row:last-child{border-bottom:none}
-.inv-name{font-weight:700;font-size:15px;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px}
-.inv-no{font-size:13px;color:#60a5fa;margin-bottom:2px}
-.inv-meta{font-size:12px;color:#64748b}
-.inv-amt{font-weight:800;font-size:16px;margin-bottom:5px;text-align:right}
-.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.badge-overdue{background:#3a0a0a;color:#f87171;border:1px solid #991b1b}
-.badge-due-soon{background:#3a2a0a;color:#fbbf24;border:1px solid #92400e}
-.badge-current{background:#1a3a2a;color:#4ade80;border:1px solid #166534}
-.badge-paid{background:#0a1a2a;color:#60a5fa;border:1px solid #1e40af}
-.badge-partial{background:#2a1a3a;color:#c084fc;border:1px solid #7e22ce}
-/* Inputs — font-size 16px prevents iOS zoom */
-.inp{background:#1a2035;border:1px solid #1e2d4a;border-radius:12px;padding:14px 16px;color:#e2e8f0;font-size:16px;width:100%;outline:none;-webkit-appearance:none;appearance:none}
-.inp:focus{border-color:#3b82f6;background:#111827}
-.lbl{font-size:12px;color:#64748b;margin-bottom:6px;display:block;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
-.form-group{margin-bottom:16px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-/* Buttons — min 44pt */
-.btn{padding:14px 18px;border-radius:12px;cursor:pointer;font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;transition:opacity .15s;white-space:nowrap;min-height:48px;-webkit-touch-callout:none}
-.btn:active{opacity:0.75}
-.btn-primary{background:#1d4ed8;color:#fff}
-.btn-success{background:#14532d;color:#86efac}
-.btn-danger{background:#7f1d1d;color:#fca5a5}
-.btn-ghost{background:transparent;color:#94a3b8;border:1px solid #1e2d4a}
-.btn-wa{background:#128c3e;color:#fff}
-.btn-sm{padding:10px 14px;font-size:13px;min-height:44px}
-.btn-full{width:100%}
-.btn-row{display:flex;gap:8px;margin-top:14px}
-/* Modal — slides up from bottom with safe area */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;justify-content:center;z-index:1000;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.modal{background:#111827;border-radius:24px 24px 0 0;padding:20px 20px;padding-bottom:max(20px,calc(16px + env(safe-area-inset-bottom)));width:100%;max-width:520px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.modal-drag{width:44px;height:5px;background:#1e2d4a;border-radius:4px;margin:0 auto 20px}
-.modal-title{font-size:18px;font-weight:700;color:#e2e8f0;margin-bottom:20px}
-.aging-row{margin-bottom:12px}
-.aging-meta{display:flex;justify-content:space-between;margin-bottom:5px}
-.aging-bar-bg{height:8px;background:#1e2d4a;border-radius:4px;overflow:hidden}
-.aging-bar{height:100%;border-radius:4px;transition:width .6s}
-.alert-banner{background:linear-gradient(90deg,#1a0f0a,#2a1500);border:1px solid #92400e;border-radius:14px;padding:14px 16px;margin-bottom:14px}
-.sub-tabs{display:flex;gap:4px;background:#111827;border-radius:14px;padding:4px;border:1px solid #1e2d4a;margin-bottom:14px}
-.sub-tab{flex:1;padding:11px 6px;border:none;cursor:pointer;background:transparent;color:#64748b;font-size:13px;font-weight:700;border-radius:10px;transition:all .15s;min-height:44px}
-.sub-tab.active{background:#1d4ed8;color:#fff}
-.filter-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.search-inp{flex:1;min-width:160px}
-.empty{padding:40px;text-align:center;color:#64748b}
-.detail-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #1e2d4a}
-.detail-label{color:#64748b;font-size:14px}
-.detail-value{color:#e2e8f0;font-weight:600;font-size:14px}
-.wa-msg{background:#0d0f14;border-radius:10px;padding:12px;font-size:12px;color:#94a3b8;line-height:1.6;max-height:120px;overflow-y:auto;white-space:pre-wrap;font-family:monospace;border:1px solid #1e2d4a;margin-bottom:12px}
-.pay-summary{background:#0d0f14;border-radius:10px;padding:14px;margin-bottom:16px}
-.collection-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
-.collection-cell{background:#0d0f14;border-radius:8px;padding:10px 12px}
-.collection-cell-label{font-size:11px;color:#64748b;margin-bottom:3px}
-.collection-cell-value{font-weight:700;font-size:15px}
-.drop-zone{border:2px dashed #1e2d4a;border-radius:14px;padding:40px 24px;text-align:center;cursor:pointer;transition:all .2s;background:#0d0f14}
-.drop-zone.dragover{border-color:#60a5fa;background:#0d1a2a}
-.import-info{background:#0f2a1a;border:1px solid #166534;border-radius:12px;padding:14px;margin-bottom:20px;font-size:13px;color:#86efac;line-height:1.7}
-.tag{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:12px;gap:6px}
-.p14{padding:14px 16px}
-.flex{display:flex}.flex-between{display:flex;justify-content:space-between;align-items:center}.flex-center{display:flex;align-items:center}
-.flex1{flex:1;min-width:0}.gap8{gap:8px}.gap10{gap:10px}.gap12{gap:12px}
-.fw7{font-weight:700}.fw8{font-weight:800}
-.fs11{font-size:11px}.fs12{font-size:12px}.fs13{font-size:13px}.fs14{font-size:14px}.fs15{font-size:15px}.fs16{font-size:16px}.fs18{font-size:18px}
-.mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}
-.text-red{color:#f87171}.text-grn{color:#4ade80}.text-yel{color:#fbbf24}.text-blue{color:#60a5fa}.text-pur{color:#c084fc}.text-mut{color:#64748b}
-.text-ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,Arial,sans-serif;background:#f0f0ec;color:#111;font-size:15px;}
+/* TOP */
+#topbar{background:#1a6b6b;color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;}
+#topbar .brand{font-size:18px;font-weight:700;}
+#topbar .sub{font-size:11px;opacity:0.7;margin-top:1px;}
+#topbar select{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.4);border-radius:6px;padding:4px 8px;font-size:13px;outline:none;}
+/* CONTENT */
+#content{padding:14px;padding-bottom:85px;}
+/* BOTTOM NAV */
+#botnav{position:fixed;bottom:0;left:0;right:0;background:#1a6b6b;display:flex;z-index:99;border-top:1px solid rgba(255,255,255,0.2);}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 10px;cursor:pointer;color:rgba(255,255,255,0.5);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;border-top:3px solid transparent;text-align:center;}
+.bni .ic{font-size:18px;margin-bottom:2px;}
+.bni.on{color:white;border-top-color:#c49a2a;background:rgba(255,255,255,0.1);}
+/* VIEWS */
+.view{display:none;}
+.view.on{display:block;}
+/* STAT GRID */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.sc{background:white;border-radius:10px;padding:14px;border:1px solid #e0e0d8;}
+.sc .l{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-bottom:4px;}
+.sc .v{font-size:20px;font-weight:700;color:#1a6b6b;}
+.sc .s{font-size:11px;color:#aaa;margin-top:3px;}
+/* CARD */
+.card{background:white;border-radius:10px;border:1px solid #e0e0d8;margin-bottom:14px;overflow:hidden;}
+.ch{padding:12px 14px;border-bottom:1px solid #e8e8e0;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:14px;}
+/* TABLE */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:320px;}
+th{background:#f8f8f4;font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid #ece8e0;}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid #f0ede8;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+/* EMPLOYEE CARD */
+.ec{background:white;border-radius:10px;border:1.5px solid #e0e0d8;padding:14px;margin-bottom:10px;}
+.en{font-size:16px;font-weight:700;margin-bottom:4px;}
+.em{font-size:12px;color:#999;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.ea{margin-top:10px;display:flex;gap:8px;}
+/* BADGE */
+.b{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.bt{background:#e8f4f4;color:#1a6b6b;}
+.bg{background:#f5e8c0;color:#7a5a00;}
+.br{background:#fdecea;color:#c0392b;}
+.bv{background:#e8f5ee;color:#1a7a4a;}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:4px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;}
+.bp{background:#1a6b6b;color:white;}
+.bgo{background:#c49a2a;color:white;}
+.bo{background:white;color:#1a6b6b;border:1.5px solid #1a6b6b;}
+.bd{background:#c0392b;color:white;}
+.bh{background:white;color:#555;border:1.5px solid #ddd;}
+.bsm{padding:5px 10px;font-size:12px;}
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;}
+.ov.on{display:flex;}
+.mo{background:white;border-radius:18px 18px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding-bottom:20px;}
+.mh{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0;}
+.mt{padding:14px 18px 12px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:16px;}
+.mc{background:none;border:none;font-size:26px;color:#aaa;cursor:pointer;line-height:1;padding:0;}
+.mb{padding:14px 18px;}
+.mf{padding:10px 18px;display:flex;gap:10px;}
+.mf .btn{flex:1;justify-content:center;padding:13px;font-size:15px;border-radius:10px;}
+/* FORM */
+.fr{margin-bottom:12px;}
+.fr label{display:block;font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;}
+.fr input,.fr select{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:16px;font-family:inherit;color:#111;background:white;outline:none;-webkit-appearance:none;appearance:none;}
+.fr input:focus,.fr select:focus{border-color:#1a6b6b;}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+/* CONFIRM SHEET */
+.cs{background:white;border-radius:18px 18px 0 0;width:100%;padding:16px 18px 20px;}
+.cm{text-align:center;font-size:14px;color:#555;margin:10px 0 16px;}
+.cs .btn{width:100%;justify-content:center;padding:13px;font-size:15px;border-radius:10px;margin-bottom:8px;}
+/* PAYSLIP */
+.ps{padding:20px;background:white;}
+.psh{display:flex;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #1a6b6b;}
+.psc{font-size:17px;font-weight:700;color:#1a6b6b;}
+.pss{font-size:11px;color:#aaa;margin-top:2px;}
+.pst{font-size:15px;font-weight:700;text-align:right;}
+.psp{font-size:12px;color:#aaa;text-align:right;}
+.psi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.psi .il{font-size:10px;color:#aaa;text-transform:uppercase;font-weight:700;}
+.psi .iv{font-size:13px;font-weight:600;margin-top:2px;}
+.pt{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;}
+.pt th{background:#1a6b6b;color:white;padding:7px 10px;font-size:11px;font-weight:700;text-align:left;}
+.pt td{padding:7px 10px;border-bottom:1px solid #f0ede8;}
+.ar{text-align:right;font-weight:600;}
+.dr{color:#c0392b;}
+.pn{background:#1a6b6b;color:white;padding:13px 14px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.pnl{font-size:12px;font-weight:600;}
+.pna{font-size:18px;font-weight:700;}
+.pf{margin-top:20px;padding-top:12px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:10px;color:#aaa;}
+.sl{width:110px;border-top:1px solid #aaa;margin:26px 0 3px;}
+/* MISC */
+.empty{text-align:center;padding:36px 16px;color:#bbb;}
+.empty .ei{font-size:32px;margin-bottom:8px;}
+.empty p{font-size:13px;}
+.alert{padding:10px 13px;border-radius:8px;font-size:13px;margin-bottom:12px;background:#f5e8c0;color:#7a5c00;border-left:3px solid #c49a2a;}
+.red{color:#c0392b;}.grn{color:#1a7a4a;}.teal{color:#1a6b6b;}.fw{font-weight:700;}
+.total-bar{background:#1a6b6b;color:white;padding:14px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="header">
-    <div class="flex gap10" style="align-items:center">
-      <div class="header-logo">⚡</div>
-      <div>
-        <div class="header-title">⚡ Zeus PayTrack</div>
-        <div class="header-sub" id="companyDisplay">G Wira Trading (M) Sdn Bhd</div>
+
+<div id="topbar">
+  <div>
+    <div class="brand">GwiraPack</div>
+    <div class="sub">Payroll Manager</div>
+  </div>
+  <select id="msel" onchange="onMC()"></select>
+</div>
+
+<div id="content">
+  <div class="view on" id="v-dash">
+    <div class="sg" id="dstats"></div>
+    <div id="dcards"></div>
+  </div>
+  <div class="view" id="v-emp">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+      <button class="btn bp" onclick="openEmp()">+ Add Employee</button>
+    </div>
+    <div id="emplist"></div>
+  </div>
+  <div class="view" id="v-att">
+    <div class="card">
+      <div class="ch">Hours Worked <button class="btn bp bsm" onclick="openAtt()">+ Log</button></div>
+      <div class="tw"><table><thead><tr><th>Name</th><th>Date</th><th>Hrs</th><th>Pay</th><th></th></tr></thead><tbody id="atttb"></tbody></table></div>
+    </div>
+  </div>
+  <div class="view" id="v-adv">
+    <div class="card">
+      <div class="ch">Advance Salary <button class="btn bp bsm" onclick="openAdv()">+ Add</button></div>
+      <div class="tw"><table><thead><tr><th>Name</th><th>Date</th><th>Amount</th><th>Note</th><th></th></tr></thead><tbody id="advtb"></tbody></table></div>
+    </div>
+  </div>
+  <div class="view" id="v-lv">
+    <div class="card">
+      <div class="ch">Leave Records <button class="btn bp bsm" onclick="openLv()">+ Add</button></div>
+      <div class="tw"><table><thead><tr><th>Name</th><th>Date</th><th>Type</th><th>Days</th><th></th></tr></thead><tbody id="lvtb"></tbody></table></div>
+    </div>
+  </div>
+  <div class="view" id="v-al">
+    <div class="alert">Daily RM10 allowance shows on payslip but is NOT part of basic salary.</div>
+    <div class="card">
+      <div class="ch">Daily Allowance <button class="btn bp bsm" onclick="openAl()">+ Add</button></div>
+      <div class="tw"><table><thead><tr><th>Name</th><th>Date</th><th>Amount</th><th></th></tr></thead><tbody id="altb"></tbody></table></div>
+    </div>
+  </div>
+  <div class="view" id="v-pay">
+    <div id="paycontent"></div>
+  </div>
+</div>
+
+<div id="botnav">
+  <div class="bni on" id="bn-dash" onclick="gv('dash')"><div class="ic">📊</div>Home</div>
+  <div class="bni" id="bn-emp" onclick="gv('emp')"><div class="ic">👥</div>Staff</div>
+  <div class="bni" id="bn-att" onclick="gv('att')"><div class="ic">🕐</div>Hours</div>
+  <div class="bni" id="bn-adv" onclick="gv('adv')"><div class="ic">💸</div>Advance</div>
+  <div class="bni" id="bn-lv" onclick="gv('lv')"><div class="ic">📅</div>Leave</div>
+  <div class="bni" id="bn-al" onclick="gv('al')"><div class="ic">💰</div>Allow</div>
+  <div class="bni" id="bn-pay" onclick="gv('pay')"><div class="ic">🧾</div>Payroll</div>
+</div>
+
+<!-- Employee Modal -->
+
+<div class="ov" id="mo-emp">
+  <div class="mo">
+    <div class="mh"></div>
+    <div class="mt"><span id="emp-mtitle">Add Employee</span><button class="mc" onclick="cm('mo-emp')">×</button></div>
+    <div class="mb">
+      <input type="hidden" id="ei">
+      <div class="fr"><label>Full Name *</label><input id="en" placeholder="Ahmad bin Ali" autocomplete="off"></div>
+      <div class="f2">
+        <div class="fr"><label>IC Number</label><input id="eic" placeholder="880101-01-1234"></div>
+        <div class="fr"><label>Phone</label><input id="eph" placeholder="012-3456789" type="tel"></div>
+      </div>
+      <div class="f2">
+        <div class="fr"><label>Pay Type *</label>
+          <select id="et" onchange="tpr()">
+            <option value="monthly">Monthly</option>
+            <option value="hourly">Hourly</option>
+          </select>
+        </div>
+        <div class="fr"><label id="erl">Monthly Salary (RM) *</label><input id="er" type="number" min="0" step="0.01" placeholder="1800.00" inputmode="decimal"></div>
+      </div>
+      <div class="f2">
+        <div class="fr"><label>Join Date</label><input id="ej" type="date"></div>
+        <div class="fr"><label>Role</label><input id="ero" placeholder="Driver, Sales..."></div>
       </div>
     </div>
-    <div class="fs12 text-mut" id="todayDate"></div>
-  </div>
-
-  <div class="content">
-    <!-- DASHBOARD -->
-    <div id="page-dashboard" class="page active">
-      <div id="alertBanner"></div>
-      <div class="stats-grid" id="statsGrid"></div>
-      <div class="card mb12"><div class="card-header"><span class="card-title">Aging Analysis</span></div><div class="p14" id="agingBars"></div></div>
-      <div class="card"><div class="card-header"><span class="card-title">Outstanding Invoices</span><button class="btn btn-ghost btn-sm" onclick="goTab('invoices')">View all →</button></div><div id="dashInvList"></div></div>
-    </div>
-
-```
-<!-- INVOICES -->
-<div id="page-invoices" class="page">
-  <div class="filter-row">
-    <input class="inp search-inp" placeholder="🔍 Search…" oninput="renderInvoices()" id="invSearch"/>
-    <select class="inp" onchange="renderInvoices()" id="invStatus" style="width:auto;padding:14px 10px">
-      <option value="all">All</option><option value="overdue">Overdue</option><option value="due-soon">Due Soon</option><option value="current">Current</option><option value="partial">Partial</option><option value="paid">Paid</option>
-    </select>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:10px;align-items:center">
-    <input type="date" class="inp" id="invDateFrom" onchange="renderInvoices()" placeholder="From" style="padding:10px 12px;font-size:14px"/>
-    <input type="date" class="inp" id="invDateTo" onchange="renderInvoices()" placeholder="To" style="padding:10px 12px;font-size:14px"/>
-    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('invDateFrom').value='';document.getElementById('invDateTo').value='';renderInvoices()">✕</button>
-  </div>
-  <div class="flex-between mb12">
-    <div class="flex gap8">
-      <button id="btnByInv" class="btn btn-sm btn-primary" onclick="setInvView('invoice')">🧾 By Invoice</button>
-      <button id="btnByCust" class="btn btn-sm btn-ghost" onclick="setInvView('customer')">👥 By Customer</button>
-    </div>
-    <div class="flex gap8">
-      <button class="btn btn-ghost btn-sm" onclick="showModal('addCustModal')">+ Customer</button>
-      <button class="btn btn-primary btn-sm" onclick="showModal('addInvModal')">+ Invoice</button>
+    <div class="mf">
+      <button class="btn bh" onclick="cm('mo-emp')">Cancel</button>
+      <button class="btn bp" onclick="sEmp()">Save</button>
     </div>
   </div>
-  <div id="invList"></div>
 </div>
 
-<!-- REMINDERS -->
-<div id="page-reminders" class="page">
-  <div class="sub-tabs">
-    <button class="sub-tab active" onclick="switchSub(this,'remAlerts')">🔔 Alerts</button>
-    <button class="sub-tab" onclick="switchSub(this,'remWa')">💬 WhatsApp</button>
-  </div>
-  <div id="remAlerts"></div>
-  <div id="remWa" style="display:none"></div>
-</div>
+<!-- Attendance Modal -->
 
-<!-- REPORTS -->
-<div id="page-reports" class="page">
-  <div class="sub-tabs">
-    <button class="sub-tab active" onclick="switchSub(this,'repMonthly')">📅 Monthly</button>
-    <button class="sub-tab" onclick="switchSub(this,'repHistory')">📜 Payments</button>
-    <button class="sub-tab" onclick="switchSub(this,'repWaLog')">💬 WA Log</button>
-  </div>
-  <div id="repMonthly"></div>
-  <div id="repHistory" style="display:none"></div>
-  <div id="repWaLog" style="display:none"></div>
-</div>
-
-<!-- IMPORT -->
-<div id="page-import" class="page"><div id="importContent"></div></div>
-```
-
-  </div>
-
-  <div class="nav">
-    <button class="nav-btn active" onclick="goTab('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span><span class="nav-label">Summary</span></button>
-    <button class="nav-btn" onclick="goTab('invoices')" id="nav-invoices"><span class="nav-icon">🧾</span><span class="nav-label">Invoices</span></button>
-    <button class="nav-btn" onclick="goTab('reminders')" id="nav-reminders"><span class="nav-icon">🔔</span><span class="nav-label">Alerts</span><span class="nav-badge" id="remBadge" style="display:none">0</span></button>
-    <button class="nav-btn" onclick="goTab('reports')" id="nav-reports"><span class="nav-icon">📈</span><span class="nav-label">Reports</span></button>
-    <button class="nav-btn" onclick="goTab('import')" id="nav-import"><span class="nav-icon">📥</span><span class="nav-label">Import</span></button>
-  </div>
-</div>
-
-<!-- MODALS -->
-
-<div id="invDetailModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)hideModal('invDetailModal')"><div class="modal" id="invDetailContent"></div></div>
-<div id="payModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)hideModal('payModal')"><div class="modal" id="payModalContent"></div></div>
-<div id="addInvModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)hideModal('addInvModal')">
-  <div class="modal">
-    <div class="modal-drag"></div>
-    <div class="modal-title">➕ New Invoice</div>
-    <div class="form-group"><label class="lbl">Customer *</label><select class="inp" id="newInvCust"><option value="">Select customer…</option></select></div>
-    <div class="form-group"><label class="lbl">Invoice No *</label><input class="inp" id="newInvNo" placeholder="INV-XXX"/></div>
-    <div class="form-group"><label class="lbl">Invoice Date</label><input type="date" class="inp" id="newInvDate"/></div>
-    <div class="form-row">
-      <div class="form-group"><label class="lbl">Amount (RM) *</label><input type="number" class="inp" id="newInvAmt" placeholder="0.00"/></div>
-      <div class="form-group"><label class="lbl">Paid (RM)</label><input type="number" class="inp" id="newInvPaid" placeholder="0.00" value="0"/></div>
-    </div>
-    <div class="form-group"><label class="lbl">Notes</label><input class="inp" id="newInvNotes" placeholder="Optional…"/></div>
-    <div class="btn-row"><button class="btn btn-ghost btn-full" onclick="hideModal('addInvModal')">Cancel</button><button class="btn btn-primary btn-full" onclick="addInvoice()">Save Invoice</button></div>
-  </div>
-</div>
-<div id="addCustModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)hideModal('addCustModal')">
-  <div class="modal">
-    <div class="modal-drag"></div>
-    <div class="modal-title">👤 New Customer</div>
-    <div class="form-group"><label class="lbl">Company Name *</label><input class="inp" id="newCustName" placeholder="ABC Trading Sdn Bhd"/></div>
-    <div class="form-group"><label class="lbl">Credit Term</label>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px">
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setCustTerm(0)">COD</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setCustTerm(7)">7 days</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setCustTerm(14)">14 days</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setCustTerm(30)">30 days</button>
+<div class="ov" id="mo-att">
+  <div class="mo">
+    <div class="mh"></div>
+    <div class="mt"><span>Log Hours</span><button class="mc" onclick="cm('mo-att')">×</button></div>
+    <div class="mb">
+      <div class="fr"><label>Employee *</label><select id="ae"></select></div>
+      <div class="f2">
+        <div class="fr"><label>Date *</label><input id="ad" type="date"></div>
+        <div class="fr"><label>Hours *</label><input id="ah" type="number" min="0.5" max="24" step="0.5" value="8" inputmode="decimal"></div>
       </div>
-      <input type="number" class="inp" id="newCustTerm" value="30" placeholder="Or type custom days"/>
     </div>
-    <div class="form-group"><label class="lbl">Contact Person</label><input class="inp" id="newCustContact"/></div>
-    <div class="form-group"><label class="lbl">Phone (for WhatsApp)</label><input type="tel" class="inp" id="newCustPhone" placeholder="012-3456789"/></div>
-    <div class="form-group"><label class="lbl">Email</label><input type="email" class="inp" id="newCustEmail"/></div>
-    <div class="btn-row"><button class="btn btn-ghost btn-full" onclick="hideModal('addCustModal')">Cancel</button><button class="btn btn-primary btn-full" onclick="addCustomer()">Save Customer</button></div>
+    <div class="mf">
+      <button class="btn bh" onclick="cm('mo-att')">Cancel</button>
+      <button class="btn bp" onclick="sAtt()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Advance Modal -->
+
+<div class="ov" id="mo-adv">
+  <div class="mo">
+    <div class="mh"></div>
+    <div class="mt"><span>Record Advance</span><button class="mc" onclick="cm('mo-adv')">×</button></div>
+    <div class="mb">
+      <div class="fr"><label>Employee *</label><select id="vde"></select></div>
+      <div class="f2">
+        <div class="fr"><label>Date *</label><input id="vdd" type="date"></div>
+        <div class="fr"><label>Amount (RM) *</label><input id="vda" type="number" min="0" step="0.01" placeholder="400.00" inputmode="decimal"></div>
+      </div>
+      <div class="fr"><label>Note</label><input id="vdn" placeholder="e.g. Weekly advance"></div>
+    </div>
+    <div class="mf">
+      <button class="btn bh" onclick="cm('mo-adv')">Cancel</button>
+      <button class="btn bp" onclick="sAdv()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Modal -->
+
+<div class="ov" id="mo-lv">
+  <div class="mo">
+    <div class="mh"></div>
+    <div class="mt"><span>Record Leave</span><button class="mc" onclick="cm('mo-lv')">×</button></div>
+    <div class="mb">
+      <div class="fr"><label>Employee *</label><select id="le"></select></div>
+      <div class="f2">
+        <div class="fr"><label>Date *</label><input id="ld" type="date"></div>
+        <div class="fr"><label>Days *</label><input id="ldy" type="number" min="0.5" step="0.5" value="1" inputmode="decimal"></div>
+      </div>
+      <div class="f2">
+        <div class="fr"><label>Type *</label>
+          <select id="lt">
+            <option value="Annual">Annual Leave</option>
+            <option value="MC">Medical (MC)</option>
+            <option value="Emergency">Emergency</option>
+            <option value="Unpaid">Unpaid Leave</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="fr"><label>Reason</label><input id="lr" placeholder="Optional"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn bh" onclick="cm('mo-lv')">Cancel</button>
+      <button class="btn bp" onclick="sLv()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Allowance Modal -->
+
+<div class="ov" id="mo-al">
+  <div class="mo">
+    <div class="mh"></div>
+    <div class="mt"><span>Record Allowance</span><button class="mc" onclick="cm('mo-al')">×</button></div>
+    <div class="mb">
+      <div class="fr"><label>Employee *</label><select id="ala"></select></div>
+      <div class="f2">
+        <div class="fr"><label>Date *</label><input id="aldate" type="date"></div>
+        <div class="fr"><label>Amount (RM)</label><input id="alam" type="number" min="0" step="0.01" value="10" inputmode="decimal"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn bh" onclick="cm('mo-al')">Cancel</button>
+      <button class="btn bp" onclick="sAl()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payslip Modal -->
+
+<div class="ov" id="mo-slip">
+  <div class="mo" style="max-height:92vh;">
+    <div class="mh"></div>
+    <div class="mt"><span>Salary Slip</span><button class="mc" onclick="cm('mo-slip')">×</button></div>
+    <div id="slipcontent" style="overflow-y:auto;max-height:65vh;"></div>
+    <div class="mf">
+      <button class="btn bh" onclick="cm('mo-slip')">Close</button>
+      <button class="btn bgo" onclick="pSlip()">Print / PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm -->
+
+<div class="ov" id="mo-conf">
+  <div class="cs">
+    <div class="mh"></div>
+    <p class="cm" id="confmsg">Are you sure?</p>
+    <button class="btn bd" id="confok">Delete</button>
+    <button class="btn bh" onclick="cm('mo-conf')">Cancel</button>
   </div>
 </div>
 
 <script>
-// ── STATE ─────────────────────────────────────────────────────
-var SK='paytrack-v8';
-var state={
-  customers:[
-    {id:1,name:"ABC Trading Sdn Bhd",creditTerm:30,contact:"Ahmad",phone:"012-3456789",email:""},
-    {id:2,name:"XYZ Retail Bhd",creditTerm:60,contact:"Siti",phone:"016-9876543",email:""},
-    {id:3,name:"Golden Supply Co",creditTerm:14,contact:"Tan Wei",phone:"011-2233445",email:""},
-  ],
-  invoices:[
-    {id:1,customerId:1,invoiceNo:"INV-2025-001",amount:12500,invoiceDate:"2026-01-15",paidAmount:0,status:"unpaid",notes:""},
-    {id:2,customerId:1,invoiceNo:"INV-2025-002",amount:8750,invoiceDate:"2026-02-01",paidAmount:0,status:"unpaid",notes:""},
-    {id:3,customerId:2,invoiceNo:"INV-2025-003",amount:23000,invoiceDate:"2026-01-20",paidAmount:23000,status:"paid",notes:""},
-    {id:4,customerId:2,invoiceNo:"INV-2025-004",amount:15400,invoiceDate:"2026-02-10",paidAmount:5000,status:"partial",notes:""},
-    {id:5,customerId:3,invoiceNo:"INV-2025-005",amount:4200,invoiceDate:"2026-02-20",paidAmount:0,status:"unpaid",notes:""},
-  ],
-  payments:[
-    {id:1,invoiceId:3,customerId:2,invoiceNo:"INV-2025-003",customerName:"XYZ Retail Bhd",amount:23000,date:"2026-02-15",note:"Full payment"},
-    {id:2,invoiceId:4,customerId:2,invoiceNo:"INV-2025-004",customerName:"XYZ Retail Bhd",amount:5000,date:"2026-02-20",note:"Partial"},
-  ],
-  waLog:[],
-  company:"G Wira Trading (M) Sdn Bhd",
-  dismissed:[],
-};
-var currentTab='dashboard';
-var currentPayInv=null;
-var invView='invoice';
+// DATA
+var KEY = 'gw_pay_v1';
+var D = {emp:[], adv:[], lv:[], al:[], att:[]};
+var CV = 'dash';
+var MON_S = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var MON_L = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var LVC = {Annual:'bt', MC:'bv', Emergency:'bg', Unpaid:'br', Other:'bt'};
 
-// ── STORAGE ───────────────────────────────────────────────────
-function save(){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}}
-function load(){
-  try{
-    var s=localStorage.getItem(SK);
-    if(s){var d=JSON.parse(s);
-      state.customers=d.customers||state.customers;
-      state.invoices=d.invoices||state.invoices;
-      state.payments=d.payments||state.payments;
-      state.waLog=d.waLog||[];
-      state.company=d.company||state.company;
-      state.dismissed=d.dismissed||[];
+// STORAGE - safe fallback
+function load() {
+  try {
+    var r = localStorage.getItem(KEY);
+    if (r) {
+      var p = JSON.parse(r);
+      if (p.emp) D.emp = p.emp;
+      if (p.adv) D.adv = p.adv;
+      if (p.lv) D.lv = p.lv;
+      if (p.al) D.al = p.al;
+      if (p.att) D.att = p.att;
     }
-  }catch(e){}
+  } catch(e) {}
 }
 
-// ── HELPERS ───────────────────────────────────────────────────
-function fmyr(n){return'RM '+Number(n||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fshort(n){var v=Number(n||0);if(v>=1000000)return'RM '+(v/1000000).toFixed(1)+'M';if(v>=1000)return'RM '+(v/1000).toFixed(1)+'K';return'RM '+v.toFixed(0);}
-function fdate(d){
-  if(!d)return'—';
-  try{
-    var dt=d instanceof Date?d:new Date(d+'T00:00:00');
-    if(isNaN(dt))return'—';
-    return dt.toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'});
-  }catch(e){return'—';}
-}
-function fdshort(d){
-  if(!d)return'—';
-  try{
-    var dt=d instanceof Date?d:new Date(d+'T00:00:00');
-    if(isNaN(dt))return'—';
-    return dt.toLocaleDateString('en-MY',{day:'2-digit',month:'short'});
-  }catch(e){return'—';}
-}
-function mKey(ds){if(!ds)return'?';var p=ds.split('-');return p[0]+'-'+p[1];}
-function mLabel(k){if(!k||k==='?')return'Unknown';var p=k.split('-');return new Date(Number(p[0]),Number(p[1])-1,1).toLocaleDateString('en-MY',{month:'long',year:'numeric'});}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-function setCustTerm(days){var el=document.getElementById('newCustTerm');if(el)el.value=days;}
-function toDateStr(d){
-  if(!d)return'';
-  if(typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d))return d;
-  if(d instanceof Date&&!isNaN(d))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  return String(d||'');
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(D)); } catch(e) {}
 }
 
-// Parse Malaysian date DD/MM/YYYY → YYYY-MM-DD
-function parseMYDate(val){
-  if(!val)return'';
-  if(typeof val==='object'&&val.toISOString){
-    // SheetJS Date object — use UTC to avoid timezone shift
-    var y=val.getFullYear(),mo=val.getMonth()+1,d=val.getDate();
-    return y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+// UTILS
+function uid() {
+  var t = new Date().getTime();
+  var r = Math.random() * 0x10000;
+  return Math.floor(t).toString(36) + Math.floor(r).toString(36);
+}
+
+function p2(n) { return n < 10 ? '0'+n : ''+n; }
+
+function tod() {
+  var d = new Date();
+  return d.getFullYear() + '-' + p2(d.getMonth()+1) + '-' + p2(d.getDate());
+}
+
+function mo(s) { return s ? s.substring(0,7) : ''; }
+
+function fd(s) {
+  if (!s) return '-';
+  var p = s.split('-');
+  return parseInt(p[2],10) + ' ' + MON_S[parseInt(p[1],10)-1] + ' ' + p[0];
+}
+
+function fm(ym) {
+  var p = ym.split('-');
+  return MON_L[parseInt(p[1],10)-1] + ' ' + p[0];
+}
+
+function dim(ym) {
+  var p = ym.split('-');
+  return new Date(parseInt(p[0],10), parseInt(p[1],10), 0).getDate();
+}
+
+function rm(n) {
+  var x = Math.round(n * 100) / 100;
+  return 'RM ' + x.toFixed(2);
+}
+
+function en(id) {
+  var i;
+  for (i = 0; i < D.emp.length; i++) { if (D.emp[i].id === id) return D.emp[i].name; }
+  return '?';
+}
+
+function getEmp(id) {
+  var i;
+  for (i = 0; i < D.emp.length; i++) { if (D.emp[i].id === id) return D.emp[i]; }
+  return null;
+}
+
+function gm() { return document.getElementById('msel').value; }
+
+// MONTH SELECTOR
+function initMS() {
+  var sel = document.getElementById('msel');
+  var now = new Date();
+  var html = '';
+  var i, y, mo2, mo3;
+  for (i = 0; i < 18; i++) {
+    y = now.getFullYear();
+    mo2 = now.getMonth() - i;
+    while (mo2 < 0) { mo2 += 12; y--; }
+    mo3 = p2(mo2 + 1);
+    html += '<option value="' + y + '-' + mo3 + '">' + MON_S[mo2] + ' ' + y + '</option>';
   }
-  var s=String(val).trim();
-  // DD/MM/YYYY
-  var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(m){var d=parseInt(m[1]),mo=parseInt(m[2]),y=parseInt(m[3]);return y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
-  // Already YYYY-MM-DD
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
-  return'';
+  sel.innerHTML = html;
 }
 
-function getDueDate(invDate,term){
-  if(!invDate)return null;
-  var d=new Date(invDate+'T00:00:00');
-  if(isNaN(d))return null;
-  d.setDate(d.getDate()+Number(term||0));
-  return d;
-}
-function getDaysOverdue(due){
-  var t=new Date();t.setHours(0,0,0,0);
-  var d=new Date(due);d.setHours(0,0,0,0);
-  return Math.floor((t-d)/86400000);
-}
-function ageBucket(d){if(d<=0)return'current';if(d<=30)return'1-30';if(d<=60)return'31-60';if(d<=90)return'61-90';return'90+';}
+function onMC() { render(); }
 
-function enrichInv(inv){
-  var cust=state.customers.find(function(c){return c.id===inv.customerId;});
-  if(!cust)return Object.assign({},inv,{customer:null,dueDate:null,daysOverdue:0,outstanding:inv.amount-inv.paidAmount,displayStatus:inv.status||'unpaid',aging:'current'});
-  // Use saved dueDate from Autocount if available, else calculate from credit term
-  var dueDateObj;
-  if(inv.dueDate&&inv.dueDate!==''){
-    var dd=new Date(String(inv.dueDate)+'T00:00:00');
-    dueDateObj=isNaN(dd)?getDueDate(inv.invoiceDate,cust.creditTerm):dd;
-  }else{
-    dueDateObj=getDueDate(inv.invoiceDate,cust.creditTerm);
+// NAVIGATION
+function gv(name) {
+  var vs = document.querySelectorAll('.view');
+  var bs = document.querySelectorAll('.bni');
+  var i;
+  for (i = 0; i < vs.length; i++) vs[i].className = 'view';
+  for (i = 0; i < bs.length; i++) bs[i].className = 'bni';
+  document.getElementById('v-'+name).className = 'view on';
+  document.getElementById('bn-'+name).className = 'bni on';
+  CV = name;
+  render();
+  window.scrollTo(0, 0);
+}
+
+function render() {
+  if (CV === 'dash') rDash();
+  else if (CV === 'emp') rEmp();
+  else if (CV === 'att') rAtt();
+  else if (CV === 'adv') rAdv();
+  else if (CV === 'lv') rLv();
+  else if (CV === 'al') rAl();
+  else if (CV === 'pay') rPay();
+}
+
+// MODALS
+function om(id) { document.getElementById(id).className = 'ov on'; }
+function cm(id) { document.getElementById(id).className = 'ov'; }
+
+function conf(msg, fn) {
+  document.getElementById('confmsg').textContent = msg;
+  document.getElementById('confok').onclick = function() { fn(); cm('mo-conf'); };
+  om('mo-conf');
+}
+
+function fes(selId, typeF) {
+  var sel = document.getElementById(selId);
+  var i, e, list = [];
+  for (i = 0; i < D.emp.length; i++) {
+    e = D.emp[i];
+    if (!typeF || e.type === typeF) list.push(e);
   }
-  // Always store as YYYY-MM-DD string so fdate() works reliably
-  var dueDateStr=toDateStr(dueDateObj);
-  var daysOverdue=dueDateObj?getDaysOverdue(dueDateObj):0;
-  var outstanding=inv.amount-inv.paidAmount;
-  var ds;
-  if(inv.status==='paid') ds='paid';
-  else if(!dueDateObj) ds='current';
-  else if(daysOverdue>0) ds='overdue';
-  else if(inv.status==='partial') ds='partial';
-  else if(daysOverdue>-7) ds='due-soon';
-  else ds='current';
-  return Object.assign({},inv,{customer:cust,dueDate:dueDateStr,daysOverdue:daysOverdue,outstanding:outstanding,displayStatus:ds,aging:ageBucket(daysOverdue)});
-}
-function getEnriched(){return state.invoices.map(enrichInv);}
-
-var STATUS_CFG={current:{label:'Current',cls:'badge-current'},'due-soon':{label:'Due Soon',cls:'badge-due-soon'},overdue:{label:'Overdue',cls:'badge-overdue'},paid:{label:'Paid',cls:'badge-paid'},partial:{label:'Partial',cls:'badge-partial'},unpaid:{label:'Unpaid',cls:'badge-overdue'}};
-var STATUS_COLOR={overdue:'#f87171','due-soon':'#fbbf24',current:'#4ade80',partial:'#c084fc',paid:'#60a5fa',unpaid:'#f87171'};
-var AGE_COLOR={current:'#4ade80','1-30':'#a3e635','31-60':'#fbbf24','61-90':'#fb923c','90+':'#f87171'};
-function badgeHtml(status){var cfg=STATUS_CFG[status]||STATUS_CFG.current;return'<span class="badge '+cfg.cls+'">'+cfg.label+'</span>';}
-
-function invRowHtml(inv,clickFn){
-  var bc=STATUS_COLOR[inv.displayStatus]||'#1e2d4a';
-  var late='';
-  if(inv.displayStatus!=='paid'&&inv.daysOverdue>0) late=' <span style="color:#f87171;font-weight:700">▲'+inv.daysOverdue+'d</span>';
-  else if(inv.displayStatus==='due-soon') late=' <span style="color:#fbbf24;font-weight:700">⚡'+Math.abs(inv.daysOverdue)+'d left</span>';
-  return'<div class="inv-row" style="border-left-color:'+bc+'" onclick="'+clickFn+'('+inv.id+')">'
-    +'<div class="flex1">'
-      +'<div class="inv-name">'+esc(inv.customer?inv.customer.name:'Unknown')+'</div>'
-      +'<div class="inv-no">'+esc(inv.invoiceNo)+'</div>'
-      +'<div class="inv-meta">Due '+fdshort(inv.dueDate)+(inv.customer?' · Net '+inv.customer.creditTerm+'d':'')+late+'</div>'
-    +'</div>'
-    +'<div style="text-align:right;flex-shrink:0">'
-      +'<div class="inv-amt" style="color:'+(inv.outstanding>0&&inv.daysOverdue>0?'#f87171':'#e2e8f0')+'">'+fshort(inv.outstanding)+'</div>'
-      +badgeHtml(inv.displayStatus)
-    +'</div>'
-  +'</div>';
-}
-
-// ── NAVIGATION ────────────────────────────────────────────────
-function goTab(tab){
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
-  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
-  document.getElementById('page-'+tab).classList.add('active');
-  document.getElementById('nav-'+tab).classList.add('active');
-  currentTab=tab;renderTab(tab);
-}
-function renderTab(tab){
-  if(tab==='dashboard')renderDashboard();
-  else if(tab==='invoices')renderInvoices();
-  else if(tab==='reminders')renderReminders();
-  else if(tab==='reports')renderReports();
-  else if(tab==='import')renderImport();
-}
-function switchSub(btn,targetId){
-  var parent=btn.parentElement;
-  parent.querySelectorAll('.sub-tab').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
-  var gp=parent.parentElement;
-  gp.querySelectorAll('[id]').forEach(function(d){if(d.id!==targetId&&d!==parent)d.style.display='none';});
-  document.getElementById(targetId).style.display='block';
-  renderSubTab(targetId);
-}
-function renderSubTab(id){
-  if(id==='remAlerts')renderAlerts();
-  else if(id==='remWa')renderWa();
-  else if(id==='repMonthly')renderMonthly();
-  else if(id==='repHistory')renderHistory();
-  else if(id==='repWaLog')renderWaLog();
-}
-
-// ── DASHBOARD ─────────────────────────────────────────────────
-function renderDashboard(){
-  var enriched=getEnriched();
-  var unpaid=enriched.filter(function(i){return i.displayStatus!=='paid';});
-  var reminders=enriched.filter(function(i){return(i.displayStatus==='overdue'||i.displayStatus==='due-soon')&&state.dismissed.indexOf(i.id)===-1;});
-  reminders.sort(function(a,b){return b.daysOverdue-a.daysOverdue;});
-  var badge=document.getElementById('remBadge');
-  if(reminders.length>0){badge.style.display='';badge.textContent=reminders.length;}else{badge.style.display='none';}
-  var banner=document.getElementById('alertBanner');
-  if(reminders.length>0){
-    var items=reminders.slice(0,2).map(function(inv){
-      return'<div class="flex-between fs13" style="color:#d97706;margin-bottom:4px">'
-        +'<span class="flex1 text-ellipsis" style="margin-right:8px">• '+esc(inv.customer?inv.customer.name:'')+' — '+fshort(inv.outstanding)+(inv.daysOverdue>0?' ('+inv.daysOverdue+'d overdue)':'')+'</span>'
-        +'<button style="background:none;border:none;color:#92400e;cursor:pointer;font-size:14px;padding:0 4px" onclick="dismiss('+inv.id+')">✕</button>'
-      +'</div>';
-    }).join('');
-    var more=reminders.length>2?'<button style="font-size:12px;color:#92400e;background:none;border:none;cursor:pointer;padding:0" onclick="goTab(\'reminders\')">See all '+reminders.length+' →</button>':'';
-    banner.innerHTML='<div class="alert-banner"><div class="flex gap10" style="align-items:flex-start"><span style="font-size:20px">🔔</span><div style="flex:1"><div class="fw7 text-yel mb4 fs14">'+reminders.length+' Payment Reminder'+(reminders.length>1?'s':'')+'</div>'+items+more+'</div></div></div>';
-  }else{banner.innerHTML='';}
-  var totalOut=unpaid.reduce(function(s,i){return s+i.outstanding;},0);
-  var overdue=unpaid.filter(function(i){return i.displayStatus==='overdue';});
-  var dueSoon=unpaid.filter(function(i){return i.displayStatus==='due-soon';});
-  var current=unpaid.filter(function(i){return i.displayStatus==='current';});
-  var stats=[
-    {l:'Outstanding',v:fshort(totalOut),c:'#60a5fa'},
-    {l:'Overdue',v:fshort(overdue.reduce(function(s,i){return s+i.outstanding;},0)),s:overdue.length+' inv',c:'#f87171'},
-    {l:'Due Soon',v:fshort(dueSoon.reduce(function(s,i){return s+i.outstanding;},0)),s:dueSoon.length+' inv',c:'#fbbf24'},
-    {l:'Current',v:fshort(current.reduce(function(s,i){return s+i.outstanding;},0)),c:'#4ade80'},
-  ];
-  document.getElementById('statsGrid').innerHTML=stats.map(function(x){
-    return'<div class="stat-card" style="border:1px solid '+x.c+'22"><div class="stat-label">'+x.l+'</div><div class="stat-value" style="color:'+x.c+'">'+x.v+'</div>'+(x.s?'<div class="stat-sub">'+x.s+'</div>':'')+'</div>';
-  }).join('');
-  var aging={current:0,'1-30':0,'31-60':0,'61-90':0,'90+':0};
-  unpaid.forEach(function(i){aging[i.aging]=(aging[i.aging]||0)+i.outstanding;});
-  var maxVal=Math.max.apply(null,Object.values(aging).concat([1]));
-  document.getElementById('agingBars').innerHTML=[{k:'current',l:'Current'},{k:'1-30',l:'1–30 Days'},{k:'31-60',l:'31–60 Days'},{k:'61-90',l:'61–90 Days'},{k:'90+',l:'90+ Days'}].map(function(b){
-    var v=aging[b.k]||0,pct=(v/maxVal)*100,col=AGE_COLOR[b.k];
-    return'<div class="aging-row"><div class="aging-meta"><span class="fs12 text-mut">'+b.l+'</span><span class="fs12 fw7" style="color:'+col+'">'+fshort(v)+'</span></div><div class="aging-bar-bg"><div class="aging-bar" style="width:'+pct+'%;background:'+col+'"></div></div></div>';
-  }).join('');
-  var outstanding=enriched.filter(function(i){return i.displayStatus!=='paid';}).slice(0,5);
-  document.getElementById('dashInvList').innerHTML=outstanding.length===0?'<div class="empty">All invoices settled 🎉</div>':outstanding.map(function(inv){return invRowHtml(inv,'openInvDetail');}).join('');
-}
-function dismiss(id){state.dismissed.push(id);save();renderDashboard();}
-
-// ── INVOICES ──────────────────────────────────────────────────
-function setInvView(v){
-  invView=v;
-  document.getElementById('btnByInv').className='btn btn-sm '+(v==='invoice'?'btn-primary':'btn-ghost');
-  document.getElementById('btnByCust').className='btn btn-sm '+(v==='customer'?'btn-primary':'btn-ghost');
-  renderInvoices();
-}
-function renderInvoices(){
-  var enriched=getEnriched();
-  var search=(document.getElementById('invSearch').value||'').toLowerCase();
-  var status=document.getElementById('invStatus').value;
-  var dateFrom=document.getElementById('invDateFrom').value;
-  var dateTo=document.getElementById('invDateTo').value;
-  var filtered=enriched.filter(function(i){
-    if(status!=='all'&&i.displayStatus!==status)return false;
-    if(search&&i.invoiceNo.toLowerCase().indexOf(search)===-1&&(!i.customer||i.customer.name.toLowerCase().indexOf(search)===-1))return false;
-    if(dateFrom&&i.invoiceDate&&i.invoiceDate<dateFrom)return false;
-    if(dateTo&&i.invoiceDate&&i.invoiceDate>dateTo)return false;
-    return true;
-  });
-  filtered.sort(function(a,b){return b.daysOverdue-a.daysOverdue;});
-  var sel=document.getElementById('newInvCust');
-  sel.innerHTML='<option value="">Select customer…</option>'+state.customers.map(function(c){return'<option value="'+c.id+'">'+esc(c.name)+' (Net '+c.creditTerm+'d)</option>';}).join('');
-  if(filtered.length===0){document.getElementById('invList').innerHTML='<div class="card"><div class="empty">No invoices found</div></div>';return;}
-  if(invView==='invoice'){
-    document.getElementById('invList').innerHTML='<div class="card">'+filtered.map(function(inv){return invRowHtml(inv,'openInvDetail');}).join('')+'</div>';
-  }else{
-    var groups={};
-    filtered.forEach(function(inv){
-      var cid=inv.customerId;
-      if(!groups[cid])groups[cid]={customer:inv.customer,invoices:[],totalOS:0,maxDO:-9999,hasOD:false};
-      groups[cid].invoices.push(inv);groups[cid].totalOS+=inv.outstanding;
-      if(inv.daysOverdue>groups[cid].maxDO)groups[cid].maxDO=inv.daysOverdue;
-      if(inv.displayStatus==='overdue')groups[cid].hasOD=true;
-    });
-    var gl=Object.values(groups).sort(function(a,b){return b.maxDO-a.maxDO;});
-    document.getElementById('invList').innerHTML=gl.map(function(g,gi){
-      var bc=g.hasOD?'#f87171':g.maxDO>-7?'#fbbf24':'#4ade80';
-      var odCount=g.invoices.filter(function(i){return i.displayStatus==='overdue';}).length;
-      var gid='grp'+gi;
-      return'<div class="card mb12" style="border-left:4px solid '+bc+'">'
-        +'<div style="padding:14px 16px;cursor:pointer" onclick="toggleGrp(\''+gid+'\')">'
-          +'<div class="flex-between">'
-            +'<div class="flex1"><div class="fw7 fs15 text-ellipsis">'+esc(g.customer?g.customer.name:'Unknown')+'</div>'
-            +'<div class="fs12 text-mut" style="margin-top:3px">'+g.invoices.length+' invoice'+(g.invoices.length!==1?'s':'')+(odCount>0?' · <span style="color:#f87171;font-weight:700">'+odCount+' overdue</span>':'')+'</div></div>'
-            +'<div style="text-align:right;margin-left:12px"><div class="fw7 fs15" style="color:'+bc+'">'+fmyr(g.totalOS)+'</div><div class="fs13 text-mut" id="arr'+gid+'">▼</div></div>'
-          +'</div>'
-        +'</div>'
-        +'<div id="'+gid+'" style="border-top:1px solid #1e2d4a;display:none">'
-          +g.invoices.map(function(inv){
-            var col=STATUS_COLOR[inv.displayStatus]||'#1e2d4a';
-            return'<div class="inv-row" style="padding-left:20px;border-left:none" onclick="openInvDetail('+inv.id+')">'
-              +'<div class="flex1"><div class="fs13 fw7 text-blue mb4">'+esc(inv.invoiceNo)+'</div>'
-              +'<div class="fs12 text-mut">Due '+fdshort(inv.dueDate)+(inv.daysOverdue>0?' · <span style="color:#f87171;font-weight:700">'+inv.daysOverdue+'d late</span>':'')+'</div></div>'
-              +'<div style="text-align:right;flex-shrink:0"><div class="fw7 fs14 mb4" style="color:'+(inv.outstanding>0&&inv.daysOverdue>0?'#f87171':'#e2e8f0')+'">'+fmyr(inv.outstanding)+'</div>'+badgeHtml(inv.displayStatus)+'</div>'
-            +'</div>';
-          }).join('')
-        +'</div>'
-      +'</div>';
-    }).join('');
+  if (!list.length) { sel.innerHTML = '<option value="">No employees</option>'; return; }
+  var html = '';
+  for (i = 0; i < list.length; i++) {
+    html += '<option value="' + list[i].id + '">' + list[i].name + '</option>';
   }
-}
-function toggleGrp(gid){
-  var el=document.getElementById(gid),arr=document.getElementById('arr'+gid);
-  if(!el)return;
-  var show=el.style.display==='none';
-  el.style.display=show?'block':'none';
-  if(arr)arr.textContent=show?'▲':'▼';
+  sel.innerHTML = html;
 }
 
-// ── INVOICE DETAIL ────────────────────────────────────────────
-function openInvDetail(id){
-  var inv=enrichInv(state.invoices.find(function(i){return i.id===id;}));
-  if(!inv)return;
-  var dueDateStr=inv.dueDate?new Date(inv.dueDate).toISOString().split('T')[0]:'';
-  document.getElementById('invDetailContent').innerHTML='<div class="modal-drag"></div>'
-    +'<div class="flex-between mb16"><div><div class="fw7 fs16 mb4">'+esc(inv.invoiceNo)+'</div><div class="fs14 text-mut">'+esc(inv.customer?inv.customer.name:'')+'</div></div>'+badgeHtml(inv.displayStatus)+'</div>'
-    +'<div class="detail-row"><span class="detail-label">Invoice Date</span><span class="detail-value">'+fdate(inv.invoiceDate)+'</span></div>'
-    +'<div class="detail-row" style="align-items:center"><span class="detail-label">Due Date</span>'
-      +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<span class="detail-value" id="dueDateDisplay">'+fdate(inv.dueDate)+'</span>'
-        +'<button class="btn btn-ghost btn-sm" style="padding:6px 10px;font-size:12px" onclick="editDueDate('+inv.id+')">✏️ Edit</button>'
-      +'</div>'
-    +'</div>'
-    +'<div id="dueDateEditRow" style="display:none;padding:10px 0;border-bottom:1px solid #1e2d4a">'
-      +'<label class="lbl">New Due Date</label>'
-      +'<div class="flex gap8" style="align-items:center">'
-        +'<input type="date" class="inp" id="dueDateInput" value="'+dueDateStr+'" style="flex:1"/>'
-        +'<button class="btn btn-primary btn-sm" onclick="saveDueDate('+inv.id+')">Save</button>'
-        +'<button class="btn btn-ghost btn-sm" onclick="cancelDueDate()">✕</button>'
-      +'</div>'
-    +'</div>'
-    +'<div class="detail-row" style="align-items:center"><span class="detail-label">Credit Term</span>'
-      +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<span class="detail-value" id="termDisplay">Net '+(inv.customer?inv.customer.creditTerm:0)+'d</span>'
-        +'<button class="btn btn-ghost btn-sm" style="padding:6px 10px;font-size:12px" onclick="editCreditTerm('+inv.id+')">✏️ Edit</button>'
-      +'</div>'
-    +'</div>'
-    +'<div id="termEditRow" style="display:none;padding:10px 0;border-bottom:1px solid #1e2d4a">'
-      +'<label class="lbl">Credit Term</label>'
-      +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px">'
-        +'<button type="button" class="btn btn-ghost btn-sm" onclick="setTermVal(0)">COD</button>'
-        +'<button type="button" class="btn btn-ghost btn-sm" onclick="setTermVal(7)">7 days</button>'
-        +'<button type="button" class="btn btn-ghost btn-sm" onclick="setTermVal(14)">14 days</button>'
-        +'<button type="button" class="btn btn-ghost btn-sm" onclick="setTermVal(30)">30 days</button>'
-      +'</div>'
-      +'<div class="flex gap8">'
-        +'<input type="number" class="inp" id="termInput" value="'+(inv.customer?inv.customer.creditTerm:0)+'" placeholder="Custom days" style="flex:1"/>'
-        +'<button class="btn btn-primary btn-sm" onclick="saveCreditTerm('+inv.customerId+','+inv.id+')">Save</button>'
-        +'<button class="btn btn-ghost btn-sm" onclick="cancelCreditTerm()">✕</button>'
-      +'</div>'
-    +'</div>'
-    +'<div class="detail-row"><span class="detail-label">Invoice Amount</span><span class="detail-value">'+fmyr(inv.amount)+'</span></div>'
-    +'<div class="detail-row"><span class="detail-label">Paid</span><span class="detail-value fw7 text-grn">'+fmyr(inv.paidAmount)+'</span></div>'
-    +'<div class="detail-row" style="border:none"><span class="detail-label">Outstanding</span><span class="detail-value fw7 text-red">'+fmyr(inv.outstanding)+'</span></div>'
-    +(inv.daysOverdue>0?'<div style="margin-top:12px;padding:10px 14px;background:#3a0a0a;border-radius:10px;color:#fca5a5;font-size:13px;font-weight:600">⚠️ '+inv.daysOverdue+' days overdue</div>':'')
-    // Payment history
-    +(function(){
-      var pays=state.payments.filter(function(p){return p.invoiceId===inv.id;});
-      if(!pays.length)return'';
-      return'<div style="margin-top:14px">'
-        +'<div class="lbl" style="margin-bottom:8px">Payment History</div>'
-        +pays.map(function(p){
-          return'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#0d1525;border-radius:10px;margin-bottom:6px">'
-            +'<div>'
-              +'<div class="fw7 fs14 text-grn">'+fmyr(p.amount)+'</div>'
-              +'<div class="fs12 text-mut">'+fdate(p.date)+(p.note?' · '+esc(p.note):'')+'</div>'
-            +'</div>'
-            +'<button onclick="deletePayment('+p.id+','+inv.id+')" style="background:#3a0a0a;border:1px solid #991b1b;color:#f87171;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;min-height:36px">🗑️ Undo</button>'
-          +'</div>';
-        }).join('')
-      +'</div>';
-    })()
-    +'<div class="btn-row">'+(inv.displayStatus!=='paid'?'<button class="btn btn-success btn-full" onclick="hideModal(\'invDetailModal\');openPayModal('+inv.id+')">💰 Record Payment</button>':'')+'<button class="btn btn-danger btn-full" onclick="deleteInv('+inv.id+')">Delete</button></div>';
-  showModal('invDetailModal');
+// EMPLOYEES
+function openEmp() {
+  document.getElementById('emp-mtitle').textContent = 'Add Employee';
+  document.getElementById('ei').value = '';
+  document.getElementById('en').value = '';
+  document.getElementById('eic').value = '';
+  document.getElementById('eph').value = '';
+  document.getElementById('et').value = 'monthly';
+  document.getElementById('er').value = '';
+  document.getElementById('ej').value = tod();
+  document.getElementById('ero').value = '';
+  tpr();
+  om('mo-emp');
 }
-function editCreditTerm(id){document.getElementById('termEditRow').style.display='block';document.getElementById('termInput').focus();}
-function cancelCreditTerm(){document.getElementById('termEditRow').style.display='none';}
-function setTermVal(v){document.getElementById('termInput').value=v;}
-function saveCreditTerm(custId,invId){
-  var term=parseInt(document.getElementById('termInput').value)||0;
-  // Update customer credit term
-  state.customers=state.customers.map(function(c){return c.id===custId?Object.assign({},c,{creditTerm:term}):c;});
-  // Recalculate due date for ALL invoices of this customer
-  state.invoices=state.invoices.map(function(i){
-    if(i.customerId!==custId)return i;
-    var newDue=getDueDate(i.invoiceDate,term);
-    var newDueStr=newDue?toDateStr(newDue):'';
-    return Object.assign({},i,{dueDate:newDueStr});
-  });
+
+function editEmp(id) {
+  var e = getEmp(id);
+  if (!e) return;
+  document.getElementById('emp-mtitle').textContent = 'Edit Employee';
+  document.getElementById('ei').value = e.id;
+  document.getElementById('en').value = e.name;
+  document.getElementById('eic').value = e.ic || '';
+  document.getElementById('eph').value = e.ph || '';
+  document.getElementById('et').value = e.type;
+  document.getElementById('er').value = e.rate;
+  document.getElementById('ej').value = e.jd || '';
+  document.getElementById('ero').value = e.role || '';
+  tpr();
+  om('mo-emp');
+}
+
+function tpr() {
+  var t = document.getElementById('et').value;
+  document.getElementById('erl').textContent = t === 'monthly' ? 'Monthly Salary (RM) *' : 'Hourly Rate (RM) *';
+}
+
+function sEmp() {
+  var id = document.getElementById('ei').value;
+  var name = document.getElementById('en').value;
+  name = name.replace(/^\s+|\s+$/g, '');
+  var rate = parseFloat(document.getElementById('er').value);
+  if (!name) { alert('Name is required'); return; }
+  if (!rate || rate <= 0) { alert('Enter a valid salary/rate'); return; }
+  var e = {
+    id: id || uid(),
+    name: name,
+    ic: document.getElementById('eic').value,
+    ph: document.getElementById('eph').value,
+    type: document.getElementById('et').value,
+    rate: rate,
+    jd: document.getElementById('ej').value,
+    role: document.getElementById('ero').value
+  };
+  var i, found = false;
+  for (i = 0; i < D.emp.length; i++) {
+    if (D.emp[i].id === id) { D.emp[i] = e; found = true; break; }
+  }
+  if (!found) D.emp.push(e);
   save();
-  hideModal('invDetailModal');
-  renderTab(currentTab);
-}
-function editDueDate(id){
-  document.getElementById('dueDateEditRow').style.display='block';
-  document.getElementById('dueDateInput').focus();
-}
-function cancelDueDate(){
-  document.getElementById('dueDateEditRow').style.display='none';
-}
-function saveDueDate(id){
-  var newDate=document.getElementById('dueDateInput').value;
-  if(!newDate)return;
-  state.invoices=state.invoices.map(function(i){return i.id===id?Object.assign({},i,{dueDate:newDate}):i;});
-  save();
-  hideModal('invDetailModal');
-  renderTab(currentTab);
-}
-function deletePayment(payId,invId){
-  if(!confirm('Undo this payment? The invoice will go back to unpaid.'))return;
-  var pay=state.payments.find(function(p){return p.id===payId;});
-  if(!pay)return;
-  // Reverse the payment amount from the invoice
-  state.invoices=state.invoices.map(function(i){
-    if(i.id!==invId)return i;
-    var newPaid=Math.max(0,i.paidAmount-pay.amount);
-    var newStatus=newPaid<=0?'unpaid':newPaid<i.amount?'partial':'paid';
-    return Object.assign({},i,{paidAmount:newPaid,status:newStatus});
-  });
-  state.payments=state.payments.filter(function(p){return p.id!==payId;});
-  save();
-  openInvDetail(invId);
-}
-function deleteInv(id){state.invoices=state.invoices.filter(function(i){return i.id!==id;});save();hideModal('invDetailModal');renderTab(currentTab);}
-
-// ── PAY MODAL ─────────────────────────────────────────────────
-function openPayModal(id){
-  var inv=enrichInv(state.invoices.find(function(i){return i.id===id;}));
-  if(!inv)return;
-  currentPayInv=inv;
-  var today=new Date().toISOString().split('T')[0];
-  document.getElementById('payModalContent').innerHTML='<div class="modal-drag"></div>'
-    +'<div class="fw7 fs16 mb4">💰 Record Payment</div>'
-    +'<div class="fs13 text-mut mb16">'+esc(inv.customer?inv.customer.name:'')+' · '+esc(inv.invoiceNo)+'</div>'
-    +'<div class="pay-summary">'
-    +'<div class="detail-row" style="border:none;padding:0 0 10px"><span class="detail-label">Invoice Amount</span><span class="detail-value">'+fmyr(inv.amount)+'</span></div>'
-    +'<div class="detail-row" style="border:none;padding:0 0 10px"><span class="detail-label">Already Paid</span><span class="fw7 text-grn">'+fmyr(inv.paidAmount)+'</span></div>'
-    +'<div class="detail-row" style="padding:10px 0 0"><span class="detail-label">Outstanding</span><span class="fw7 text-red">'+fmyr(inv.outstanding)+'</span></div>'
-    +'</div>'
-    +'<label class="lbl">Payment Amount (RM)</label>'
-    +'<input type="number" class="inp mb8" id="payAmt" placeholder="'+inv.outstanding.toFixed(2)+'" style="font-size:18px;font-weight:700"/>'
-    +'<div class="flex gap8 mb16">'
-    +'<button class="btn btn-ghost btn-full btn-sm" onclick="document.getElementById(\'payAmt\').value=\''+inv.outstanding.toFixed(2)+'\'">Full</button>'
-    +'<button class="btn btn-ghost btn-full btn-sm" onclick="document.getElementById(\'payAmt\').value=\''+(inv.outstanding/2).toFixed(2)+'\'">Half</button>'
-    +'</div>'
-    +'<label class="lbl">Payment Date</label>'
-    +'<input type="date" class="inp mb16" id="payDate" value="'+today+'"/>'
-    +'<label class="lbl">Note (optional)</label>'
-    +'<input class="inp mb16" id="payNote" placeholder="e.g. Paid via TT, Cash…"/>'
-    +'<div class="btn-row"><button class="btn btn-ghost btn-full" onclick="hideModal(\'payModal\')">Cancel</button><button class="btn btn-success btn-full" onclick="confirmPay()">Confirm Payment</button></div>';
-  showModal('payModal');
-}
-function confirmPay(){
-  var a=parseFloat(document.getElementById('payAmt').value);
-  var note=document.getElementById('payNote').value;
-  var date=document.getElementById('payDate').value||new Date().toISOString().split('T')[0];
-  if(!a||!currentPayInv)return;
-  var inv=currentPayInv;
-  var cust=state.customers.find(function(c){return c.id===inv.customerId;});
-  state.payments.unshift({id:Date.now(),invoiceId:inv.id,customerId:inv.customerId,invoiceNo:inv.invoiceNo,customerName:cust?cust.name:'',amount:a,date:date,note:note||'Payment recorded'});
-  state.invoices=state.invoices.map(function(i){
-    if(i.id!==inv.id)return i;
-    var np=Math.min(i.paidAmount+a,i.amount);
-    return Object.assign({},i,{paidAmount:np,status:np>=i.amount?'paid':'partial'});
-  });
-  save();hideModal('payModal');renderTab(currentTab);
+  cm('mo-emp');
+  rEmp();
 }
 
-// ── ADD ───────────────────────────────────────────────────────
-function addInvoice(){
-  var custId=document.getElementById('newInvCust').value;
-  var invNo=document.getElementById('newInvNo').value.trim();
-  var amt=parseFloat(document.getElementById('newInvAmt').value)||0;
-  var paid=parseFloat(document.getElementById('newInvPaid').value)||0;
-  var date=document.getElementById('newInvDate').value;
-  var notes=document.getElementById('newInvNotes').value;
-  if(!custId||!invNo||!amt)return alert('Fill in Customer, Invoice No and Amount!');
-  state.invoices.push({id:Date.now(),customerId:Number(custId),invoiceNo:invNo,amount:amt,invoiceDate:date,paidAmount:paid,status:paid>=amt?'paid':paid>0?'partial':'unpaid',notes:notes});
-  save();hideModal('addInvModal');
-  ['newInvNo','newInvAmt','newInvNotes'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('newInvPaid').value='0';
-  renderTab(currentTab);
-}
-function addCustomer(){
-  var name=document.getElementById('newCustName').value.trim();
-  var term=Number(document.getElementById('newCustTerm').value)||30;
-  var contact=document.getElementById('newCustContact').value;
-  var phone=document.getElementById('newCustPhone').value;
-  var email=document.getElementById('newCustEmail').value;
-  if(!name)return alert('Enter company name!');
-  state.customers.push({id:Date.now(),name:name,creditTerm:term,contact:contact,phone:phone,email:email});
-  save();hideModal('addCustModal');
-  ['newCustName','newCustContact','newCustPhone','newCustEmail'].forEach(function(id){document.getElementById(id).value='';});
-  renderTab(currentTab);
+function delEmp(id) {
+  conf('Delete employee and all their records?', function() {
+    var i;
+    var ne=[], na=[], nl=[], nal=[], natt=[];
+    for (i=0;i<D.emp.length;i++) if(D.emp[i].id!==id) ne.push(D.emp[i]);
+    for (i=0;i<D.adv.length;i++) if(D.adv[i].eid!==id) na.push(D.adv[i]);
+    for (i=0;i<D.lv.length;i++) if(D.lv[i].eid!==id) nl.push(D.lv[i]);
+    for (i=0;i<D.al.length;i++) if(D.al[i].eid!==id) nal.push(D.al[i]);
+    for (i=0;i<D.att.length;i++) if(D.att[i].eid!==id) natt.push(D.att[i]);
+    D.emp=ne; D.adv=na; D.lv=nl; D.al=nal; D.att=natt;
+    save(); rEmp();
+  });
 }
 
-// ── REMINDERS ─────────────────────────────────────────────────
-function renderReminders(){renderAlerts();}
-function renderAlerts(){
-  var el=document.getElementById('remAlerts');if(!el)return;
-  var enriched=getEnriched();
-  var reminders=enriched.filter(function(i){return(i.displayStatus==='overdue'||i.displayStatus==='due-soon')&&state.dismissed.indexOf(i.id)===-1;});
-  reminders.sort(function(a,b){return b.daysOverdue-a.daysOverdue;});
-  if(reminders.length===0){el.innerHTML='<div class="card p14" style="text-align:center"><div style="font-size:32px;margin-bottom:8px">✅</div><div class="text-grn fw7 fs15">All clear!</div></div>';return;}
-  el.innerHTML=reminders.map(function(inv){
-    var bc=inv.displayStatus==='overdue'?'#f87171':'#fbbf24';
-    var info=inv.daysOverdue>0
-      ?'<div style="padding:8px 12px;background:#3a0a0a;border-radius:8px;font-size:13px;color:#fca5a5;margin-bottom:12px">⚠️ '+inv.daysOverdue+' days past due</div>'
-      :'<div style="padding:8px 12px;background:#3a2a0a;border-radius:8px;font-size:13px;color:#fcd34d;margin-bottom:12px">⏰ Due in '+Math.abs(inv.daysOverdue)+' day'+(Math.abs(inv.daysOverdue)!==1?'s':'')+'</div>';
-    return'<div class="card mb12" style="border-left:4px solid '+bc+'">'
-      +'<div class="p14">'
-        +'<div class="flex-between mb12"><div class="flex1"><div class="fw7 fs15 text-ellipsis">'+esc(inv.customer?inv.customer.name:'')+'</div><div class="fs12 text-blue">'+esc(inv.invoiceNo)+'</div></div>'+badgeHtml(inv.displayStatus)+'</div>'
-        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
-          +[['Due Date',fdate(inv.dueDate)],['Outstanding',fmyr(inv.outstanding)],['Contact',inv.customer&&inv.customer.contact||'—'],['Phone',inv.customer&&inv.customer.phone||'—']].map(function(r){return'<div><div class="fs12 fw7 text-mut">'+r[0]+'</div><div class="fs13 fw7">'+r[1]+'</div></div>';}).join('')
-        +'</div>'
-        +info
-        +'<div class="btn-row"><button class="btn btn-success" style="flex:1" onclick="openPayModal('+inv.id+')">💰 Record Payment</button><button class="btn btn-ghost" style="padding:14px 18px" onclick="dismiss('+inv.id+')">✕</button></div>'
-      +'</div>'
-    +'</div>';
-  }).join('');
-}
-
-// ── WHATSAPP ──────────────────────────────────────────────────
-function getWaStats(){
-  var s={};
-  state.waLog.forEach(function(l){
-    if(!s[l.customerId])s[l.customerId]={count:0,lastDate:null};
-    s[l.customerId].count++;
-    if(!s[l.customerId].lastDate||l.date>s[l.customerId].lastDate)s[l.customerId].lastDate=l.date;
-  });
-  return s;
-}
-function daysSinceWa(cid){var ws=getWaStats()[cid];if(!ws)return null;return Math.floor((new Date()-new Date(ws.lastDate))/86400000);}
-function genWaMsg(cid){
-  var cust=state.customers.find(function(c){return c.id===Number(cid);});
-  if(!cust)return'';
-  var enriched=getEnriched();
-  // Only include OVERDUE invoices in the message — never show current/not-yet-due
-  var invs=enriched.filter(function(i){return i.customerId===cust.id&&i.displayStatus==='overdue';});
-  if(!invs.length)return'';
-  var total=invs.reduce(function(s,i){return s+i.outstanding;},0);
-  var lines=invs.map(function(i){return'• '+i.invoiceNo+' | Due: '+fdate(i.dueDate)+' | '+fmyr(i.outstanding)+' *('+i.daysOverdue+' days overdue)*';}).join('\n');
-  return'Dear *'+cust.name+'*,\n\nWe hope this message finds you well.\n\nWe would like to kindly remind you that the following invoice(s) are now overdue:\n\n'+lines+'\n\n*Total Outstanding: '+fmyr(total)+'*\n\nKindly arrange payment at your earliest convenience. If payment has already been made, please disregard this message.\n\nThank you for your continued support.\n\nBest regards,\n*'+state.company+'*';
-}
-function logWa(cid){
-  var cust=state.customers.find(function(c){return c.id===Number(cid);});
-  state.waLog.unshift({id:Date.now(),customerId:Number(cid),customerName:cust?cust.name:'',date:new Date().toISOString().split('T')[0]});
-  save();
-}
-function copyWa(cid,btn){
-  var msg=genWaMsg(cid);
-  navigator.clipboard.writeText(msg).then(function(){
-    logWa(cid);var orig=btn.textContent;btn.textContent='✅ Copied!';
-    setTimeout(function(){btn.textContent=orig;renderWa();},2500);
-  });
-}
-function openWa(cid){
-  var cust=state.customers.find(function(c){return c.id===Number(cid);});
-  var phone=(cust&&cust.phone||'').replace(/[^0-9]/g,'');
-  var intl=phone.startsWith('0')?'60'+phone.slice(1):phone;
-  logWa(cid);window.open('https://wa.me/'+intl+'?text='+encodeURIComponent(genWaMsg(cid)),'_blank');
-  setTimeout(renderWa,500);
-}
-function addPhonePrompt(cid){
-  var phone=prompt('Enter phone number (e.g. 012-3456789):');
-  if(!phone)return;
-  state.customers=state.customers.map(function(c){return c.id===cid?Object.assign({},c,{phone:phone}):c;});
-  save();renderWa();
-}
-var waQueueMode=false;
-var waQueueIndex=0;
-var waQueueList=[];
-var waOverdueOnly=true;
-var waSkipped={}; // tracks skipped customer ids this session
-
-function buildWaQueue(){
-  var enriched=getEnriched();
-  var custsWithOS=state.customers.filter(function(c){
-    return enriched.some(function(i){
-      if(i.customerId!==c.id)return false;
-      if(waOverdueOnly)return i.displayStatus==='overdue';
-      return i.displayStatus==='overdue'||i.displayStatus==='due-soon';
-    });
-  });
-  var waStats=getWaStats();
-  custsWithOS.sort(function(a,b){
-    var aOD=enriched.filter(function(i){return i.customerId===a.id&&i.displayStatus==='overdue';}).reduce(function(s,i){return s+i.daysOverdue;},0);
-    var bOD=enriched.filter(function(i){return i.customerId===b.id&&i.displayStatus==='overdue';}).reduce(function(s,i){return s+i.daysOverdue;},0);
-    return bOD-aOD;
-  });
-  return custsWithOS;
-}
-
-function startWaQueue(){
-  var searchEl=document.getElementById('waSearch');
-  var search=searchEl?searchEl.value.toLowerCase():'';
-  waQueueList=buildWaQueue().filter(function(c){
-    if(!search)return true;
-    return c.name.toLowerCase().indexOf(search)!==-1||(c.phone&&c.phone.indexOf(search)!==-1)||(c.contact&&c.contact.toLowerCase().indexOf(search)!==-1);
-  });
-  if(!waQueueList.length){alert('No customers match!');return;}
-  waQueueIndex=0;
-  waQueueMode=true;
-  waSkipped={};
-  renderWa();
-}
-function exitWaQueue(){waQueueMode=false;renderWa();}
-function waQueueNext(){
-  // slide out current card then show next
-  var card=document.getElementById('waQueueCard');
-  if(card){
-    card.style.transition='transform 0.3s ease, opacity 0.3s ease';
-    card.style.transform='translateX(-120%)';
-    card.style.opacity='0';
-    setTimeout(function(){
-      waQueueIndex++;
-      if(waQueueIndex>=waQueueList.length){
-        waQueueMode=false;
-        renderWa();
-      }else{
-        renderWaQueueCard();
-      }
-    },300);
-  }else{
-    waQueueIndex++;
-    if(waQueueIndex>=waQueueList.length){waQueueMode=false;renderWa();}
-    else renderWaQueueCard();
-  }
-}
-function waQueueSkip(){
-  var cust=waQueueList[waQueueIndex];
-  if(cust)waSkipped[cust.id]=true;
-  var card=document.getElementById('waQueueCard');
-  if(card){
-    card.style.transition='transform 0.3s ease, opacity 0.3s ease';
-    card.style.transform='translateX(120%)';
-    card.style.opacity='0';
-    setTimeout(function(){
-      waQueueIndex++;
-      if(waQueueIndex>=waQueueList.length){waQueueMode=false;renderWa();}
-      else renderWaQueueCard();
-    },300);
-  }else{
-    waQueueIndex++;
-    if(waQueueIndex>=waQueueList.length){waQueueMode=false;renderWa();}
-    else renderWaQueueCard();
-  }
-}
-function renderWaQueueCard(){
-  var el=document.getElementById('remWa');if(!el)return;
-  var cust=waQueueList[waQueueIndex];
-  if(!cust){waQueueMode=false;renderWa();return;}
-  var enriched=getEnriched();
-  var custInvs=enriched.filter(function(i){return i.customerId===cust.id&&i.displayStatus==='overdue';});
-  var totalOS=custInvs.reduce(function(s,i){return s+i.outstanding;},0);
-  var ws=getWaStats()[cust.id];var ds=daysSinceWa(cust.id);
-  var progress=waQueueIndex+1;
-  var total=waQueueList.length;
-  var queueHtml='<div style="padding:12px 0 8px">'
-    // header row
-    +'<div class="flex-between mb16">'
-      +'<button class="btn btn-ghost btn-sm" onclick="exitWaQueue()">✕ Exit</button>'
-      +'<div style="text-align:center"><div class="fw7 fs15">📬 Send Queue</div><div class="fs12 text-mut">'+progress+' of '+total+'</div></div>'
-      +'<div style="width:80px"></div>'
-    +'</div>'
-    // progress bar
-    +'<div style="background:#1e2d4a;border-radius:4px;height:6px;margin-bottom:20px;overflow:hidden">'
-      +'<div style="background:#25d366;height:100%;border-radius:4px;width:'+Math.round((waQueueIndex/total)*100)+'%;transition:width 0.3s"></div>'
-    +'</div>'
-    // customer card
-    +'<div id="waQueueCard" style="background:#111827;border:1px solid #1e2d4a;border-radius:20px;padding:20px;border-left:4px solid #f87171;margin-bottom:16px">'
-      +'<div class="fw7 fs17 mb4">'+esc(cust.name)+'</div>'
-      +'<div class="fs13 text-mut mb2">'+(cust.contact||'—')+'</div>'
-      +'<div class="fs13 mb16">'+(cust.phone?'<span style="color:#25d366">📱 '+esc(cust.phone)+'</span>':'<span style="color:#f87171">No phone saved</span>')+'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'
-        +'<div style="background:#1a0a0a;border-radius:12px;padding:12px;text-align:center"><div class="fs11 text-mut mb4">OVERDUE</div><div class="fw7 fs20 text-red">'+fmyr(totalOS)+'</div></div>'
-        +'<div style="background:#0a1a2a;border-radius:12px;padding:12px;text-align:center"><div class="fs11 text-mut mb4">INVOICES</div><div class="fw7 fs20 text-blue">'+custInvs.length+'</div></div>'
-      +'</div>'
-      +(ws?'<div class="fs12 text-mut mb12">💬 Reminded '+ws.count+'x · Last: '+(ds===0?'Today':ds===1?'Yesterday':ds+'d ago')+'</div>':'<div class="fs12 text-yel mb12">⚠️ Never reminded</div>')
-      +'<div class="wa-msg mb16" style="font-size:12px;max-height:120px;overflow-y:auto">'+esc(genWaMsg(cust.id))+'</div>'
-      // action buttons
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
-        +(cust.phone
-          ?'<button class="btn btn-wa" style="font-size:14px" onclick="waQueueSend('+cust.id+')">📱 Send WA</button>'
-          :'<button class="btn btn-ghost" style="font-size:14px;color:#f87171" onclick="waQueueAddPhone('+cust.id+')">📞 Add Phone</button>')
-        +'<button class="btn btn-ghost" style="font-size:14px" onclick="waQueueCopy('+cust.id+',this)">📋 Copy</button>'
-      +'</div>'
-      +'<button class="btn btn-ghost btn-full" style="margin-top:10px;color:#64748b;font-size:13px" onclick="waQueueSkip()">Skip →</button>'
-    +'</div>'
-  +'</div>';
-  el.innerHTML=queueHtml;
-}
-
-function waQueueSend(cid){
-  var cust=state.customers.find(function(c){return c.id===Number(cid);});
-  var phone=(cust&&cust.phone||'').replace(/[^0-9]/g,'');
-  var intl=phone.startsWith('0')?'60'+phone.slice(1):phone;
-  logWa(cid);
-  window.open('https://wa.me/'+intl+'?text='+encodeURIComponent(genWaMsg(cid)),'_blank');
-  setTimeout(waQueueNext,600);
-}
-function waQueueCopy(cid,btn){
-  var msg=genWaMsg(cid);
-  navigator.clipboard.writeText(msg).then(function(){
-    logWa(cid);
-    var orig=btn.textContent;btn.textContent='✅ Copied!';
-    setTimeout(function(){btn.textContent=orig;waQueueNext();},1200);
-  });
-}
-function waQueueAddPhone(cid){
-  var phone=prompt('Enter phone number (e.g. 012-3456789):');
-  if(!phone)return;
-  state.customers=state.customers.map(function(c){return c.id===cid?Object.assign({},c,{phone:phone}):c;});
-  save();renderWaQueueCard();
-}
-
-function renderWa(){
-  var el=document.getElementById('remWa');if(!el)return;
-  // Queue mode — show one at a time
-  if(waQueueMode){renderWaQueueCard();return;}
-  var enriched=getEnriched();
-  var searchEl=document.getElementById('waSearch');
-  var search=searchEl?searchEl.value.toLowerCase():'';
-  var allOD=state.customers.filter(function(c){return enriched.some(function(i){return i.customerId===c.id&&i.displayStatus==='overdue';});});
-  var allDS=state.customers.filter(function(c){return enriched.some(function(i){return i.customerId===c.id&&(i.displayStatus==='overdue'||i.displayStatus==='due-soon');});});
-  var allCustsOS=waOverdueOnly?allOD:allDS;
-  var custsFiltered=allCustsOS.filter(function(c){
-    if(!search)return true;
-    return c.name.toLowerCase().indexOf(search)!==-1||(c.phone&&c.phone.indexOf(search)!==-1)||(c.contact&&c.contact.toLowerCase().indexOf(search)!==-1);
-  });
-  var waStats=getWaStats();
-  custsFiltered.sort(function(a,b){
-    var aOD=enriched.some(function(i){return i.customerId===a.id&&i.displayStatus==='overdue';});
-    var bOD=enriched.some(function(i){return i.customerId===b.id&&i.displayStatus==='overdue';});
-    return aOD===bOD?0:aOD?-1:1;
-  });
-  var html='<div class="card mb12 p14" style="background:linear-gradient(90deg,#0a1a0f,#111827)">'
-    +'<div class="fw7 fs15 mb4" style="color:#25d366">💬 WhatsApp Reminder Generator</div>'
-    +'<div class="fs13 text-mut">Search a customer and send a personalised reminder.</div>'
-    +'</div>'
-    // filter toggle
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
-      +'<button class="btn '+(waOverdueOnly?'btn-primary':'btn-ghost')+' btn-sm" onclick="waOverdueOnly=true;renderWa()">🔴 Overdue Only</button>'
-      +'<button class="btn '+(waOverdueOnly?'btn-ghost':'btn-primary')+' btn-sm" onclick="waOverdueOnly=false;renderWa()">All Outstanding</button>'
-    +'</div>'
-    +'<input id="waSearch" class="inp mb12" placeholder="🔍 Search customer name or phone…" oninput="renderWa()" value="'+esc(search)+'"/>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">'
-      +'<div style="background:#111827;border:1px solid #1e2d4a;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-blue">'+allCustsOS.length+'</div><div class="fs11 text-mut">Customers</div></div>'
-      +'<div style="background:#111827;border:1px solid #991b1b;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-red">'+allOD.length+'</div><div class="fs11 text-mut">Overdue</div></div>'
-      +'<div style="background:#111827;border:1px solid #166534;border-radius:12px;padding:10px;text-align:center"><div class="fw7 fs18 text-grn">'+Object.keys(waStats).length+'</div><div class="fs11 text-mut">Reminded</div></div>'
-    +'</div>';
-  if(custsFiltered.length===0){
-    html+=search?'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🔍</div><div class="fw7 text-mut">No customer found for "'+esc(search)+'"</div></div>':'<div class="card p14" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🎉</div><div class="fw7 text-grn">All clear!</div></div>';
-  }else{
-    custsFiltered.forEach(function(cust){
-      var custInvs=enriched.filter(function(i){return i.customerId===cust.id&&(waOverdueOnly?i.displayStatus==='overdue':i.displayStatus!=='paid');});
-      var totalOS=custInvs.reduce(function(s,i){return s+i.outstanding;},0);
-      var hasOD=custInvs.some(function(i){return i.displayStatus==='overdue';});
-      var ws=waStats[cust.id];var ds=daysSinceWa(cust.id);
-      var needsChase=ds===null||(hasOD&&ds>=3)||(!hasOD&&ds>=7);
-      var borderCol=needsChase?(hasOD?'#f87171':'#fbbf24'):'#25d366';
-      var tags='';
-      if(ws){
-        tags+='<div class="tag" style="background:#0a1a0f;border:1px solid #166534">💬 <span class="fw7 text-grn">'+ws.count+'x</span> <span class="text-mut">reminded</span></div>';
-        tags+='<div class="tag" style="background:#0d0f14;border:1px solid #1e2d4a">🕐 <span class="text-mut">Last:</span> <span class="fw7">'+(ds===0?'Today':ds===1?'Yesterday':ds+'d ago')+'</span></div>';
-        if(needsChase)tags+='<div class="tag" style="background:'+(hasOD?'#3a0a0a':'#3a2a0a')+';border:1px solid '+(hasOD?'#991b1b':'#92400e')+'">🔔 <span class="fw7" style="color:'+(hasOD?'#f87171':'#fbbf24')+'">Follow up!</span></div>';
-      }else{
-        tags='<div class="tag" style="background:#3a2a0a;border:1px solid #92400e">⚠️ <span class="fw7 text-yel">Not reminded yet</span></div>';
-      }
-      if(waSkipped[cust.id])tags+='<div class="tag" style="background:#1a1a2a;border:1px solid #4a4a8a">⏭️ <span class="fw7" style="color:#a0a0ff">Skipped</span></div>';
-      html+='<div class="card mb12" style="border-left:4px solid '+borderCol+'">'
-        +'<div class="p14">'
-          +'<div class="flex-between mb12"><div class="flex1"><div class="fw7 fs15 text-ellipsis">'+esc(cust.name)+'</div><div class="fs12 text-mut" style="margin-top:2px">'+(cust.contact||'—')+' · '+(cust.phone||'<span style="color:#f87171">No phone</span>')+'</div></div>'
-          +'<div style="text-align:right;flex-shrink:0;margin-left:10px"><div class="fw7 fs15" style="color:'+(hasOD?'#f87171':'#fbbf24')+'">'+fmyr(totalOS)+'</div><div class="fs12 text-mut">'+custInvs.length+' inv</div></div></div>'
-          +'<div class="flex gap8 mb12" style="flex-wrap:wrap">'+tags+'</div>'
-          +'<div class="wa-msg">'+esc(genWaMsg(cust.id))+'</div>'
-          +'<div class="btn-row">'
-            +'<button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="copyWa('+cust.id+',this)">📋 Copy</button>'
-            +(cust.phone?'<button class="btn btn-wa" style="flex:1;font-size:13px" onclick="openWa('+cust.id+')">📱 Send WA</button>':'<button class="btn btn-ghost" style="flex:1;font-size:13px;color:#f87171" onclick="addPhonePrompt('+cust.id+')">📞 Add Phone</button>')
-          +'</div>'
-        +'</div>'
-      +'</div>';
-    });
-  }
-  el.innerHTML=html;
-  if(search){var s=el.querySelector('#waSearch');if(s){s.focus();s.setSelectionRange(s.value.length,s.value.length);}}
-}
-
-function loadJsPDF(cb){
-  if(window.jspdf){cb();return;}
-  var s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-  s.onload=function(){cb();};
-  s.onerror=function(){alert('Could not load PDF library. Check internet.');};
-  document.head.appendChild(s);
-}
-function downloadMonthPDF(monthKey){
-  loadJsPDF(function(){
-    var doc=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-    var mPays=state.payments.filter(function(p){return mKey(p.date)===monthKey;});
-    var mInvs=state.invoices.filter(function(i){return mKey(i.invoiceDate)===monthKey;});
-    var label=mLabel(monthKey);
-    var invoiced=mInvs.reduce(function(s,i){return s+i.amount;},0);
-    var collected=mPays.reduce(function(s,p){return s+p.amount;},0);
-    var rate=invoiced>0?Math.round((collected/invoiced)*100):0;
-    var pw=210,margin=14,y=20;
-    // Header
-    doc.setFillColor(29,78,216);doc.rect(0,0,pw,28,'F');
-    doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','bold');doc.setFontSize(16);
-    doc.text('Sales & Collection Report',margin,12);
-    doc.setFontSize(10);doc.setFont('helvetica','normal');
-    doc.text(state.company,margin,19);
-    doc.text(label,pw-margin,19,{align:'right'});
-    y=36;
-    // Summary boxes
-    doc.setTextColor(30,30,30);
-    var boxes=[['Total Invoiced',fmyr(invoiced),'#1d4ed8'],['Total Collected',fmyr(collected),'#166534'],['Collection Rate',rate+'%',rate>=80?'#166534':rate>=50?'#92400e':'#991b1b']];
-    var bw=56,bh=16,bx=margin;
-    boxes.forEach(function(b){
-      doc.setDrawColor(200,200,200);doc.setFillColor(248,250,252);doc.roundedRect(bx,y,bw,bh,2,2,'FD');
-      doc.setFontSize(8);doc.setTextColor(100,100,100);doc.text(b[0],bx+4,y+5);
-      var rgb=b[2]==='#166534'?[22,101,52]:b[2]==='#1d4ed8'?[29,78,216]:b[2]==='#92400e'?[146,64,14]:[153,27,27];
-      doc.setTextColor(rgb[0],rgb[1],rgb[2]);
-      doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text(b[1],bx+4,y+12);
-      doc.setFont('helvetica','normal');
-      bx+=bw+4;
-    });
-    y+=22;
-    // Invoice table
-    if(mInvs.length){
-      doc.setFillColor(29,78,216);doc.rect(margin,y,pw-margin*2,7,'F');
-      doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
-      doc.text('Invoice No',margin+2,y+5);
-      doc.text('Customer',margin+32,y+5);
-      doc.text('Date',margin+110,y+5);
-      doc.text('Amount',pw-margin-2,y+5,{align:'right'});
-      y+=8;
-      doc.setFont('helvetica','normal');
-      mInvs.forEach(function(inv,idx){
-        if(y>270){doc.addPage();y=20;}
-        if(idx%2===0){doc.setFillColor(240,244,255);doc.rect(margin,y-1,pw-margin*2,7,'F');}
-        doc.setTextColor(30,30,30);doc.setFontSize(8);
-        doc.text(String(inv.invoiceNo||'').substring(0,18),margin+2,y+4);
-        var custName=String(inv.customer?inv.customer.name:'').substring(0,32);
-        doc.text(custName,margin+32,y+4);
-        doc.text(fdate(inv.invoiceDate),margin+110,y+4);
-        doc.text(fmyr(inv.amount),pw-margin-2,y+4,{align:'right'});
-        y+=7;
-      });
-      y+=4;
-    }
-    // Payments table
-    if(mPays.length){
-      doc.setFillColor(22,101,52);doc.rect(margin,y,pw-margin*2,7,'F');
-      doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
-      doc.text('Customer',margin+2,y+5);
-      doc.text('Invoice No',margin+80,y+5);
-      doc.text('Date',margin+120,y+5);
-      doc.text('Paid',pw-margin-2,y+5,{align:'right'});
-      y+=8;
-      doc.setFont('helvetica','normal');
-      mPays.forEach(function(p,idx){
-        if(y>270){doc.addPage();y=20;}
-        if(idx%2===0){doc.setFillColor(240,255,244);doc.rect(margin,y-1,pw-margin*2,7,'F');}
-        doc.setTextColor(30,30,30);doc.setFontSize(8);
-        doc.text(String(p.customerName||'').substring(0,36),margin+2,y+4);
-        doc.text(String(p.invoiceNo||''),margin+80,y+4);
-        doc.text(fdate(p.date),margin+120,y+4);
-        doc.setTextColor(22,101,52);doc.setFont('helvetica','bold');
-        doc.text(fmyr(p.amount),pw-margin-2,y+4,{align:'right'});
-        doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');
-        y+=7;
-      });
-    }
-    // Footer
-    doc.setFontSize(8);doc.setTextColor(150,150,150);
-    doc.text('Generated by Zeus PayTrack · '+new Date().toLocaleDateString('en-MY'),pw/2,288,{align:'center'});
-    doc.save('Report-'+label.replace(/ /g,'-')+'.pdf');
-  });
-}
-function renderMonthly(){
-  var el=document.getElementById('repMonthly');if(!el)return;
-  var months={};
-  state.payments.forEach(function(p){var k=mKey(p.date);if(!months[k])months[k]={key:k,label:mLabel(k)};});
-  state.invoices.forEach(function(i){var k=mKey(i.invoiceDate);if(!months[k])months[k]={key:k,label:mLabel(k)};});
-  var list=Object.values(months).sort(function(a,b){return b.key.localeCompare(a.key);});
-  if(!list.length){el.innerHTML='<div class="card p14" style="text-align:center;color:#64748b">No data yet.</div>';return;}
-  el.innerHTML='<div class="fw7 fs16 mb4">📅 Monthly Collection Report</div><div class="fs13 text-mut mb16">Tap a month to see payments.</div>'
-    +list.map(function(m){
-      var mPays=state.payments.filter(function(p){return mKey(p.date)===m.key;});
-      var mInvs=state.invoices.filter(function(i){return mKey(i.invoiceDate)===m.key;});
-      var invoiced=mInvs.reduce(function(s,i){return s+i.amount;},0);
-      var collected=mPays.reduce(function(s,p){return s+p.amount;},0);
-      var rate=invoiced>0?Math.round((collected/invoiced)*100):0;
-      var barCol=rate>=80?'#4ade80':rate>=50?'#fbbf24':'#f87171';
-      var mid='md'+m.key;
-      return'<div class="card mb12">'
-        +'<div class="p14" style="cursor:pointer" onclick="toggleGrp(\''+mid+'\')">'
-          +'<div class="flex-between mb12"><div class="fw7 fs15">'+m.label+'</div>'
-          +'<div style="display:flex;align-items:center;gap:8px">'
-            +'<button class="btn btn-ghost btn-sm" style="font-size:11px;padding:6px 10px;min-height:32px" onclick="event.stopPropagation();downloadMonthPDF(\''+m.key+'\')">📥 PDF</button>'
-            +'<div class="fs12 text-mut" id="arr'+mid+'">▼</div>'
-          +'</div></div>'
-          +'<div class="collection-grid">'
-            +'<div class="collection-cell"><div class="collection-cell-label">Invoiced</div><div class="collection-cell-value text-mut">'+fshort(invoiced)+'</div></div>'
-            +'<div class="collection-cell"><div class="collection-cell-label">Collected</div><div class="collection-cell-value text-grn">'+fshort(collected)+'</div></div>'
-            +'<div class="collection-cell"><div class="collection-cell-label">Rate</div><div class="collection-cell-value" style="color:'+barCol+'">'+rate+'%</div></div>'
-          +'</div>'
-          +'<div class="aging-bar-bg"><div class="aging-bar" style="width:'+Math.min(rate,100)+'%;background:'+barCol+'"></div></div>'
-        +'</div>'
-        +(mPays.length>0?'<div id="'+mid+'" style="display:none;border-top:1px solid #1e2d4a;padding:12px 16px">'
-          +'<div class="fs12 fw7 text-mut mb8" style="text-transform:uppercase">Payments</div>'
-          +mPays.map(function(p){return'<div class="flex-between" style="padding:8px 0;border-bottom:1px solid #1e2d4a"><div><div class="fs13 fw7">'+esc(p.customerName)+'</div><div class="fs12 text-mut">'+esc(p.invoiceNo)+' · '+fdate(p.date)+'</div></div><div class="fw7 text-grn fs14">'+fmyr(p.amount)+'</div></div>';}).join('')
-          +'</div>':'<div id="'+mid+'" style="display:none"></div>')
-      +'</div>';
-    }).join('');
-}
-function renderHistory(){
-  var el=document.getElementById('repHistory');if(!el)return;
-  var search=(el.querySelector('input')?el.querySelector('input').value:'').toLowerCase();
-  var filtered=state.payments.filter(function(p){if(!search)return true;return p.customerName.toLowerCase().indexOf(search)!==-1||p.invoiceNo.toLowerCase().indexOf(search)!==-1;});
-  el.innerHTML='<div class="fw7 fs16 mb4">📜 Payment History</div>'
-    +'<input class="inp mb12" placeholder="🔍 Search…" oninput="renderHistory()"/>'
-    +(filtered.length===0?'<div class="card p14" style="text-align:center;color:#64748b">No payment history yet.</div>'
-    :'<div class="card">'+filtered.map(function(p){return'<div class="inv-row"><div class="flex1"><div class="fw7 fs14 text-ellipsis">'+esc(p.customerName)+'</div><div class="fs12 text-blue">'+esc(p.invoiceNo)+'</div><div class="fs12 text-mut">'+fdate(p.date)+(p.note?' · '+esc(p.note):'')+'</div></div><div class="fw7 text-grn fs16" style="flex-shrink:0">'+fmyr(p.amount)+'</div></div>';}).join('')
-    +'<div class="flex-between p14" style="background:#0a1a0f"><div class="fw7 fs14">Total ('+filtered.length+')</div><div class="fw7 text-grn fs16">'+fmyr(filtered.reduce(function(s,p){return s+p.amount;},0))+'</div></div></div>');
-}
-function renderWaLog(){
-  var el=document.getElementById('repWaLog');if(!el)return;
-  var waStats=getWaStats();var enriched=getEnriched();
-  var custWithWa=state.customers.filter(function(c){return waStats[c.id];});
-  custWithWa.sort(function(a,b){return(waStats[b.id].count||0)-(waStats[a.id].count||0);});
-  el.innerHTML='<div class="fw7 fs16 mb4">💬 WhatsApp Log</div><div class="fs13 text-mut mb16">Every reminder tracked automatically.</div>'
-    +(custWithWa.length>0?'<div class="card mb16">'+custWithWa.map(function(c){
-        var ws=waStats[c.id];var ds=daysSinceWa(c.id);var hasOS=enriched.some(function(i){return i.customerId===c.id&&i.displayStatus!=='paid';});
-        return'<div class="inv-row"><div class="flex1"><div class="fw7 fs14 text-ellipsis">'+esc(c.name)+'</div><div class="fs12 text-mut">Last: '+(ds===0?'Today':ds===1?'Yesterday':ds+' days ago')+'</div></div>'
-          +'<div class="flex-center gap10">'+(hasOS&&ds!==null&&ds>=3?'<span class="fs12 text-red fw7">⚠️ Chase!</span>':'')+'<div style="background:#0a1a0f;border:1px solid #166534;border-radius:20px;padding:4px 12px;font-weight:700;color:#4ade80;font-size:14px">'+ws.count+'x</div></div></div>';
-      }).join('')+'</div>':'')
-    +(state.waLog.length===0?'<div class="card p14" style="text-align:center;color:#64748b">No reminders sent yet.</div>'
-    :'<div class="card">'+state.waLog.map(function(l){return'<div class="inv-row"><div><div class="fs13 fw7">'+esc(l.customerName)+'</div><div class="fs12 text-mut">'+fdate(l.date)+'</div></div><div class="fs12 fw7" style="color:#25d366">💬 Sent</div></div>';}).join('')+'</div>');
-}
-
-// ── IMPORT ────────────────────────────────────────────────────
-var importState={stage:'idle',added:0,updated:0,custCreated:0,total:0,source:''};
-function renderImport(){
-  var el=document.getElementById('importContent');if(!el)return;
-  if(importState.stage==='done'){
-    el.innerHTML='<div class="card p14" style="text-align:center">'
-      +'<div style="font-size:44px;margin-bottom:12px">🎉</div>'
-      +'<div class="fw7 fs18 text-grn mb8">Import Done!</div>'
-      +'<div class="fs13 text-mut mb16">'+esc(importState.source)+'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">'
-      +[['Added',importState.added,'#60a5fa'],['Updated',importState.updated,'#4ade80'],['New Customers',importState.custCreated,'#c084fc'],['Total',importState.total,'#fbbf24']].map(function(x){
-        return'<div style="background:#0d0f14;border-radius:10px;padding:14px;border:1px solid '+x[2]+'33"><div class="fw7" style="font-size:26px;color:'+x[2]+'">'+x[1]+'</div><div class="fs12 text-mut">'+x[0]+'</div></div>';
-      }).join('')+'</div>'
-      +'<div class="btn-row"><button class="btn btn-primary btn-full" onclick="importState.stage=\'idle\';goTab(\'dashboard\')">View Dashboard</button><button class="btn btn-ghost btn-full" onclick="importState.stage=\'idle\';renderImport()">Import Again</button></div>'
-    +'</div>';
+function rEmp() {
+  var el = document.getElementById('emplist');
+  if (!D.emp.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">👥</div><p>No employees yet.<br>Tap + Add Employee to start.</p></div>';
     return;
   }
-  // Stats
-  var invCount=state.invoices.length;
-  var custCount=state.customers.length;
-  var payCount=state.payments.length;
-  el.innerHTML=
-  // ── BACKUP / RESTORE ──
-  '<div class="fw7 fs16 mb4">💾 Backup & Restore</div>'
-  +'<div class="fs13 text-mut mb12" style="line-height:1.6">Save your data to a file, then load it on any device.</div>'
-  +'<div style="background:#111827;border:1px solid #1e2d4a;border-radius:14px;padding:14px 16px;margin-bottom:10px">'
-    +'<div class="flex-between mb12">'
-      +'<div class="fw7 fs14">Current Data</div>'
-      +'<div class="fs12 text-mut">'+new Date().toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'})+'</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">'
-      +'<div style="background:#0d0f14;border-radius:10px;padding:10px;text-align:center"><div class="fw7 fs18 text-blue">'+custCount+'</div><div class="fs11 text-mut">Customers</div></div>'
-      +'<div style="background:#0d0f14;border-radius:10px;padding:10px;text-align:center"><div class="fw7 fs18 text-yel">'+invCount+'</div><div class="fs11 text-mut">Invoices</div></div>'
-      +'<div style="background:#0d0f14;border-radius:10px;padding:10px;text-align:center"><div class="fw7 fs18 text-grn">'+payCount+'</div><div class="fs11 text-mut">Payments</div></div>'
-    +'</div>'
-    +'<button class="btn btn-primary btn-full" onclick="exportData()">📤 Download Backup File</button>'
-  +'</div>'
-  +'<div style="background:#111827;border:1px solid #1e2d4a;border-radius:14px;padding:14px 16px;margin-bottom:20px">'
-    +'<div class="fw7 fs14 mb8">📲 Restore on this device</div>'
-    +'<div class="fs13 text-mut mb12">Upload a backup file to restore all your data here.</div>'
-    +'<button class="btn btn-ghost btn-full" onclick="document.getElementById(\'backupFile\').click()">📂 Choose Backup File</button>'
-    +'<input id="backupFile" type="file" accept=".json" style="display:none" onchange="restoreData(this)"/>'
-  +'</div>'
-  // ── AUTOCOUNT IMPORT ──
-  +'<div style="border-top:1px solid #1e2d4a;margin-bottom:16px"></div>'
-  +'<div class="fw7 fs16 mb4">📥 Import from Autocount</div>'
-  +'<div class="fs14 text-mut mb12" style="line-height:1.6">Export <strong style="color:#fbbf24">Outstanding AR Invoice</strong> from Autocount as .xlsx, then upload below.</div>'
-  +'<div class="import-info"><strong>✅ Auto-detects format!</strong> Works with both <strong style="color:#fbbf24">Outstanding AR Invoice</strong> and <strong style="color:#4ade80">Daily Sales Report</strong>.<br><strong>🔄 Safe to re-upload!</strong> Same invoice = updated, never duplicated.</div>'
-  +'<div class="drop-zone" id="dropZone" onclick="pickFile()" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="handleDrop(event)">'
-    +'<div style="font-size:44px;margin-bottom:12px">📊</div>'
-    +'<div class="fw7 fs16 mb4">Tap or drop file here</div>'
-    +'<div class="fs13 text-mut mb16">.xlsx — Autocount Outstanding AR Invoice</div>'
-    +'<button class="btn btn-primary" onclick="event.stopPropagation();pickFile()">Browse File</button>'
-    +'<input id="xlsxFile" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileInput(this)"/>'
-  +'</div>';
-}
-function exportData(){
-  var backup={version:'paytrack-v8',exportDate:new Date().toISOString(),customers:state.customers,invoices:state.invoices,payments:state.payments,waLog:state.waLog,company:state.company,dismissed:state.dismissed};
-  var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  var d=new Date();
-  a.href=url;
-  a.download='zeus-paytrack-backup-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
-  document.body.appendChild(a);a.click();
-  setTimeout(function(){URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
-}
-function restoreData(inp){
-  if(!inp.files[0])return;
-  var r=new FileReader();
-  r.onload=function(e){
-    try{
-      var d=JSON.parse(e.target.result);
-      if(!d.customers||!d.invoices){alert('Invalid backup file!');return;}
-      if(!confirm('This will replace ALL your current data with the backup.\n\nCustomers: '+d.customers.length+'\nInvoices: '+d.invoices.length+'\nPayments: '+(d.payments||[]).length+'\n\nContinue?'))return;
-      state.customers=d.customers||[];
-      state.invoices=d.invoices||[];
-      state.payments=d.payments||[];
-      state.waLog=d.waLog||[];
-      state.company=d.company||state.company;
-      state.dismissed=d.dismissed||[];
-      save();
-      alert('✅ Restore successful!\n'+state.customers.length+' customers, '+state.invoices.length+' invoices loaded.');
-      goTab('dashboard');
-    }catch(err){alert('Could not read backup file: '+err.message);}
-  };
-  r.readAsText(inp.files[0]);
-}
-function pickFile(){var f=document.getElementById('xlsxFile');if(f)f.click();}
-function handleDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('dragover');var f=e.dataTransfer.files[0];if(f)readFile(f);}
-function handleFileInput(inp){if(inp.files[0])readFile(inp.files[0]);}
-function loadXlsx(cb){
-  if(window.XLSX){cb();return;}
-  var s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-  s.onload=cb;s.onerror=function(){alert('Could not load Excel reader. Check internet connection.');};
-  document.head.appendChild(s);
-}
-function readFile(file){
-  var ext=file.name.split('.').pop().toLowerCase();
-  if(ext==='csv'){var r=new FileReader();r.onload=function(e){parseCSV(e.target.result);};r.readAsText(file);return;}
-  var dz=document.getElementById('dropZone');
-  if(dz)dz.innerHTML='<div style="font-size:32px;margin-bottom:8px">⏳</div><div class="fw7 fs15">Reading file…</div>';
-  loadXlsx(function(){
-    var r=new FileReader();
-    r.onload=function(e){
-      try{
-        var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:false});
-        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:false,dateNF:'dd/mm/yyyy'});
-        // Auto-detect format by checking header row
-        var firstRow=raw[0]||[];
-        var isDailySales=firstRow.some(function(c){return String(c||'').toLowerCase().indexOf('doc. no')!==-1||String(c||'').toLowerCase().indexOf('debtor name')!==-1;});
-        if(isDailySales){
-          parseDailySalesRows(raw);
-        }else{
-          parseAutocountRows(raw);
-        }
-      }catch(err){alert('Could not read Excel: '+err.message);renderImport();}
-    };
-    r.readAsArrayBuffer(file);
-  });
-}
-function parseDailySalesRows(raw){
-  // Daily Sales Report: header row 0, data from row 1
-  // Col1=InvNo, Col2=Date, Col3=DebtorCode, Col4=DebtorName, Col9=LocalTotal, Col10=Outstanding, Col13=Status
-  var invoices=[];
-  for(var i=1;i<raw.length;i++){
-    var row=raw[i];
-    if(!row||!row[1])continue;
-    var invNo=String(row[1]||'').trim();
-    var custName=String(row[4]||'').trim();
-    if(!invNo||!custName)continue;
-    // Skip cancelled
-    if(String(row[13]||'').trim().toUpperCase()==='C')continue;
-    var invDate=parseMYDate(row[2]);
-    var amount=parseFloat(String(row[9]||'0').replace(/[^0-9.\-]/g,''))||0;
-    var outstanding=parseFloat(String(row[10]||'0').replace(/[^0-9.\-]/g,''))||0;
-    var paid=Math.max(0,amount-outstanding);
-    var status=outstanding<=0?'paid':paid>0?'partial':'unpaid';
-    invoices.push({invNo:invNo,custName:custName,amount:amount,paid:paid,invDate:invDate,dueDate:'',status:status});
+  var html = '', i, e, bd, rs;
+  for (i = 0; i < D.emp.length; i++) {
+    e = D.emp[i];
+    bd = e.type === 'monthly' ? '<span class="b bt">Monthly</span>' : '<span class="b bg">Hourly</span>';
+    rs = e.type === 'monthly' ? rm(e.rate)+'/mo' : rm(e.rate)+'/hr';
+    html += '<div class="ec"><div class="en">'+e.name+'</div>' +
+      '<div class="em">'+bd+'<span>'+rs+'</span>'+(e.role?'<span>· '+e.role+'</span>':'')+'</div>' +
+      (e.ic ? '<div style="font-size:11px;color:#aaa;margin-top:3px">IC: '+e.ic+'</div>' : '') +
+      '<div class="ea"><button class="btn bo bsm" onclick="editEmp(\''+e.id+'\')">Edit</button>' +
+      '<button class="btn bh bsm" onclick="delEmp(\''+e.id+'\')">Delete</button></div></div>';
   }
-  if(!invoices.length){alert('No invoice rows found in Daily Sales Report.');renderImport();return;}
-  doImport(invoices,'Daily Sales Report');
-}
-function parseMYDate(val){
-  if(!val)return'';
-  var s=String(val).trim();
-  // YYYY-MM-DD (from dateNF:'yyyy-mm-dd') — perfect, use directly
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
-  // DD/MM/YYYY fallback
-  var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
-  // MM/DD/YYYY fallback — should not happen but handle anyway
-  var m2=s.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
-  if(m2)return m2[3]+'-'+m2[1].padStart(2,'0')+'-'+m2[2].padStart(2,'0');
-  return'';
-}
-function parseAutocountRows(raw){
-  var invoices=[];
-  raw.forEach(function(row){
-    if(!row||row.length<38)return;
-    // Autocount: col0=invDate, col4='IN', col7=invNo, col17=custName, col21=amount, col29=dueDate, col33=ageDays, col37=outstanding
-    if(String(row[4]||'').trim()!=='IN')return;
-    var invNo=String(row[7]||'').trim();
-    var custName=String(row[17]||'').trim();
-    if(!invNo||!custName)return;
-    var invDate=parseMYDate(row[0]);
-    var dueDate=parseMYDate(row[29]);  // read directly from Excel!
-    var amount=parseFloat(String(row[21]||'0').replace(/[^0-9.\-]/g,''))||0;
-    var outstanding=parseFloat(String(row[37]||row[21]||'0').replace(/[^0-9.\-]/g,''))||0;
-    var paid=Math.max(0,amount-outstanding);
-    invoices.push({invNo:invNo,custName:custName,amount:amount,paid:paid,invDate:invDate,dueDate:dueDate,status:paid>=amount?'paid':paid>0?'partial':'unpaid'});
-  });
-  if(!invoices.length){alert('No invoice rows found.\n\nPlease export "Outstanding AR Invoice" from Autocount as .xlsx');renderImport();return;}
-  doImport(invoices);
-}
-function parseCSV(text){
-  var lines=text.split('\n').filter(function(l){return l.trim();});
-  if(!lines.length){alert('File is empty');return;}
-  var headers=lines[0].split(',').map(function(h){return h.trim().replace(/"/g,'').toLowerCase();});
-  var ci=-1,ii=-1,ai=-1,oi=-1,di=-1;
-  headers.forEach(function(h,i){
-    if(['customer name','debtor name','company name','name'].indexOf(h)!==-1)ci=i;
-    if(['invoice no','inv no','doc no'].indexOf(h)!==-1)ii=i;
-    if(['amount','invoice amount','total'].indexOf(h)!==-1)ai=i;
-    if(['outstanding','balance','o/s'].indexOf(h)!==-1)oi=i;
-    if(['invoice date','inv date','date'].indexOf(h)!==-1)di=i;
-  });
-  if(ci===-1||ii===-1){alert('Cannot find required columns.\nFound: '+headers.join(', '));return;}
-  var invoices=[];
-  for(var i=1;i<lines.length;i++){
-    var cols=lines[i].split(',').map(function(c){return c.trim().replace(/"/g,'');});
-    var custName=(cols[ci]||'').trim();var invNo=(cols[ii]||'').trim();
-    if(!custName||!invNo)continue;
-    var amount=ai!==-1?parseFloat((cols[ai]||'0').replace(/[^0-9.\-]/g,''))||0:0;
-    var outstanding=oi!==-1?parseFloat((cols[oi]||'0').replace(/[^0-9.\-]/g,'')):amount;
-    var paid=Math.max(0,amount-outstanding);
-    var invDate=di!==-1?parseMYDate(cols[di]):'';
-    invoices.push({invNo:invNo,custName:custName,amount:amount,paid:paid,invDate:invDate,status:paid>=amount?'paid':paid>0?'partial':'unpaid'});
-  }
-  doImport(invoices);
-}
-function doImport(invoices,source){
-  source=source||'Outstanding AR Invoice';
-  var nc=[].concat(state.customers);
-  var ni=[].concat(state.invoices);
-  var added=0,updated=0,custCreated=0;
-  invoices.forEach(function(row){
-    var cust=nc.find(function(c){return c.name.toLowerCase()===row.custName.toLowerCase();});
-    if(!cust){cust={id:Date.now()+Math.random(),name:row.custName,creditTerm:0,contact:'',phone:'',email:''};nc.push(cust);custCreated++;}
-    var ex=ni.find(function(i){return i.invoiceNo===row.invNo;});
-    if(ex){
-      // Always overwrite dates — fixes previously bad imported dates
-      ex.amount=row.amount;
-      ex.paidAmount=row.paid;
-      ex.status=row.status;
-      ex.invoiceDate=row.invDate;
-      ex.dueDate=row.dueDate;
-      updated++;
-    }
-    else{ni.push({id:Date.now()+Math.random(),customerId:cust.id,invoiceNo:row.invNo,amount:row.amount,invoiceDate:row.invDate||new Date().toISOString().split('T')[0],dueDate:row.dueDate||'',paidAmount:row.paid,status:row.status,notes:'Imported'});added++;}
-  });
-  state.customers=nc;state.invoices=ni;save();
-  importState.stage='done';importState.added=added;importState.updated=updated;importState.custCreated=custCreated;importState.total=invoices.length;importState.source=source;
-  renderImport();
+  el.innerHTML = html;
 }
 
-// ── MODALS ────────────────────────────────────────────────────
-function showModal(id){document.getElementById(id).style.display='flex';}
-function hideModal(id){document.getElementById(id).style.display='none';}
-
-// ── INIT ──────────────────────────────────────────────────────
-function init(){
-  load();
-  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'});
-  document.getElementById('companyDisplay').textContent=state.company;
-  document.getElementById('newInvDate').value=new Date().toISOString().split('T')[0];
-  renderDashboard();
+// ATTENDANCE
+function openAtt() {
+  var h = [];
+  var i;
+  for (i = 0; i < D.emp.length; i++) { if (D.emp[i].type === 'hourly') h.push(D.emp[i]); }
+  if (!h.length) { alert('No hourly employees. Only hourly staff need hours logged.'); return; }
+  fes('ae', 'hourly');
+  document.getElementById('ad').value = tod();
+  document.getElementById('ah').value = '8';
+  om('mo-att');
 }
-init();
+
+function sAtt() {
+  var eid = document.getElementById('ae').value;
+  var date = document.getElementById('ad').value;
+  var hrs = parseFloat(document.getElementById('ah').value);
+  if (!eid || !date || !hrs) { alert('Please fill all fields'); return; }
+  D.att.push({id:uid(), eid:eid, date:date, hrs:hrs});
+  save(); cm('mo-att'); rAtt();
+}
+
+function rAtt() {
+  var month = gm();
+  var tb = document.getElementById('atttb');
+  var recs = [], i, a, e, pay;
+  for (i = 0; i < D.att.length; i++) { if (mo(D.att[i].date) === month) recs.push(D.att[i]); }
+  recs.sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  if (!recs.length) { tb.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="ei">🕐</div><p>No hours logged this month.</p></div></td></tr>'; return; }
+  var html = '';
+  for (i = 0; i < recs.length; i++) {
+    a = recs[i]; e = getEmp(a.eid);
+    pay = e ? (e.rate * a.hrs).toFixed(2) : '0.00';
+    html += '<tr><td class="fw">'+en(a.eid)+'</td><td>'+fd(a.date)+'</td><td>'+a.hrs+'h</td><td class="teal fw">RM '+pay+'</td>' +
+      '<td><button class="btn bh bsm" onclick="dAtt(\''+a.id+'\')">Del</button></td></tr>';
+  }
+  tb.innerHTML = html;
+}
+
+function dAtt(id) {
+  conf('Delete this record?', function() {
+    var na = [], i;
+    for (i = 0; i < D.att.length; i++) { if (D.att[i].id !== id) na.push(D.att[i]); }
+    D.att = na; save(); rAtt();
+  });
+}
+
+// ADVANCES
+function openAdv() {
+  if (!D.emp.length) { alert('Add employees first'); return; }
+  fes('vde');
+  document.getElementById('vdd').value = tod();
+  document.getElementById('vda').value = '400';
+  document.getElementById('vdn').value = '';
+  om('mo-adv');
+}
+
+function sAdv() {
+  var eid = document.getElementById('vde').value;
+  var date = document.getElementById('vdd').value;
+  var amt = parseFloat(document.getElementById('vda').value);
+  var note = document.getElementById('vdn').value;
+  if (!eid || !date || !amt) { alert('Fill all required fields'); return; }
+  D.adv.push({id:uid(), eid:eid, date:date, amt:amt, note:note});
+  save(); cm('mo-adv'); rAdv();
+}
+
+function rAdv() {
+  var month = gm();
+  var tb = document.getElementById('advtb');
+  var recs = [], i, a;
+  for (i = 0; i < D.adv.length; i++) { if (mo(D.adv[i].date) === month) recs.push(D.adv[i]); }
+  recs.sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  if (!recs.length) { tb.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="ei">💸</div><p>No advances this month.</p></div></td></tr>'; return; }
+  var html = '';
+  for (i = 0; i < recs.length; i++) {
+    a = recs[i];
+    html += '<tr><td class="fw">'+en(a.eid)+'</td><td>'+fd(a.date)+'</td><td class="red fw">'+rm(a.amt)+'</td><td>'+(a.note||'-')+'</td>' +
+      '<td><button class="btn bh bsm" onclick="dAdv(\''+a.id+'\')">Del</button></td></tr>';
+  }
+  tb.innerHTML = html;
+}
+
+function dAdv(id) {
+  conf('Delete this advance?', function() {
+    var na = [], i;
+    for (i = 0; i < D.adv.length; i++) { if (D.adv[i].id !== id) na.push(D.adv[i]); }
+    D.adv = na; save(); rAdv();
+  });
+}
+
+// LEAVES
+function openLv() {
+  if (!D.emp.length) { alert('Add employees first'); return; }
+  fes('le');
+  document.getElementById('ld').value = tod();
+  document.getElementById('ldy').value = '1';
+  document.getElementById('lt').value = 'Annual';
+  document.getElementById('lr').value = '';
+  om('mo-lv');
+}
+
+function sLv() {
+  var eid = document.getElementById('le').value;
+  var date = document.getElementById('ld').value;
+  var days = parseFloat(document.getElementById('ldy').value);
+  var type = document.getElementById('lt').value;
+  var reason = document.getElementById('lr').value;
+  if (!eid || !date || !days) { alert('Fill all required fields'); return; }
+  D.lv.push({id:uid(), eid:eid, date:date, days:days, type:type, reason:reason});
+  save(); cm('mo-lv'); rLv();
+}
+
+function rLv() {
+  var month = gm();
+  var tb = document.getElementById('lvtb');
+  var recs = [], i, l, bc;
+  for (i = 0; i < D.lv.length; i++) { if (mo(D.lv[i].date) === month) recs.push(D.lv[i]); }
+  recs.sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  if (!recs.length) { tb.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="ei">📅</div><p>No leaves this month.</p></div></td></tr>'; return; }
+  var html = '';
+  for (i = 0; i < recs.length; i++) {
+    l = recs[i]; bc = LVC[l.type] || 'bt';
+    html += '<tr><td class="fw">'+en(l.eid)+'</td><td>'+fd(l.date)+'</td>' +
+      '<td><span class="b '+bc+'">'+l.type+'</span></td><td>'+l.days+'d</td>' +
+      '<td><button class="btn bh bsm" onclick="dLv(\''+l.id+'\')">Del</button></td></tr>';
+  }
+  tb.innerHTML = html;
+}
+
+function dLv(id) {
+  conf('Delete this leave?', function() {
+    var na = [], i;
+    for (i = 0; i < D.lv.length; i++) { if (D.lv[i].id !== id) na.push(D.lv[i]); }
+    D.lv = na; save(); rLv();
+  });
+}
+
+// ALLOWANCES
+function openAl() {
+  if (!D.emp.length) { alert('Add employees first'); return; }
+  fes('ala');
+  document.getElementById('aldate').value = tod();
+  document.getElementById('alam').value = '10';
+  om('mo-al');
+}
+
+function sAl() {
+  var eid = document.getElementById('ala').value;
+  var date = document.getElementById('aldate').value;
+  var amt = parseFloat(document.getElementById('alam').value);
+  if (!eid || !date || !amt) { alert('Fill all required fields'); return; }
+  D.al.push({id:uid(), eid:eid, date:date, amt:amt});
+  save(); cm('mo-al'); rAl();
+}
+
+function rAl() {
+  var month = gm();
+  var tb = document.getElementById('altb');
+  var recs = [], i, a;
+  for (i = 0; i < D.al.length; i++) { if (mo(D.al[i].date) === month) recs.push(D.al[i]); }
+  recs.sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  if (!recs.length) { tb.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="ei">💰</div><p>No allowances this month.</p></div></td></tr>'; return; }
+  var html = '';
+  for (i = 0; i < recs.length; i++) {
+    a = recs[i];
+    html += '<tr><td class="fw">'+en(a.eid)+'</td><td>'+fd(a.date)+'</td><td class="grn fw">'+rm(a.amt)+'</td>' +
+      '<td><button class="btn bh bsm" onclick="dAl(\''+a.id+'\')">Del</button></td></tr>';
+  }
+  tb.innerHTML = html;
+}
+
+function dAl(id) {
+  conf('Delete this allowance?', function() {
+    var na = [], i;
+    for (i = 0; i < D.al.length; i++) { if (D.al[i].id !== id) na.push(D.al[i]); }
+    D.al = na; save(); rAl();
+  });
+}
+
+// PAYROLL CALC
+function calc(eid, month) {
+  var e = getEmp(eid);
+  if (!e) return null;
+  var nd = dim(month);
+  var gross = 0, attR = [], i;
+  if (e.type === 'monthly') {
+    gross = e.rate;
+  } else {
+    for (i = 0; i < D.att.length; i++) { if (D.att[i].eid === eid && mo(D.att[i].date) === month) attR.push(D.att[i]); }
+    var th = 0;
+    for (i = 0; i < attR.length; i++) th += attR[i].hrs;
+    gross = th * e.rate;
+  }
+  var lvR = [];
+  for (i = 0; i < D.lv.length; i++) { if (D.lv[i].eid === eid && mo(D.lv[i].date) === month) lvR.push(D.lv[i]); }
+  var ud = 0;
+  for (i = 0; i < lvR.length; i++) { if (lvR[i].type === 'Unpaid') ud += lvR[i].days; }
+  var uded = e.type === 'monthly' ? (e.rate / nd) * ud : 0;
+  var advR = [];
+  for (i = 0; i < D.adv.length; i++) { if (D.adv[i].eid === eid && mo(D.adv[i].date) === month) advR.push(D.adv[i]); }
+  var tadv = 0;
+  for (i = 0; i < advR.length; i++) tadv += advR[i].amt;
+  var alR = [];
+  for (i = 0; i < D.al.length; i++) { if (D.al[i].eid === eid && mo(D.al[i].date) === month) alR.push(D.al[i]); }
+  var tal = 0;
+  for (i = 0; i < alR.length; i++) tal += alR[i].amt;
+  var net = gross - uded - tadv;
+  return {e:e, gross:gross, ud:ud, uded:uded, tadv:tadv, advR:advR, tal:tal, alR:alR, lvR:lvR, attR:attR, net:net, total:net+tal};
+}
+
+// PAYROLL VIEW
+function rPay() {
+  var month = gm();
+  var ml = fm(month);
+  if (!D.emp.length) {
+    document.getElementById('paycontent').innerHTML = '<div class="empty"><div class="ei">🧾</div><p>No employees yet.</p></div>';
+    return;
+  }
+  var html = '<div style="font-weight:700;font-size:15px;margin-bottom:12px;">Salary — '+ml+'</div>';
+  var grand = 0, i, e, p, bd, dt;
+  for (i = 0; i < D.emp.length; i++) {
+    e = D.emp[i];
+    p = calc(e.id, month);
+    grand += p.total;
+    bd = e.type === 'monthly' ? '<span class="b bt">Monthly</span>' : '<span class="b bg">Hourly</span>';
+    dt = p.uded + p.tadv;
+    html += '<div class="card" style="margin-bottom:12px;">' +
+      '<div class="ch"><div><div class="fw" style="font-size:15px;">'+e.name+'</div>' +
+      '<div style="margin-top:3px;display:flex;gap:6px;align-items:center;">'+bd+(e.role?'<span style="font-size:11px;color:#aaa">'+e.role+'</span>':'')+'</div></div>' +
+      '<button class="btn bgo bsm" onclick="vSlip(\''+e.id+'\',\''+month+'\')">Slip</button></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;padding:12px;">' +
+        '<div><div style="font-size:10px;color:#aaa">Basic</div><div class="fw" style="font-size:13px;">'+rm(p.gross)+'</div></div>' +
+        '<div><div style="font-size:10px;color:#aaa">Deductions</div><div class="fw red" style="font-size:13px;">'+(dt>0?'-'+rm(dt):'—')+'</div></div>' +
+        '<div><div style="font-size:10px;color:#aaa">Net Pay</div><div class="fw teal" style="font-size:14px;">'+rm(p.total)+'</div></div>' +
+      '</div></div>';
+  }
+  html += '<div class="total-bar"><span class="fw">TOTAL PAYROLL</span><span style="font-size:18px;font-weight:700;">'+rm(grand)+'</span></div>';
+  document.getElementById('paycontent').innerHTML = html;
+}
+
+// PAYSLIP
+function vSlip(eid, month) {
+  var p = calc(eid, month);
+  var ml = fm(month);
+  var td = fd(tod());
+  var i, a, l, lt, lvg = {};
+  var er = '', dr = '', lr = '', alr = '';
+
+  if (p.e.type === 'hourly') {
+    var th = 0;
+    for (i = 0; i < p.attR.length; i++) th += p.attR[i].hrs;
+    er = '<tr><td>Hours x Rate</td><td>'+th+' hrs x '+rm(p.e.rate)+'</td><td class="ar">'+rm(p.gross)+'</td></tr>';
+  } else {
+    er = '<tr><td>Basic Salary</td><td>'+ml+'</td><td class="ar">'+rm(p.gross)+'</td></tr>';
+  }
+
+  for (i = 0; i < p.lvR.length; i++) {
+    l = p.lvR[i]; lt = l.type;
+    if (!lvg[lt]) lvg[lt] = 0;
+    lvg[lt] += l.days;
+  }
+  for (lt in lvg) {
+    lr += '<tr><td colspan="2">Leave - '+lt+'</td><td class="ar" style="color:#aaa">'+lvg[lt]+' day(s)</td></tr>';
+  }
+
+  if (p.uded > 0) {
+    dr += '<tr><td>Unpaid Leave</td><td>'+p.ud+' day(s)</td><td class="ar dr">- '+rm(p.uded)+'</td></tr>';
+  }
+  for (i = 0; i < p.advR.length; i++) {
+    a = p.advR[i];
+    dr += '<tr><td>Advance Salary</td><td>'+fd(a.date)+(a.note?' - '+a.note:'')+'</td><td class="ar dr">- '+rm(a.amt)+'</td></tr>';
+  }
+
+  if (p.alR.length) {
+    alr = '<tr style="background:#f0faf5"><td>Daily Allowance</td><td>'+p.alR.length+' day(s)</td><td class="ar" style="color:#1a7a4a">'+rm(p.tal)+'</td></tr>';
+  }
+
+  var html = '<div class="ps">' +
+    '<div class="psh">' +
+      '<div><div class="psc">G Wira Trading (M) Sdn Bhd</div><div class="pss">GwiraPack - Klang, Selangor</div></div>' +
+      '<div><div class="pst">SALARY SLIP</div><div class="psp">'+ml+'</div></div>' +
+    '</div>' +
+    '<div class="psi">' +
+      '<div><div class="il">Employee</div><div class="iv">'+p.e.name+'</div></div>' +
+      (p.e.role ? '<div><div class="il">Position</div><div class="iv">'+p.e.role+'</div></div>' : '<div></div>') +
+      (p.e.ic ? '<div><div class="il">IC No.</div><div class="iv">'+p.e.ic+'</div></div>' : '<div></div>') +
+      '<div><div class="il">Pay Type</div><div class="iv">'+(p.e.type==='monthly'?'Monthly':'Hourly')+'</div></div>' +
+      '<div><div class="il">Period</div><div class="iv">'+ml+'</div></div>' +
+      '<div><div class="il">Issued</div><div class="iv">'+td+'</div></div>' +
+    '</div>' +
+    '<table class="pt"><thead><tr><th>Description</th><th>Details</th><th style="text-align:right">Amount</th></tr></thead><tbody>' +
+    '<tr style="background:#eef7f7"><td colspan="3" style="font-weight:700;font-size:10px;text-transform:uppercase;color:#1a6b6b">Earnings</td></tr>' +
+    er + lr +
+    (dr ? '<tr style="background:#fdf3f3"><td colspan="3" style="font-weight:700;font-size:10px;text-transform:uppercase;color:#c0392b">Deductions</td></tr>'+dr : '') +
+    (alr ? '<tr style="background:#eef8f3"><td colspan="3" style="font-weight:700;font-size:10px;text-transform:uppercase;color:#1a7a4a">Allowances (Non-Salary)</td></tr>'+alr : '') +
+    '<tr style="background:#f8f8f4;font-weight:700;"><td colspan="2" style="text-align:right">Net Salary (after deductions):</td><td class="ar">'+rm(p.net)+'</td></tr>' +
+    '</tbody></table>' +
+    '<div class="pn"><div class="pnl">TOTAL TAKE-HOME PAY<div style="font-size:10px;opacity:0.75;margin-top:2px;">Salary + Allowances</div></div><div class="pna">'+rm(p.total)+'</div></div>' +
+    '<div class="pf"><div><div>Computer-generated slip.</div><div>G Wira Trading (M) Sdn Bhd</div></div>' +
+    '<div style="text-align:right"><div class="sl"></div><div>Authorised Signature</div></div></div>' +
+    '</div>';
+  document.getElementById('slipcontent').innerHTML = html;
+  om('mo-slip');
+}
+
+function pSlip() {
+  var el = document.getElementById('slipcontent').innerHTML;
+  var w = window.open('', '_blank');
+  if (!w) { alert('Allow pop-ups to print.'); return; }
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Salary Slip</title><style>body{font-family:-apple-system,Arial,sans-serif;padding:20px;background:white;font-size:13px;}.ps{}.psh{display:flex;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #1a6b6b;}.psc{font-size:17px;font-weight:700;color:#1a6b6b;}.pss{font-size:11px;color:#aaa;margin-top:2px;}.pst{font-size:15px;font-weight:700;text-align:right;}.psp{font-size:12px;color:#aaa;text-align:right;}.psi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}.il{font-size:10px;color:#aaa;text-transform:uppercase;font-weight:700;}.iv{font-size:13px;font-weight:600;margin-top:2px;}.pt{width:100%;border-collapse:collapse;margin-bottom:10px;}.pt th{background:#1a6b6b;color:white;padding:7px 10px;font-size:11px;font-weight:700;text-align:left;}.pt td{padding:7px 10px;border-bottom:1px solid #f0ede8;}.ar{text-align:right;font-weight:600;}.dr{color:#c0392b;}.pn{background:#1a6b6b;color:white;padding:13px 14px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}.pnl{font-size:12px;font-weight:600;}.pna{font-size:18px;font-weight:700;}.pf{margin-top:20px;padding-top:12px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:10px;color:#aaa;}.sl{width:110px;border-top:1px solid #aaa;margin:26px 0 3px;}</style></head><body>'+el+'</body></html>');
+
+w.document.close();
+setTimeout(function(){ try { w.print(); } catch(e){} }, 600);
+}
+
+// DASHBOARD
+function rDash() {
+var month = gm();
+var ml = fm(month);
+var i, ta=0, tl=0, tal=0, tp=0, mo2=0, ho=0, p;
+for (i=0;i<D.adv.length;i++) if(mo(D.adv[i].date)===month) ta+=D.adv[i].amt;
+for (i=0;i<D.lv.length;i++) if(mo(D.lv[i].date)===month) tl+=D.lv[i].days;
+for (i=0;i<D.al.length;i++) if(mo(D.al[i].date)===month) tal+=D.al[i].amt;
+for (i=0;i<D.emp.length;i++) { p=calc(D.emp[i].id,month); if(p) tp+=p.total; if(D.emp[i].type===‘monthly’) mo2++; else ho++; }
+
+document.getElementById(‘dstats’).innerHTML =
+‘<div class="sc"><div class="l">Employees</div><div class="v">’+D.emp.length+’</div><div class="s">’+mo2+’ monthly / ‘+ho+’ hourly</div></div>’ +
+‘<div class="sc"><div class="l">Payroll</div><div class="v" style="font-size:17px;">’+rm(tp)+’</div><div class="s">’+ml+’</div></div>’ +
+‘<div class="sc"><div class="l">Advances</div><div class="v red" style="font-size:17px;">’+rm(ta)+’</div><div class="s">This month</div></div>’ +
+‘<div class="sc"><div class="l">Allowances</div><div class="v grn" style="font-size:17px;">’+rm(tal)+’</div><div class="s">Daily RM10</div></div>’ +
+‘<div class="sc"><div class="l">Leave Days</div><div class="v" style="color:#c49a2a;">’+tl+’</div><div class="s">This month</div></div>’;
+
+var ra=[], rl=[], j;
+for (i=0;i<D.adv.length;i++) if(mo(D.adv[i].date)===month) ra.push(D.adv[i]);
+for (i=0;i<D.lv.length;i++) if(mo(D.lv[i].date)===month) rl.push(D.lv[i]);
+ra.sort(function(a,b){ return a.date<b.date?1:-1; }); ra=ra.slice(0,4);
+rl.sort(function(a,b){ return a.date<b.date?1:-1; }); rl=rl.slice(0,4);
+
+var ar = ra.length ? ra.map(function(a){ return ‘<tr><td class="fw">’+en(a.eid)+’</td><td>’+fd(a.date)+’</td><td class="red fw">’+rm(a.amt)+’</td></tr>’; }).join(’’) :
+‘<tr><td colspan="3"><div class="empty" style="padding:18px"><p>None this month</p></div></td></tr>’;
+var lr2 = rl.length ? rl.map(function(l){ return ‘<tr><td class="fw">’+en(l.eid)+’</td><td>’+fd(l.date)+’</td><td><span class="b '+(LVC[l.type]||'bt')+'">’+l.type+’</span></td></tr>’; }).join(’’) :
+‘<tr><td colspan="3"><div class="empty" style="padding:18px"><p>None this month</p></div></td></tr>’;
+
+document.getElementById(‘dcards’).innerHTML =
+‘<div class="card"><div class="ch">Recent Advances <button class="btn bo bsm" onclick="gv(\'adv\')">All</button></div>’ +
+‘<div class="tw"><table><thead><tr><th>Name</th><th>Date</th><th>Amount</th></tr></thead><tbody>’+ar+’</tbody></table></div></div>’ +
+‘<div class="card"><div class="ch">Recent Leaves <button class="btn bo bsm" onclick="gv(\'lv\')">All</button></div>’ +
+‘<div class="tw"><table><thead><tr><th>Name</th><th>Date</th><th>Type</th></tr></thead><tbody>’+lr2+’</tbody></table></div></div>’;
+}
+
+// START
+load();
+initMS();
+render();
 </script>
 
 </body>
