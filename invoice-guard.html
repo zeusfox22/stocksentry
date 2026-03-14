@@ -313,6 +313,14 @@ td select{background:#f5f5f7;border:1.5px solid transparent;border-radius:6px;fo
       <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Tag each supplier so the app compares prices against the right benchmark (🏭 manufacturer cost vs 🏪 market cost).</div>
       <div id="supplierTypeList" style="margin-bottom:10px"></div>
     </div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:8px">💾 Backup & Restore</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Save all invoices, catalogue & supplier data. Restore on any device.</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button onclick="downloadBackup()" style="flex:1;padding:11px;background:#0071e3;color:#fff;border:none;border-radius:var(--r3);font-weight:600;font-size:13px;cursor:pointer">📥 Download Backup</button>
+        <label style="flex:1;padding:11px;background:var(--bg);color:var(--text);border:1.5px solid var(--border);border-radius:var(--r3);font-weight:600;font-size:13px;cursor:pointer;text-align:center;display:block">📤 Restore<input type="file" accept=".json" style="display:none" onchange="restoreBackup(this)"></label>
+      </div>
+    </div>
     <button onclick="clearAllData()" style="width:100%;padding:12px;background:var(--red-bg);color:var(--red);border:none;border-radius:var(--r3);font-weight:600;font-size:14px;cursor:pointer">🗑 Clear All Data</button>
   </div>
 </div>
@@ -446,18 +454,34 @@ function renderReviewCards(containerId,lines,mode){
         <div><div class="lbl">CTN Size</div><input type="number" value="${esc(line.cartonSize)}" placeholder="—" style="font-size:14px" onchange="${mode==='review'?`updateReviewLine('${line._id}','cartonSize',this.value)`:`updateManualLine('${line._id}','cartonSize',this.value)`}"></div>
         <div><div class="lbl">Cost (RM)</div><input type="number" step="0.01" value="${esc(line.price)}" placeholder="0.00" style="font-size:15px;font-weight:700" onchange="${mode==='review'?`updateReviewLine('${line._id}','price',this.value)`:`updateManualLine('${line._id}','price',this.value)`}"></div>
       </div>
-      <div style="background:var(--bg);border-radius:var(--r3);padding:10px 12px;margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap">
+      <div style="background:var(--bg);border-radius:var(--r3);padding:10px 12px;margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap">
         ${!isNaN(pp)&&pp>0?`<div><div class="lbl" style="margin-bottom:2px">Per Piece</div><div style="font-size:16px;font-weight:800;color:var(--text)">RM ${fmt(pp)}</div></div>`:''}
         ${!isNaN(pp)&&pp>0&&parseFloat(line.qty)?`<div><div class="lbl" style="margin-bottom:2px">Total (${line.qty} ${line.unitType})</div><div style="font-size:16px;font-weight:800;color:var(--text)">RM ${fmt(parseFloat(line.price)*parseFloat(line.qty))}</div></div>`:''}
-        ${margin&&!isNaN(pp)?`<div><div class="lbl" style="margin-bottom:2px">Sell/Piece (${margin}%)</div><div style="font-size:16px;font-weight:800;color:var(--green)">RM ${fmt(sellingPrice(pp,margin))}</div></div>`:''}
-        ${cat&&cat.uoms&&Object.keys(cat.uoms).length>1?`<div><div class="lbl" style="margin-bottom:2px">UOM Prices</div><div style="font-size:11px;color:var(--text2)">${Object.entries(cat.uoms).map(([u,d])=>`${u}:RM${fmt(d.price1)}`).join(' · ')}</div></div>`:''}
+        ${(()=>{if(!cat||!cat.uoms||isNaN(pp))return '';
+          // Find the matching UOM for the purchased carton size
+          const cszN=parseFloat(line.cartonSize)||1;
+          const uomMatch=Object.entries(cat.uoms).find(([u,d])=>parseFloat(d.rate)===cszN);
+          const uomName=uomMatch?uomMatch[0]:(line.unitType==='carton'?'CTN':line.unitType.toUpperCase());
+          const uomPrice1=uomMatch?uomMatch[1].price1:null;
+          const sellPc=margin?sellingPrice(pp,margin):null;
+          let html='';
+          // Recommended sell price for the purchased UOM
+          if(uomPrice1&&uomPrice1>0){
+            const isHigher=sellPc&&sellPc>uomPrice1;
+            html+=`<div><div class="lbl" style="margin-bottom:2px">Rec. Price/${uomName}</div><div style="font-size:16px;font-weight:800;color:#0071e3">RM ${fmt(uomPrice1)}</div></div>`;
+          }
+          // Margin-based sell price per piece
+          if(sellPc){html+=`<div><div class="lbl" style="margin-bottom:2px">Sell/Piece (${margin}%)</div><div style="font-size:16px;font-weight:800;color:var(--green)">RM ${fmt(sellPc)}</div></div>`;}
+          return html;
+        })()}
+        ${cat&&cat.uoms&&Object.keys(cat.uoms).length>1?`<div style="min-width:100%;padding-top:6px;border-top:1px solid var(--border2)"><div class="lbl" style="margin-bottom:4px">All UOM Sell Prices</div><div style="display:flex;flex-wrap:wrap;gap:6px">${Object.entries(cat.uoms).filter(([u,d])=>d.price1>0).map(([u,d])=>{const isMatch=parseFloat(d.rate)===parseFloat(line.cartonSize);return \`<span style="background:\${isMatch?'#e8f4ff':'var(--bg2,#f5f5f7)'};color:\${isMatch?'#0071e3':'var(--text2)'};border:\${isMatch?'1.5px solid #0071e3':'1px solid var(--border)'};border-radius:6px;padding:3px 8px;font-size:12px;font-weight:\${isMatch?'700':'500'}">\${u}: RM\${fmt(d.price1)}\${isMatch?' ✓':''}</span>\`}).join('')}</div></div>`:''}
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-        <div style="display:flex;gap:10px;align-items:center">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:4px">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           ${margin?`<span style="font-size:12px;color:var(--text3)">Margin: <strong>${margin}%</strong></span>`:''}
           ${sell!=='—'?`<span style="font-size:13px;font-weight:800;color:var(--green)">Sell: ${sell}</span>`:''}
         </div>
-        ${flag?flagCell(flag,prefix+'_'+line._id):''}
+        <div style="flex-shrink:0">${flag?flagCell(flag,prefix+'_'+line._id):''}</div>
       </div>
     </div>`
   }).join('')
@@ -493,18 +517,30 @@ function getFlag(line,supplierName){
   const sup=supplierName||(document.getElementById('rSupplier')?.value||document.getElementById('mSupplier')?.value||'');
   const stype=getSupplierType(sup);
   const lRate=getLargestUOMRate(cat);
+  // UOM-aware: find the catalogue UOM matching the purchased carton size
+  const uomEntries=cat.uoms?Object.entries(cat.uoms):[];
+  const matchedUOMEntry=uomEntries.find(([u,d])=>parseFloat(d.rate)===parseFloat(csz));
+  const matchedUOMName=matchedUOMEntry?matchedUOMEntry[0]:null;
+  const matchedUOMCost=matchedUOMEntry&&matchedUOMEntry[1].cost>0?matchedUOMEntry[1].cost:null;
+  const matchedUOMPrice1=matchedUOMEntry?matchedUOMEntry[1].price1:null;
+  // Determine per-piece benchmark
+  const pcUOM=uomEntries.find(([u,d])=>parseFloat(d.rate)===1);
   const wslPc=cat.wslCost&&lRate>0?cat.wslCost/lRate:null;
   const mfgPc=cat.mfgCost&&lRate>0?cat.mfgCost/lRate:null;
-  const benchPc=stype==='manufacturer'?mfgPc:(wslPc||mfgPc);
+  let benchPc;
+  if(line.unitType==='carton'&&matchedUOMCost){benchPc=matchedUOMCost/csz;}
+  else if(line.unitType!=='carton'&&pcUOM&&pcUOM[1].cost>0){benchPc=pcUOM[1].cost;}
+  else{benchPc=stype==='manufacturer'?mfgPc:(wslPc||mfgPc);}
   if(benchPc&&benchPc>0){
     const diff=parseFloat(pct(thisPc,benchPc));
-    if(Math.abs(diff)<1)return{type:'new'};
+    if(Math.abs(diff)<1)return{type:'new',matchedUOM:matchedUOMName,matchedUOMPrice1};
     const benchTotal=fmt(line.unitType==='carton'?benchPc*csz:benchPc);
     return{type:diff>0?'up':'down',diff:diff.toFixed(1),suggested:benchTotal,
       lastPrice:line.unitType==='carton'?parseFloat(fmt(benchPc*csz)):benchPc,lastUnit:line.unitType,
-      lastDate:'Benchmark',lastSupplier:stype==='manufacturer'?'🏭 Mfg Cost':'🏪 Market Cost'}
+      lastDate:'Benchmark',lastSupplier:stype==='manufacturer'?'🏭 Mfg Cost':'🏪 Market Cost',
+      matchedUOM:matchedUOMName,matchedUOMPrice1}
   }
-  return{type:'new'}
+  return{type:'new',matchedUOM:matchedUOMName,matchedUOMPrice1}
 }
 function countFlags(flags){return flags.reduce((acc,f)=>{if(f)acc[f.type]=(acc[f.type]||0)+1;return acc},{})}
 function flagBadges(fc){let h='';if(fc.up)h+=`<span class="badge b-red">▲ ${fc.up} up</span>`;if(fc.new)h+=`<span class="badge b-blue">⚡ ${fc.new} new</span>`;if(fc.down)h+=`<span class="badge b-green">▼ ${fc.down} down</span>`;return h}
@@ -688,8 +724,37 @@ function showSettings(){document.getElementById('settingsKey').value=getApiKey()
 function closeSettings(){document.getElementById('settingsModal').style.display='none'}
 function updateApiKey(){const key=document.getElementById('settingsKey').value.trim();if(!key)return;localStorage.setItem('ig_apikey',key);closeSettings();alert('API key saved!')}
 function clearAllData(){if(!confirm('Delete ALL data? Cannot be undone.'))return;localStorage.removeItem('ig_cat');localStorage.removeItem('ig_inv');catalogue={};invoices=[];save();mergePreloaded();save();renderCatalogue();renderHistory();renderPayments();renderReports();updateStats();closeSettings()}
+
+function downloadBackup(){
+  const data={version:2,exportDate:new Date().toISOString(),catalogue,invoices,supplierTypes};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`invoice-guard-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+function restoreBackup(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.catalogue&&!data.invoices){alert('Invalid backup file.');return;}
+      const dateStr=data.exportDate?new Date(data.exportDate).toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'}):'unknown date';
+      const invCount=data.invoices?data.invoices.length:0;
+      const catCount=data.catalogue?Object.keys(data.catalogue).length:0;
+      if(!confirm(`Restore backup from ${dateStr}?\n\n${invCount} invoices · ${catCount} catalogue items\n\nThis will OVERWRITE all current data.`))return;
+      if(data.catalogue)catalogue=data.catalogue;
+      if(data.invoices)invoices=data.invoices;
+      if(data.supplierTypes)supplierTypes=data.supplierTypes;
+      save();renderCatalogue();renderHistory();renderPayments();renderReports();updateStats();closeSettings();
+      alert('✅ Backup restored successfully!');
+    }catch(err){alert('Error reading backup: '+err.message);}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
 function updateSupplierList(){const s=[...new Set(invoices.map(i=>i.supplier).filter(Boolean))];const dl=document.getElementById('supplierList');if(dl)dl.innerHTML=s.map(s=>`<option value="${esc(s)}">`).join('')}
-function unitOptions(selected){return['carton','piece','kg','pack','box'].map(u=>`<option value="${u}"${u===selected?' selected':''}>'${u.charAt(0).toUpperCase()+u.slice(1)}</option>`).join('')}
+function unitOptions(selected){return['carton','piece','kg','pack','box'].map(u=>`<option value="${u}"${u===selected?' selected':''}>${u.charAt(0).toUpperCase()+u.slice(1)}</option>`).join('')}
 
 function importFromClaude(file){
   if(!file)return;
