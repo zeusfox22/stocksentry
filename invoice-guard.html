@@ -361,7 +361,7 @@ function init(){
 }
 function saveApiKey(){
   const key=document.getElementById('apiKeyInput').value.trim();
-  if(!key.startsWith('sk-ant-')){alert('Please enter a valid key starting with sk-ant-');return}
+  if(!key||key.length<20){alert('Please enter a valid Anthropic API key');return}
   localStorage.setItem('ig_apikey',key);document.getElementById('setupScreen').style.display='none';document.getElementById('app').style.display='block';initApp()
 }
 function initApp(){mergePreloaded();save();document.getElementById('mDate').value=today();updateSupplierList();renderManualTable();renderCatalogue();renderHistory();renderPayments();renderReports();updateStats()}
