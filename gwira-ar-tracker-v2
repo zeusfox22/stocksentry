@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D0D1A">
+<title>G Wira · AR Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --brand:#5B4EFF;--brand2:#8B5CF6;--brand3:#C4B5FD;
+  --green:#10B981;--red:#EF4444;--amber:#F59E0B;--orange:#F97316;
+  --sidebar:#0D0D1A;--bg:#F0F2FF;--card:#fff;
+  --text:#0D0D1A;--muted:#6B7280;--border:#E5E7EB;
+  --bottom-nav-h:68px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── BASE ── */
+body{font-family:‘DM Sans’,sans-serif;background:var(–bg);color:var(–text);
+min-height:100vh;overflow-x:hidden}
+h1,h2,h3,.syne{font-family:‘Syne’,sans-serif}
+
+/* ── LAYOUT ── */
+#app{display:flex;min-height:100vh}
+
+/* ── DESKTOP SIDEBAR ── */
+#sidebar{
+width:230px;min-height:100vh;background:var(–sidebar);
+display:flex;flex-direction:column;flex-shrink:0;
+position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;
+}
+#main{flex:1;margin-left:230px;min-height:100vh;overflow-x:hidden}
+.page{padding:28px 28px 48px;max-width:1060px;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SIDEBAR ELEMENTS ── */
+.sb-brand{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-logo{
+width:40px;height:40px;border-radius:12px;margin-bottom:10px;
+background:linear-gradient(135deg,var(–brand),var(–brand2));
+display:flex;align-items:center;justify-content:center;
+font-family:‘Syne’,sans-serif;font-size:16px;font-weight:800;color:#fff;letter-spacing:-1px;
+}
+.sb-name{font-family:‘Syne’,sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.2}
+.sb-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.sb-nav{padding:10px 8px;flex:1}
+.sb-sec{font-size:10px;font-weight:700;color:rgba(255,255,255,.22);
+text-transform:uppercase;letter-spacing:.08em;padding:10px 10px 4px;margin-top:6px}
+.si{
+display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+color:rgba(255,255,255,.45);cursor:pointer;transition:all .15s;font-size:14px;
+font-weight:500;margin-bottom:2px;text-decoration:none;
+}
+.si:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.si.active{background:linear-gradient(135deg,rgba(91,78,255,.4),rgba(139,92,246,.2));
+color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px rgba(196,181,253,.15)}
+.si-ico{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.si-badge{margin-left:auto;background:var(–red);color:#fff;
+font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.06);
+font-size:11px;color:rgba(255,255,255,.18);line-height:1.5}
+
+/* ── MOBILE TOP BAR ── */
+#top-bar{
+display:none;position:fixed;top:0;left:0;right:0;
+background:var(–sidebar);z-index:100;
+padding:0 16px;height:56px;
+display:none;align-items:center;justify-content:space-between;
+box-shadow:0 1px 0 rgba(255,255,255,.06);
+}
+.tb-brand{display:flex;align-items:center;gap:10px}
+.tb-logo{width:32px;height:32px;border-radius:9px;
+background:linear-gradient(135deg,var(–brand),var(–brand2));
+display:flex;align-items:center;justify-content:center;
+font-family:‘Syne’,sans-serif;font-size:13px;font-weight:800;color:#fff}
+.tb-name{font-family:‘Syne’,sans-serif;font-size:15px;font-weight:700;color:#fff}
+.tb-right{display:flex;align-items:center;gap:8px}
+
+/* ── MOBILE BOTTOM NAV ── */
+#bottom-nav{
+display:none;position:fixed;bottom:0;left:0;right:0;
+background:var(–sidebar);z-index:100;
+height:calc(var(–bottom-nav-h) + var(–safe-bottom));
+padding-bottom:var(–safe-bottom);
+border-top:1px solid rgba(255,255,255,.08);
+display:none;align-items:flex-start;
+}
+.bn-items{display:flex;width:100%;padding:0 4px}
+.bn-item{
+flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+gap:3px;padding:10px 4px 6px;cursor:pointer;transition:all .15s;
+border:none;background:none;color:rgba(255,255,255,.35);font-size:9px;
+font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-family:‘DM Sans’,sans-serif;
+}
+.bn-item.active{color:var(–brand3)}
+.bn-ico{font-size:20px;transition:transform .15s}
+.bn-item.active .bn-ico{transform:scale(1.1)}
+.bn-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:var(–red);
+top:-2px;right:-2px}
+.bn-ico-wrap{position:relative;display:inline-block}
+
+/* ── MORE MENU (mobile) ── */
+#more-menu{
+display:none;position:fixed;bottom:calc(var(–bottom-nav-h) + var(–safe-bottom));
+left:0;right:0;background:var(–sidebar);z-index:99;
+border-top:1px solid rgba(255,255,255,.08);padding:8px;
+animation:slideUp .2s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mm-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;
+cursor:pointer;color:rgba(255,255,255,.7);font-size:15px;font-weight:500;transition:background .15s}
+.mm-item:hover,.mm-item:active{background:rgba(255,255,255,.07);color:#fff}
+.mm-ico{font-size:20px;width:26px;text-align:center}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+#sidebar{display:none}
+#main{margin-left:0;padding-top:56px;padding-bottom:calc(var(–bottom-nav-h) + var(–safe-bottom))}
+#top-bar{display:flex}
+#bottom-nav{display:flex}
+.page{padding:16px 14px 20px}
+.hide-mobile{display:none!important}
+.stats-grid{grid-template-columns:1fr 1fr}
+.form-row{grid-template-columns:1fr}
+}
+@media(min-width:769px){
+#more-menu{display:none!important}
+.hide-desktop{display:none!important}
+}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.sc{border-radius:18px;padding:18px;position:relative;overflow:hidden;color:#fff}
+.sc::before{content:’’;position:absolute;right:-12px;top:-12px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.08)}
+.sc::after{content:’’;position:absolute;right:18px;bottom:-20px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.05)}
+.sc.red{background:linear-gradient(135deg,#EF4444,#B91C1C)}
+.sc.blue{background:linear-gradient(135deg,#5B4EFF,#8B5CF6)}
+.sc.amber{background:linear-gradient(135deg,#F59E0B,#D97706)}
+.sc.green{background:linear-gradient(135deg,#10B981,#059669)}
+.sc-label{font-size:10px;font-weight:700;opacity:.72;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.sc-val{font-family:‘Syne’,sans-serif;font-size:22px;font-weight:800;line-height:1;word-break:break-all}
+.sc-ico{position:absolute;bottom:12px;right:14px;font-size:24px;opacity:.22}
+@media(max-width:480px){.sc-val{font-size:18px}.sc-label{font-size:9px}}
+
+/* ── CARD ── */
+.card{background:var(–card);border-radius:18px;border:1px solid var(–border);
+overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.card-hdr{padding:15px 18px;border-bottom:1px solid #F3F4F6;
+display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card-ttl{font-family:‘Syne’,sans-serif;font-size:15px;font-weight:700}
+.card-body{padding:18px}
+
+/* ── TABLES (desktop only) ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:11px 14px;font-size:11px;font-weight:700;
+text-transform:uppercase;letter-spacing:.06em;color:var(–muted);
+background:#FAFAFA;border-bottom:1px solid var(–border)}
+.tbl td{padding:13px 14px;border-bottom:1px solid #F9FAFB;font-size:14px;vertical-align:middle}
+.tbl tbody tr{transition:background .1s}
+.tbl tbody tr:hover td{background:#FAFBFF}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl-wrap{overflow-x:auto}
+
+/* ── MOBILE LIST CARDS ── */
+.m-list{display:none}
+.m-card{
+background:#fff;border-radius:14px;border:1px solid var(–border);
+padding:14px 16px;margin-bottom:10px;cursor:pointer;
+box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .15s;
+-webkit-tap-highlight-color:transparent;
+}
+.m-card:active{box-shadow:0 1px 8px rgba(0,0,0,.1);background:#FAFBFF}
+.m-card-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.m-card-name{font-family:‘Syne’,sans-serif;font-size:15px;font-weight:700;color:var(–text)}
+.m-card-sub{font-size:12px;color:var(–muted);margin-top:3px}
+.m-card-amt{font-family:‘Syne’,sans-serif;font-size:17px;font-weight:800}
+.m-card-amt.red{color:var(–red)}
+.m-card-amt.green{color:var(–green)}
+.m-card-amt.gray{color:#9CA3AF}
+.m-card-divider{height:1px;background:#F3F4F6;margin:10px 0}
+.m-card-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+@media(max-width:768px){
+.tbl-wrap,.tbl-only{display:none!important}
+.m-list{display:block}
+}
+
+/* ── BUTTONS ── */
+.btn{
+display:inline-flex;align-items:center;gap:7px;
+padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;
+cursor:pointer;border:none;transition:all .15s;
+font-family:‘DM Sans’,sans-serif;white-space:nowrap;
+-webkit-tap-highlight-color:transparent;
+touch-action:manipulation;
+}
+.btn:active{transform:scale(0.97)!important}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,var(–brand),var(–brand2));color:#fff;box-shadow:0 4px 14px rgba(91,78,255,.3)}
+.btn-green{background:linear-gradient(135deg,#10B981,#059669);color:#fff;box-shadow:0 4px 14px rgba(16,185,129,.25)}
+.btn-wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;box-shadow:0 4px 14px rgba(37,211,102,.25)}
+.btn-outline{background:#fff;color:#374151;border:1.5px solid var(–border)}
+.btn-outline:active{background:#F3F4F6}
+.btn-red{background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff}
+.btn-amber{background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff}
+.btn-sm{padding:7px 13px;font-size:12px;border-radius:9px}
+.btn-full{width:100%;justify-content:center}
+@media(max-width:768px){
+.btn{padding:12px 18px;font-size:14px}
+.btn-sm{padding:8px 14px;font-size:13px}
+}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;
+font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-red{background:#FEE2E2;color:#991B1B}
+.badge-amber{background:#FEF3C7;color:#78350F}
+.badge-green{background:#D1FAE5;color:#064E3B}
+.badge-gray{background:#F3F4F6;color:#4B5563}
+.badge-blue{background:#EEF2FF;color:#3730A3}
+.badge-purple{background:#EDE9FE;color:#4C1D95}
+.badge-orange{background:#FFEDD5;color:#7C2D12}
+
+/* ── FORMS ── */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;font-weight:700;color:var(–muted);
+margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.form-input{
+width:100%;border:1.5px solid var(–border);border-radius:12px;
+padding:12px 14px;font-size:15px;font-family:‘DM Sans’,sans-serif;
+color:var(–text);transition:all .15s;outline:none;background:#fff;
+-webkit-appearance:none;appearance:none;
+}
+.form-input:focus{border-color:var(–brand);box-shadow:0 0 0 3px rgba(91,78,255,.1)}
+@media(max-width:768px){.form-input{font-size:16px}}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sw{position:relative}
+.sw .si-ico2{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none}
+.sw .form-input{padding-left:42px}
+select.form-input{
+background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ viewBox=‘0 0 20 20’ fill=’%236B7280’%3E%3Cpath fill-rule=‘evenodd’ d=‘M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z’ clip-rule=‘evenodd’/%3E%3C/svg%3E”);
+background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px;
+}
+
+/* ── MODAL ── */
+.overlay{
+position:fixed;inset:0;background:rgba(13,13,26,.65);
+backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+z-index:500;display:flex;align-items:flex-end;justify-content:center;
+padding:0;
+}
+@media(min-width:769px){
+.overlay{align-items:center;padding:16px}
+}
+.modal{
+background:#fff;border-radius:22px 22px 0 0;width:100%;
+max-height:92vh;overflow-y:auto;
+box-shadow:0 -8px 40px rgba(0,0,0,.2);
+animation:modalMobile .25s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalMobile{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@media(min-width:769px){
+.modal{border-radius:22px;max-width:500px;
+animation:modalIn .22s ease;box-shadow:0 30px 70px rgba(0,0,0,.3)}
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-pull{width:36px;height:4px;border-radius:2px;background:#E5E7EB;
+margin:12px auto 0;display:block}
+@media(min-width:769px){.modal-pull{display:none}}
+.modal-hdr{padding:18px 20px 14px;border-bottom:1px solid #F3F4F6;
+display:flex;align-items:center;justify-content:space-between}
+.modal-ttl{font-family:‘Syne’,sans-serif;font-size:19px;font-weight:800}
+.modal-x{width:32px;height:32px;border-radius:8px;border:none;
+background:#F3F4F6;cursor:pointer;font-size:18px;
+display:flex;align-items:center;justify-content:center}
+.modal-body{padding:18px 20px}
+.modal-foot{padding:14px 20px 20px;border-top:1px solid #F3F4F6;display:flex;gap:10px}
+@media(max-width:768px){
+.modal-foot{padding-bottom:calc(20px + var(–safe-bottom))}
+}
+
+/* ── ALERTS ── */
+.alert{padding:12px 16px;border-radius:12px;font-size:13px;font-weight:500;
+margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;line-height:1.5}
+.alert-success{background:#D1FAE5;color:#064E3B;border:1px solid #A7F3D0}
+.alert-error{background:#FEE2E2;color:#7F1D1D;border:1px solid #FCA5A5}
+.alert-info{background:#EEF2FF;color:#1E1B4B;border:1px solid #C7D2FE}
+.alert-warn{background:#FEF3C7;color:#78350F;border:1px solid #FDE68A}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:48px 20px}
+.empty-ico{font-size:48px;margin-bottom:10px;line-height:1}
+.empty-ttl{font-family:‘Syne’,sans-serif;font-size:17px;font-weight:700;margin-bottom:5px}
+.empty-sub{font-size:13px;color:var(–muted)}
+
+/* ── CHIPS ── */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;
+cursor:pointer;border:1.5px solid var(–border);background:#fff;color:var(–muted);transition:all .15s}
+.chip.active{background:var(–brand);color:#fff;border-color:var(–brand)}
+.chip:hover:not(.active){background:#F3F4F6}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.ph-ttl{font-family:‘Syne’,sans-serif;font-size:24px;font-weight:800;line-height:1.1}
+.ph-sub{font-size:13px;color:var(–muted);margin-top:3px}
+@media(max-width:768px){.ph-ttl{font-size:20px}}
+
+/* ── TUESDAY BANNER ── */
+.tue{background:linear-gradient(135deg,#5B4EFF 0%,#8B5CF6 50%,#EC4899 100%);
+border-radius:18px;padding:18px 20px;color:#fff;
+display:flex;align-items:center;justify-content:space-between;gap:12px;
+margin-bottom:20px;position:relative;overflow:hidden;
+box-shadow:0 8px 30px rgba(91,78,255,.35);flex-wrap:wrap}
+.tue::before{content:‘📅’;position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:56px;opacity:.12;pointer-events:none}
+.tue-ttl{font-family:‘Syne’,sans-serif;font-size:17px;font-weight:800}
+.tue-sub{font-size:13px;opacity:.8;margin-top:2px}
+
+/* ── PROFILE HERO ── */
+.prof-hero{background:linear-gradient(135deg,#1E1B4B,#312E81);
+border-radius:20px;padding:22px;color:#fff;margin-bottom:18px;
+position:relative;overflow:hidden}
+.prof-hero::before{content:’’;position:absolute;right:-30px;top:-30px;
+width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.04)}
+.prof-name{font-family:‘Syne’,sans-serif;font-size:22px;font-weight:800;line-height:1.2}
+.prof-phone{font-size:13px;opacity:.6;margin-top:4px}
+.prof-amt{font-family:‘Syne’,sans-serif;font-size:32px;font-weight:800;color:#FCA5A5}
+.prof-amt.paid{color:#6EE7B7}
+@media(max-width:480px){.prof-amt{font-size:26px}.prof-name{font-size:18px}}
+
+/* ── REMINDER CARD ── */
+.rem-card{background:#fff;border-radius:16px;border:1px solid var(–border);
+overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.04);transition:box-shadow .15s}
+.rem-card.chase{border-left:3px solid var(–red)}
+.rem-card.follow{border-left:3px solid var(–amber)}
+
+/* ── ACTION ROWS (mobile) ── */
+.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+@media(max-width:480px){
+.action-row{gap:8px}
+.action-row .btn{flex:1;justify-content:center;min-width:0;padding:12px 10px;font-size:13px}
+}
+
+/* ── SETUP SCREEN ── */
+#setup{display:none;position:fixed;inset:0;background:#0D0D1A;z-index:9999;overflow-y:auto}
+.setup-inner{max-width:640px;margin:0 auto;padding:36px 20px 60px}
+.s-step{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+border-radius:16px;padding:18px;margin-bottom:10px}
+.s-num{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(–brand),var(–brand2));
+color:#fff;font-family:‘Syne’,sans-serif;font-weight:800;font-size:15px;
+display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.code{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+border-radius:10px;padding:14px;margin:10px 0;font-family:monospace;
+font-size:12px;color:#A5B4FC;white-space:pre-wrap;word-break:break-all;line-height:1.6}
+.hl{color:#86EFAC}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:2px}
+#sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1)}
+
+/* ── SEARCH RESULTS ── */
+.sr-item{display:flex;align-items:center;justify-content:space-between;
+padding:14px 16px;cursor:pointer;border-bottom:1px solid #F9FAFB;transition:background .1s;
+-webkit-tap-highlight-color:transparent}
+.sr-item:hover,.sr-item:active{background:#FAFBFF}
+.sr-item:last-child{border-bottom:none}
+
+/* ── INV CHECKBOX LIST ── */
+.inv-check-item{display:flex;align-items:center;gap:12px;padding:13px 14px;
+cursor:pointer;border-bottom:1px solid #F9FAFB;transition:background .1s}
+.inv-check-item:last-child{border-bottom:none}
+.inv-check-item:hover,.inv-check-item:active{background:#F8FAFF}
+.inv-check-item input[type=checkbox]{width:18px;height:18px;accent-color:var(–brand);flex-shrink:0}
+
+/* ── FAB (mobile quick action) ── */
+.fab{
+display:none;position:fixed;bottom:calc(var(–bottom-nav-h) + var(–safe-bottom) + 14px);
+right:16px;z-index:90;
+width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
+background:linear-gradient(135deg,var(–brand),var(–brand2));
+color:#fff;font-size:24px;
+box-shadow:0 4px 20px rgba(91,78,255,.45);
+display:none;align-items:center;justify-content:center;
+transition:transform .15s;
+}
+.fab:active{transform:scale(.93)}
+@media(max-width:768px){.fab{display:flex}}
+</style>
+
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+
+<div id="setup">
+  <div class="setup-inner">
+    <div style="text-align:center;margin-bottom:36px">
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,#5B4EFF,#8B5CF6);border-radius:16px;
+        display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;
+        font-size:20px;font-weight:800;color:#fff;margin:0 auto 14px">GW</div>
+      <h1 style="font-family:Syne,sans-serif;font-size:28px;font-weight:800;color:#fff;margin-bottom:8px">G Wira AR Tracker</h1>
+      <p style="color:rgba(255,255,255,.45);font-size:15px">One-time setup · 10 minutes · No terminal needed</p>
+    </div>
+
+```
+<div class="s-step">
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <div class="s-num">1</div>
+    <div style="flex:1">
+      <p style="font-family:Syne,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:5px">Create a free Firebase account</p>
+      <p style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.6">Go to <span style="color:#A5B4FC;font-weight:600">firebase.google.com</span> → Sign in with Google → Click <strong style="color:#fff">"Get started"</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="s-step">
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <div class="s-num">2</div>
+    <div style="flex:1">
+      <p style="font-family:Syne,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:5px">Create a new project</p>
+      <p style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.6">Click <strong style="color:#fff">"Add project"</strong> → Name it <strong style="color:#fff">gwira-ar</strong> → Disable Google Analytics → Click Create</p>
+    </div>
+  </div>
+</div>
+
+<div class="s-step">
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <div class="s-num">3</div>
+    <div style="flex:1">
+      <p style="font-family:Syne,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:5px">Enable Firestore Database</p>
+      <p style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.6">Left sidebar → <strong style="color:#fff">Firestore Database</strong> → <strong style="color:#fff">"Create database"</strong> → <strong style="color:#fff">"Start in test mode"</strong> → Choose <strong style="color:#fff">asia-southeast1 (Singapore)</strong> → Done</p>
+    </div>
+  </div>
+</div>
+
+<div class="s-step">
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <div class="s-num">4</div>
+    <div style="flex:1">
+      <p style="font-family:Syne,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:5px">Get your config keys</p>
+      <p style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.6">Project home → Click the <strong style="color:#fff">Web icon (&lt;/&gt;)</strong> → Register app → Copy the config block:</p>
+      <div class="code">const firebaseConfig = {
+```
+
+<span class="hl">apiKey</span>: “AIzaSy…”,
+<span class="hl">authDomain</span>: “gwira-ar.firebaseapp.com”,
+<span class="hl">projectId</span>: “gwira-ar”,
+<span class="hl">storageBucket</span>: “gwira-ar.appspot.com”,
+<span class="hl">messagingSenderId</span>: “123456…”,
+<span class="hl">appId</span>: “1:123456:web:abc123”
+};</div>
+</div>
+</div>
+</div>
+
+```
+<div class="s-step">
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <div class="s-num">5</div>
+    <div style="flex:1">
+      <p style="font-family:Syne,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:5px">Paste config into this file</p>
+      <p style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.6">Open <strong style="color:#fff">gwira-ar-tracker.html</strong> in Notepad or VS Code → Find the comment that says:</p>
+      <div class="code">// ⬇️ PASTE YOUR FIREBASE CONFIG HERE</div>
+      <p style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.6">Replace the placeholder firebaseConfig with your real one → Save → Refresh the page ✅</p>
+    </div>
+  </div>
+</div>
+
+<div class="s-step" style="border-color:rgba(91,78,255,.35);background:rgba(91,78,255,.1)">
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <div class="s-num">🎉</div>
+    <div>
+      <p style="font-family:Syne,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:5px">Done! No terminal, no npm, no server.</p>
+      <p style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.6">Upload to GitHub Pages and it syncs across all devices automatically. Phone, PC, iPad — all connected.</p>
+    </div>
+  </div>
+</div>
+
+<p style="text-align:center;color:rgba(255,255,255,.2);font-size:12px;margin-top:28px">Need help? WhatsApp your developer 😄</p>
+```
+
+  </div>
+</div>
+
+<!-- APP -->
+
+<div id="app">
+  <!-- Desktop Sidebar -->
+  <nav id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">GW</div>
+      <div class="sb-name">G Wira</div>
+      <div class="sb-sub">AR Tracker</div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">Main</div>
+      <div class="si active" onclick="nav('dashboard')" data-p="dashboard"><span class="si-ico">🏠</span><span>Dashboard</span></div>
+      <div class="si" onclick="nav('customers')" data-p="customers"><span class="si-ico">👥</span><span>Customers</span><span class="si-badge" id="si-badge" style="display:none"></span></div>
+      <div class="si" onclick="nav('invoices')" data-p="invoices"><span class="si-ico">📄</span><span>Invoices</span></div>
+      <div class="si" onclick="nav('payments')" data-p="payments"><span class="si-ico">💰</span><span>Payments</span></div>
+      <div class="si" onclick="nav('reminders')" data-p="reminders"><span class="si-ico">🔔</span><span>Reminders</span></div>
+      <div class="si" onclick="nav('collection')" data-p="collection"><span class="si-ico">🗺️</span><span>Collection</span></div>
+      <div class="sb-sec">System</div>
+      <div class="si" onclick="nav('settings')" data-p="settings"><span class="si-ico">⚙️</span><span>Settings & Backup</span></div>
+    </div>
+    <div class="sb-foot">G Wira Trading (M) Sdn Bhd<br>Accounts Receivable Tracker</div>
+  </nav>
+
+  <div id="main">
+    <!-- Mobile Top Bar -->
+    <div id="top-bar">
+      <div class="tb-brand">
+        <div class="tb-logo">GW</div>
+        <div class="tb-name" id="tb-title">Dashboard</div>
+      </div>
+      <div class="tb-right">
+        <button class="btn btn-primary btn-sm" id="tb-action-btn" style="display:none"></button>
+      </div>
+    </div>
+
+```
+<!-- Page Content -->
+<div id="page-root" class="page">
+  <div style="text-align:center;padding:80px 20px;color:#9CA3AF">
+    <div style="font-size:36px;margin-bottom:10px">⚡</div>Loading...
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- Mobile Bottom Nav -->
+
+<nav id="bottom-nav">
+  <div class="bn-items">
+    <button class="bn-item active" onclick="nav('dashboard')" data-bp="dashboard">
+      <span class="bn-ico">🏠</span><span>Home</span>
+    </button>
+    <button class="bn-item" onclick="nav('customers')" data-bp="customers">
+      <span class="bn-ico-wrap"><span class="bn-ico">👥</span><span class="bn-dot" id="bn-dot" style="display:none"></span></span><span>Customers</span>
+    </button>
+    <button class="bn-item" onclick="nav('reminders')" data-bp="reminders">
+      <span class="bn-ico">🔔</span><span>Reminders</span>
+    </button>
+    <button class="bn-item" onclick="nav('payments')" data-bp="payments">
+      <span class="bn-ico">💰</span><span>Payments</span>
+    </button>
+    <button class="bn-item" id="more-btn" onclick="toggleMore()">
+      <span class="bn-ico">☰</span><span>More</span>
+    </button>
+  </div>
+</nav>
+
+<!-- More Menu (mobile) -->
+
+<div id="more-menu" style="display:none">
+  <div class="mm-item" onclick="nav('invoices');toggleMore(true)"><span class="mm-ico">📄</span>Invoices</div>
+  <div class="mm-item" onclick="nav('collection');toggleMore(true)"><span class="mm-ico">🗺️</span>Collection List</div>
+  <div class="mm-item" onclick="nav('settings');toggleMore(true)"><span class="mm-ico">⚙️</span>Settings & Backup</div>
+</div>
+
+<!-- FAB -->
+
+<button class="fab" id="fab" onclick="onFab()" style="display:none">＋</button>
+
+<!-- Modals -->
+
+<div id="modal-root"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {
+  getFirestore,collection,getDocs,addDoc,updateDoc,deleteDoc,
+  doc,query,orderBy,serverTimestamp,setDoc
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ══════════════════════════════════════
+// ⬇️ PASTE YOUR FIREBASE CONFIG HERE
+// ══════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyAc3CAh99pMznSa3aN94hYDoM4GWVb3eUI",
+  authDomain: "gwira-ar.firebaseapp.com",
+  projectId: "gwira-ar",
+  storageBucket: "gwira-ar.firebasestorage.app",
+  messagingSenderId: "363762108005",
+  appId: "1:363762108005:web:069adcd8e5f5348cf5a88c"
+};
+// ══════════════════════════════════════
+
+// ── STATE ──
+let db;
+const S = {
+  page:'dashboard', cid:null,
+  customers:[], invoices:[], payments:[], reminders:[],
+  custFilter:'all', invFilter:'outstanding',
+  custSearch:'', invSearch:'', paySearch:'',
+  collDays:30,
+};
+
+// ── HELPERS ──
+const $  = id => document.getElementById(id);
+const isMobile = () => window.innerWidth <= 768;
+const fmt = n => 'RM '+parseFloat(n||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtD = d => { if(!d) return '—'; try{ const dt=new Date(d); if(isNaN(dt)) return d; return dt.toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'})}catch{return d}};
+const toStr = () => new Date().toISOString().split('T')[0];
+const daysOld = d => { if(!d) return 0; const t=new Date(d); if(isNaN(t)) return 0; return Math.floor((Date.now()-t.getTime())/86400000)};
+const isTue = () => new Date().getDay()===2;
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const waFmt = p => { let d=(p||'').replace(/\D/g,''); if(d.startsWith('0'))d='6'+d; if(!d.startsWith('60'))d='60'+d; return d; };
+const waPct = (p,msg) => `https://wa.me/${waFmt(p)}?text=${encodeURIComponent(msg)}`;
+const byId = id => S.customers.find(c=>c.id===id);
+const greet = () => { const h=new Date().getHours(); return h<12?'morning':h<18?'afternoon':'evening'; };
+
+// ── FIREBASE OPS ──
+async function loadAll() {
+  const [cS,iS,pS,rS] = await Promise.all([
+    getDocs(query(collection(db,'customers'),orderBy('total_outstanding','desc'))),
+    getDocs(query(collection(db,'invoices'),orderBy('invoice_date','desc'))),
+    getDocs(query(collection(db,'payments'),orderBy('payment_date','desc'))),
+    getDocs(query(collection(db,'reminders'),orderBy('sent_at','desc'))),
+  ]);
+  S.customers = cS.docs.map(d=>({id:d.id,...d.data()}));
+  S.invoices  = iS.docs.map(d=>({id:d.id,...d.data()}));
+  S.payments  = pS.docs.map(d=>({id:d.id,...d.data()}));
+  S.reminders = rS.docs.map(d=>({id:d.id,...d.data()}));
+  updateBadge();
+}
+async function addDoc_(col,data) {
+  const r = await addDoc(collection(db,col),{...data,created_at:serverTimestamp()}); return r.id;
+}
+async function upDoc(col,id,data){ await updateDoc(doc(db,col,id),data); }
+async function recalc(cid) {
+  const t = S.invoices.filter(i=>i.customer_id===cid&&i.balance>0).reduce((s,i)=>s+(i.balance||0),0);
+  await upDoc('customers',cid,{total_outstanding:t});
+  const c=byId(cid); if(c) c.total_outstanding=t;
+}
+
+function updateBadge() {
+  const n = S.customers.filter(c=>c.status==='chase_payment').length;
+  const b=$('si-badge'),d=$('bn-dot');
+  if(b){b.textContent=n;b.style.display=n>0?'':'none'}
+  if(d) d.style.display=n>0?'':'none';
+}
+
+// ── NAVIGATION ──
+window.nav = function(page, params={}) {
+  S.page=page; Object.assign(S,params);
+  // Sidebar active
+  document.querySelectorAll('.si').forEach(el=>el.classList.toggle('active',el.dataset.p===page));
+  // Bottom nav active
+  document.querySelectorAll('.bn-item').forEach(el=>el.classList.toggle('active',el.dataset.bp===page));
+  // Top bar title
+  const titles = {dashboard:'Dashboard',customers:'Customers',customer:'Customer',invoices:'Invoices',
+    payments:'Payments',reminders:'Reminders',collection:'Collection',settings:'Settings'};
+  const tb=$('tb-title'); if(tb) tb.textContent = titles[page]||'';
+  // FAB
+  const fab=$('fab');
+  if(fab) {
+    const showFab = ['customers','invoices','payments'].includes(page);
+    fab.style.display = showFab ? 'flex':'none';
+    fab.textContent = page==='payments'?'💰':page==='invoices'?'📤':'➕';
+  }
+  // Top bar action
+  const ta=$('tb-action-btn');
+  if(ta) ta.style.display='none';
+  render();
+  $('main')?.scrollTo(0,0);
+  window.scrollTo(0,0);
+};
+
+window.toggleMore = function(forceClose) {
+  const m=$('more-menu');
+  if(!m) return;
+  const open = m.style.display==='none'||!m.style.display;
+  m.style.display = (forceClose||!open) ? 'none':'block';
+  const mb=$('more-btn');
+  if(mb) mb.classList.toggle('active', !forceClose && open);
+};
+
+window.onFab = function() {
+  if(S.page==='payments') openPaySearch();
+  else if(S.page==='invoices') openImport();
+  else openAddCust();
+};
+
+// ── RENDER ──
+function render() {
+  const r=$('page-root'); if(!r) return;
+  r.className='page';
+  switch(S.page) {
+    case 'dashboard':  r.innerHTML=rDash();   break;
+    case 'customers':  r.innerHTML=rCusts();  break;
+    case 'customer':   r.innerHTML=rCust();   break;
+    case 'invoices':   r.innerHTML=rInvs();   break;
+    case 'payments':   r.innerHTML=rPays();   break;
+    case 'reminders':  r.innerHTML=rRems();   break;
+    case 'collection': r.innerHTML=rColl();   break;
+    case 'settings':   r.innerHTML=rSett();   break;
+  }
+}
+
+// ════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════
+function rDash() {
+  const totalOut = S.customers.reduce((s,c)=>s+(c.total_outstanding||0),0);
+  const withBal  = S.customers.filter(c=>c.total_outstanding>0).length;
+  const cutoff   = new Date(); cutoff.setDate(cutoff.getDate()-30);
+  const overdueIds = new Set(S.invoices.filter(i=>i.balance>0&&new Date(i.invoice_date)<cutoff).map(i=>i.customer_id));
+  const today    = toStr();
+  const todayPay = S.payments.filter(p=>p.payment_date===today).reduce((s,p)=>s+(p.amount||0),0);
+  const chase    = S.customers.filter(c=>c.status==='chase_payment').length;
+  const recent   = S.payments.slice(0,5);
+  const dateStr  = new Date().toLocaleDateString('en-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  return `
+  <div class="ph">
+    <div>
+      <div class="ph-ttl">Good ${greet()} 👋</div>
+      <div class="ph-sub">${dateStr}${isTue()?'&nbsp;<span class="badge badge-purple">📅 Tuesday</span>':''}</div>
+    </div>
+  </div>
+
+  ${isTue()&&withBal>0?`
+  <div class="tue">
+    <div>
+      <div class="tue-ttl">It's Tuesday — Send reminders!</div>
+      <div class="tue-sub">${withBal} customer${withBal!==1?'s':''} with outstanding balances</div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="nav('reminders')">Reminders →</button>
+  </div>`:''}
+
+  ${chase>0?`
+  <div class="alert alert-error">
+    <span>🚨</span>
+    <div><strong>${chase} customer${chase!==1?'s':''} need urgent collection</strong><br><a onclick="nav('collection')" style="text-decoration:underline;cursor:pointer">View collection list →</a></div>
+  </div>`:''}
+
+  <div class="stats-grid">
+    <div class="sc red"><div class="sc-label">Outstanding</div><div class="sc-val">${fmt(totalOut)}</div><div class="sc-ico">💸</div></div>
+    <div class="sc blue"><div class="sc-label">w/ Balance</div><div class="sc-val">${withBal}</div><div class="sc-ico">👥</div></div>
+    <div class="sc amber"><div class="sc-label">30+ Days</div><div class="sc-val">${overdueIds.size}</div><div class="sc-ico">⏰</div></div>
+    <div class="sc green"><div class="sc-label">Today</div><div class="sc-val">${fmt(todayPay)}</div><div class="sc-ico">✅</div></div>
+  </div>
+
+  <div class="action-row hide-mobile">
+    <button class="btn btn-primary" onclick="openImport()">📤 Import Sales</button>
+    <button class="btn btn-green" onclick="openPaySearch()">💰 Record Payment</button>
+    <button class="btn btn-outline" onclick="openAddCust()">➕ Add Customer</button>
+  </div>
+  <div class="action-row hide-desktop" style="margin-bottom:16px">
+    <button class="btn btn-primary" onclick="openImport()" style="flex:1">📤 Import</button>
+    <button class="btn btn-green" onclick="openPaySearch()" style="flex:1">💰 Payment</button>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-hdr"><span class="card-ttl">🔍 Quick Search</span></div>
+    <div style="padding:12px 14px">
+      <div class="sw">
+        <span class="si-ico2">🔍</span>
+        <input class="form-input" id="ds-inp" placeholder="Customer name..." oninput="dSearch(this.value)" autocomplete="off" autocorrect="off">
+      </div>
+      <div id="ds-res"></div>
+    </div>
+  </div>
+
+  ${recent.length>0?`
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-ttl">💰 Recent Payments</span>
+      <a onclick="nav('payments')" style="font-size:13px;color:var(--brand);cursor:pointer;font-weight:600">All →</a>
+    </div>
+    ${recent.map(p=>`
+    <div class="sr-item" onclick="nav('customer',{cid:'${p.customer_id}'})">
+      <div>
+        <div style="font-weight:600;font-size:14px">${esc(p.customer_name||'—')}</div>
+        <div style="font-size:12px;color:var(--muted)">${fmtD(p.payment_date)}${p.notes?` · ${esc(p.notes)}`:''}</div>
+      </div>
+      <div style="font-family:Syne,sans-serif;font-weight:700;color:var(--green);font-size:15px">${fmt(p.amount)}</div>
+    </div>`).join('')}
+  </div>`:''}`;
+}
+
+window.dSearch = function(q) {
+  const res=$('ds-res'); if(!res) return;
+  if(!q.trim()){res.innerHTML='';return;}
+  const list=S.customers.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||(c.phone||'').includes(q)).slice(0,6);
+  if(!list.length){res.innerHTML='<p style="padding:12px;color:var(--muted);font-size:13px">No customers found</p>';return;}
+  res.innerHTML=`<div style="margin-top:10px;border:1px solid var(--border);border-radius:12px;overflow:hidden">
+  ${list.map(c=>`<div class="sr-item" onclick="nav('customer',{cid:'${c.id}'})">
+    <div>
+      <div style="font-weight:600">${esc(c.name)}</div>
+      <div style="font-size:12px;color:var(--muted)">${c.phone||'—'}</div>
+    </div>
+    <div style="text-align:right">
+      ${c.status!=='normal'?sBadge(c.status):''}
+      <div style="font-family:Syne,sans-serif;font-weight:700;color:${c.total_outstanding>0?'var(--red)':'var(--green)'};font-size:15px">${fmt(c.total_outstanding)}</div>
+    </div>
+  </div>`).join('')}
+  </div>`;
+};
+
+// ════════════════════════════════
+// CUSTOMERS
+// ════════════════════════════════
+function rCusts() {
+  let list=[...S.customers];
+  if(S.custSearch) list=list.filter(c=>c.name.toLowerCase().includes(S.custSearch.toLowerCase())||(c.phone||'').includes(S.custSearch));
+  if(S.custFilter==='outstanding') list=list.filter(c=>c.total_outstanding>0);
+  else if(S.custFilter==='follow_up') list=list.filter(c=>c.status==='follow_up');
+  else if(S.custFilter==='chase') list=list.filter(c=>c.status==='chase_payment');
+  const cnts={all:S.customers.length,outstanding:S.customers.filter(c=>c.total_outstanding>0).length,
+    follow_up:S.customers.filter(c=>c.status==='follow_up').length,chase:S.customers.filter(c=>c.status==='chase_payment').length};
+
+  return `
+  <div class="ph">
+    <div><div class="ph-ttl">👥 Customers</div><div class="ph-sub">${S.customers.length} total</div></div>
+    <button class="btn btn-primary hide-mobile" onclick="openAddCust()">➕ Add Customer</button>
+  </div>
+  <div style="margin-bottom:14px">
+    <div class="sw" style="margin-bottom:10px">
+      <span class="si-ico2">🔍</span>
+      <input class="form-input" placeholder="Search by name or phone..." value="${esc(S.custSearch)}" oninput="S.custSearch=this.value;render()" autocorrect="off">
+    </div>
+    <div class="chips">
+      ${[['all','All'],['outstanding','Outstanding'],['follow_up','Follow Up'],['chase','Chase']].map(([k,l])=>`
+      <span class="chip ${S.custFilter===k?'active':''}" onclick="S.custFilter='${k}';render()">${l} <strong>${cnts[k]}</strong></span>`).join('')}
+    </div>
+  </div>
+
+  <!-- Desktop table -->
+  <div class="card tbl-only">
+    ${list.length===0?`<div class="empty"><div class="empty-ico">👤</div><div class="empty-ttl">No customers found</div></div>`:`
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Customer</th><th>Phone</th><th>Status</th><th>Reminders</th><th style="text-align:right">Outstanding</th></tr></thead>
+      <tbody>${list.map(c=>`<tr style="cursor:pointer" onclick="nav('customer',{cid:'${c.id}'})">
+        <td style="font-weight:600">${esc(c.name)}</td>
+        <td style="color:var(--muted)">${c.phone||'—'}</td>
+        <td>${c.status!=='normal'?sBadge(c.status):'<span style="color:#9CA3AF">—</span>'}</td>
+        <td style="color:var(--muted)">${c.reminder_count||0}×</td>
+        <td style="text-align:right;font-family:Syne,sans-serif;font-weight:700;color:${c.total_outstanding>0?'var(--red)':'#9CA3AF'}">${fmt(c.total_outstanding)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+  </div>
+
+  <!-- Mobile cards -->
+  <div class="m-list">
+    ${list.length===0?`<div class="empty" style="background:#fff;border-radius:18px;border:1px solid var(--border)"><div class="empty-ico">👤</div><div class="empty-ttl">No customers</div></div>`:
+    list.map(c=>`
+    <div class="m-card" onclick="nav('customer',{cid:'${c.id}'})">
+      <div class="m-card-row">
+        <div style="flex:1;min-width:0">
+          <div class="m-card-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.name)}</div>
+          <div class="m-card-sub">${c.phone||'No phone'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:12px">
+          <div class="m-card-amt ${c.total_outstanding>0?'red':'gray'}">${fmt(c.total_outstanding)}</div>
+          ${c.status!=='normal'?`<div style="margin-top:4px">${sBadge(c.status)}</div>`:''}
+        </div>
+      </div>
+      ${c.reminder_count>0?`<div class="m-card-meta" style="margin-top:8px"><span style="font-size:11px;color:var(--muted)">🔔 ${c.reminder_count} reminder${c.reminder_count!==1?'s':''} sent</span></div>`:''}
+    </div>`).join('')}
+  </div>`;
+}
+
+// ════════════════════════════════
+// CUSTOMER DETAIL
+// ════════════════════════════════
+function rCust() {
+  const c=byId(S.cid);
+  if(!c) return `<p style="padding:20px;color:var(--muted)">Customer not found. <a onclick="nav('customers')" style="color:var(--brand);cursor:pointer">Go back</a></p>`;
+  const invs=S.invoices.filter(i=>i.customer_id===c.id);
+  const pays=S.payments.filter(p=>p.customer_id===c.id);
+  const rems=S.reminders.filter(r=>r.customer_id===c.id);
+  const outInvs=invs.filter(i=>i.balance>0);
+
+  return `
+  <a onclick="nav('customers')" style="display:inline-flex;align-items:center;gap:6px;color:var(--muted);cursor:pointer;font-size:13px;font-weight:500;margin-bottom:16px">← Back</a>
+
+  <div class="prof-hero">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:10px;font-weight:700;opacity:.45;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Customer</div>
+        <div class="prof-name">${esc(c.name)}</div>
+        <div class="prof-phone">📱 ${c.phone||'No phone'}</div>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+          ${c.status!=='normal'?sBadge(c.status):''}
+          <span class="badge badge-blue">${c.reminder_count||0}× reminded</span>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:10px;font-weight:700;opacity:.45;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Outstanding</div>
+        <div class="prof-amt ${c.total_outstanding<=0?'paid':''}">${fmt(c.total_outstanding)}</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-green btn-sm" onclick="openPayModal('${c.id}')">💰 Payment</button>
+      ${c.phone&&outInvs.length>0?`<button class="btn btn-wa btn-sm" onclick="sendRem('${c.id}')">💬 WhatsApp</button>`:''}
+      ${c.phone?`<a href="tel:${c.phone}" class="btn btn-outline btn-sm">📞 Call</a>`:''}
+    </div>
+  </div>
+
+  <!-- Invoices -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hdr"><span class="card-ttl">📄 Invoices <span style="font-size:13px;font-weight:400;color:var(--muted)">(${invs.length})</span></span></div>
+    ${invs.length===0?`<div class="empty" style="padding:28px"><div class="empty-ico">📄</div><div class="empty-sub">No invoices</div></div>`:`
+    <div style="max-height:300px;overflow-y:auto">
+    <!-- desktop -->
+    <div class="tbl-only">
+    <table class="tbl">
+      <thead><tr><th>Invoice #</th><th>Date</th><th style="text-align:right">Amount</th><th style="text-align:right">Balance</th><th>Status</th></tr></thead>
+      <tbody>${invs.map(i=>`<tr>
+        <td style="font-weight:600">${esc(i.invoice_number)||'—'}</td>
+        <td style="color:var(--muted)">${fmtD(i.invoice_date)}${daysOld(i.invoice_date)>30&&i.balance>0?`<br><span style="font-size:11px;color:var(--orange)">⏰${daysOld(i.invoice_date)}d</span>`:''}</td>
+        <td style="text-align:right">${fmt(i.amount)}</td>
+        <td style="text-align:right;font-weight:700;color:${i.balance>0?'var(--red)':'#9CA3AF'}">${fmt(i.balance)}</td>
+        <td>${isBadge(i.status)}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+    </div>
+    <!-- mobile -->
+    <div class="m-list">
+      ${invs.map(i=>`<div style="padding:13px 16px;border-bottom:1px solid #F9FAFB;last:border-0">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-weight:700;font-size:14px">${esc(i.invoice_number)||'—'}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">${fmtD(i.invoice_date)}</div>
+            ${daysOld(i.invoice_date)>30&&i.balance>0?`<div style="font-size:11px;color:var(--orange);margin-top:2px">⏰ ${daysOld(i.invoice_date)} days old</div>`:''}
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:Syne,sans-serif;font-weight:700;font-size:15px;color:${i.balance>0?'var(--red)':'#9CA3AF'}">${fmt(i.balance)}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">of ${fmt(i.amount)}</div>
+            <div style="margin-top:4px">${isBadge(i.status)}</div>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+    </div>`}
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <!-- Payments -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-ttl">💰 Payments <span style="font-size:12px;font-weight:400;color:var(--muted)">(${pays.length})</span></span></div>
+      ${pays.length===0?`<div class="empty" style="padding:28px 16px"><div class="empty-ico">💰</div><div class="empty-sub">None yet</div></div>`:`
+      <div style="max-height:240px;overflow-y:auto">
+        ${pays.map(p=>`<div style="padding:12px 16px;border-bottom:1px solid #F9FAFB">
+          <div style="font-weight:600;color:var(--green);font-family:Syne,sans-serif">${fmt(p.amount)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${fmtD(p.payment_date)}${p.notes?` · ${esc(p.notes)}`:''}</div>
+        </div>`).join('')}
+      </div>`}
+    </div>
+    <!-- Reminders -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-ttl">🔔 Reminders <span style="font-size:12px;font-weight:400;color:var(--muted)">(${rems.length})</span></span></div>
+      ${rems.length===0?`<div class="empty" style="padding:28px 16px"><div class="empty-ico">🔔</div><div class="empty-sub">None sent</div></div>`:`
+      <div style="max-height:240px;overflow-y:auto">
+        ${rems.map((r,i)=>`<div style="padding:12px 16px;border-bottom:1px solid #F9FAFB;display:flex;gap:10px;align-items:center">
+          <div style="width:26px;height:26px;border-radius:50%;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--brand);flex-shrink:0">${rems.length-i}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600">WhatsApp sent</div>
+            <div style="font-size:11px;color:var(--muted)">${fmtD(r.sent_at?.toDate?r.sent_at.toDate().toISOString().split('T')[0]:r.sent_at)}</div>
+          </div>
+        </div>`).join('')}
+      </div>`}
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════
+// INVOICES
+// ════════════════════════════════
+function rInvs() {
+  let list=[...S.invoices];
+  if(S.invFilter!=='all') list=list.filter(i=>i.status===S.invFilter);
+  if(S.invSearch) list=list.filter(i=>(i.invoice_number||'').toLowerCase().includes(S.invSearch.toLowerCase())||(i.customer_name||'').toLowerCase().includes(S.invSearch.toLowerCase()));
+  const cnts={all:S.invoices.length,outstanding:S.invoices.filter(i=>i.status==='outstanding').length,
+    partial:S.invoices.filter(i=>i.status==='partial').length,paid:S.invoices.filter(i=>i.status==='paid').length};
+
+  return `
+  <div class="ph">
+    <div><div class="ph-ttl">📄 Invoices</div><div class="ph-sub">${S.invoices.length} total</div></div>
+    <button class="btn btn-primary hide-mobile" onclick="openImport()">📤 Import Excel/CSV</button>
+  </div>
+  <div style="margin-bottom:14px">
+    <div class="chips" style="margin-bottom:10px">
+      ${[['all','All'],['outstanding','Outstanding'],['partial','Partial'],['paid','Paid']].map(([k,l])=>`
+      <span class="chip ${S.invFilter===k?'active':''}" onclick="S.invFilter='${k}';render()">${l} <strong>${cnts[k]}</strong></span>`).join('')}
+    </div>
+    <div class="sw">
+      <span class="si-ico2">🔍</span>
+      <input class="form-input" placeholder="Search invoice or customer..." value="${esc(S.invSearch)}" oninput="S.invSearch=this.value;render()" autocorrect="off">
+    </div>
+  </div>
+  <!-- Desktop -->
+  <div class="card tbl-only">
+    ${list.length===0?`<div class="empty"><div class="empty-ico">📄</div><div class="empty-ttl">No invoices</div><div class="empty-sub">Import an Excel/CSV to start</div></div>`:`
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Invoice #</th><th>Customer</th><th>Date</th><th style="text-align:right">Amount</th><th style="text-align:right">Balance</th><th>Status</th></tr></thead>
+      <tbody>${list.slice(0,200).map(i=>`<tr>
+        <td style="font-weight:600">${esc(i.invoice_number)||'—'}</td>
+        <td><a onclick="nav('customer',{cid:'${i.customer_id}'})" style="color:var(--brand);cursor:pointer;font-weight:500">${esc(i.customer_name||'—')}</a></td>
+        <td style="color:var(--muted)">${fmtD(i.invoice_date)}${daysOld(i.invoice_date)>30&&i.balance>0?`<br><span style="font-size:11px;color:var(--orange)">⏰${daysOld(i.invoice_date)}d</span>`:''}</td>
+        <td style="text-align:right">${fmt(i.amount)}</td>
+        <td style="text-align:right;font-weight:700;color:${i.balance>0?'var(--red)':'#9CA3AF'}">${fmt(i.balance)}</td>
+        <td>${isBadge(i.status)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+  </div>
+  <!-- Mobile -->
+  <div class="m-list">
+    ${list.length===0?`<div class="empty" style="background:#fff;border-radius:18px;border:1px solid var(--border)"><div class="empty-ico">📄</div><div class="empty-ttl">No invoices</div><div class="empty-sub">Tap ＋ to import</div></div>`:
+    list.slice(0,100).map(i=>`
+    <div class="m-card" onclick="nav('customer',{cid:'${i.customer_id}'})">
+      <div class="m-card-row">
+        <div style="flex:1;min-width:0">
+          <div class="m-card-name">${esc(i.invoice_number)||'No number'}</div>
+          <div class="m-card-sub">${esc(i.customer_name||'—')} · ${fmtD(i.invoice_date)}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px">
+          <div class="m-card-amt ${i.balance>0?'red':'gray'}">${fmt(i.balance)}</div>
+          <div style="margin-top:4px">${isBadge(i.status)}</div>
+        </div>
+      </div>
+      ${daysOld(i.invoice_date)>30&&i.balance>0?`<div style="margin-top:8px;font-size:11px;color:var(--orange)">⏰ ${daysOld(i.invoice_date)} days old</div>`:''}
+    </div>`).join('')}
+  </div>`;
+}
+
+// ════════════════════════════════
+// PAYMENTS
+// ════════════════════════════════
+function rPays() {
+  let list=[...S.payments];
+  if(S.paySearch) list=list.filter(p=>(p.customer_name||'').toLowerCase().includes(S.paySearch.toLowerCase())||(p.notes||'').toLowerCase().includes(S.paySearch.toLowerCase()));
+  const today=toStr();
+  const todayTotal=S.payments.filter(p=>p.payment_date===today).reduce((s,p)=>s+(p.amount||0),0);
+
+  return `
+  <div class="ph">
+    <div><div class="ph-ttl">💰 Payments</div><div class="ph-sub">Today: <strong style="color:var(--green)">${fmt(todayTotal)}</strong></div></div>
+    <button class="btn btn-green hide-mobile" onclick="openPaySearch()">➕ Record Payment</button>
+  </div>
+  <div class="sw" style="margin-bottom:14px">
+    <span class="si-ico2">🔍</span>
+    <input class="form-input" placeholder="Search payments..." value="${esc(S.paySearch)}" oninput="S.paySearch=this.value;render()" autocorrect="off">
+  </div>
+  <!-- Desktop -->
+  <div class="card tbl-only">
+    ${list.length===0?`<div class="empty"><div class="empty-ico">💰</div><div class="empty-ttl">No payments yet</div></div>`:`
+    <table class="tbl">
+      <thead><tr><th>Date</th><th>Customer</th><th>Notes</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>${list.slice(0,200).map(p=>`<tr>
+        <td>${fmtD(p.payment_date)}${p.payment_date===today?'&nbsp;<span class="badge badge-green">Today</span>':''}</td>
+        <td><a onclick="nav('customer',{cid:'${p.customer_id}'})" style="color:var(--brand);cursor:pointer;font-weight:600">${esc(p.customer_name||'—')}</a></td>
+        <td style="color:var(--muted)">${esc(p.notes||'—')}</td>
+        <td style="text-align:right;font-family:Syne,sans-serif;font-weight:700;color:var(--green)">${fmt(p.amount)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`}
+  </div>
+  <!-- Mobile -->
+  <div class="m-list">
+    ${list.length===0?`<div class="empty" style="background:#fff;border-radius:18px;border:1px solid var(--border)"><div class="empty-ico">💰</div><div class="empty-ttl">No payments</div><div class="empty-sub">Tap 💰 to record one</div></div>`:
+    list.slice(0,100).map(p=>`
+    <div class="m-card" onclick="nav('customer',{cid:'${p.customer_id}'})">
+      <div class="m-card-row">
+        <div>
+          <div class="m-card-name">${esc(p.customer_name||'—')}</div>
+          <div class="m-card-sub">${fmtD(p.payment_date)}${p.notes?` · ${esc(p.notes)}`:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="m-card-amt green">${fmt(p.amount)}</div>
+          ${p.payment_date===today?`<div style="margin-top:3px"><span class="badge badge-green">Today</span></div>`:''}
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ════════════════════════════════
+// REMINDERS
+// ════════════════════════════════
+function rRems() {
+  const list=S.customers.filter(c=>c.total_outstanding>0).map(c=>{
+    const invs=S.invoices.filter(i=>i.customer_id===c.id&&i.balance>0);
+    const oldest=invs.length?Math.max(...invs.map(i=>daysOld(i.invoice_date))):0;
+    return {c,invs,oldest};
+  }).sort((a,b)=>b.c.total_outstanding-a.c.total_outstanding);
+
+  return `
+  <div class="ph">
+    <div>
+      <div class="ph-ttl">🔔 Reminders</div>
+      <div class="ph-sub">${list.length} with outstanding${isTue()?'&nbsp;<span class="badge badge-purple">📅 Tuesday!</span>':''}</div>
+    </div>
+  </div>
+  ${!isTue()?`<div class="alert alert-warn"><span>💡</span><div>Best sent on <strong>Tuesdays</strong>, but you can send anytime.</div></div>`:''}
+  ${list.length===0?`<div class="empty" style="background:#fff;border-radius:18px;border:1px solid var(--border)"><div class="empty-ico">🎉</div><div class="empty-ttl">All clear!</div><div class="empty-sub">No outstanding balances</div></div>`:''}
+  ${list.map(({c,invs,oldest})=>`
+  <div class="rem-card ${c.status==='chase_payment'?'chase':c.status==='follow_up'?'follow':''}">
+    <div style="padding:14px 16px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px">
+            <a onclick="nav('customer',{cid:'${c.id}'})" style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;cursor:pointer;color:var(--text)">${esc(c.name)}</a>
+            ${c.status!=='normal'?sBadge(c.status):''}
+          </div>
+          <div style="font-size:12px;color:var(--muted)">${c.phone||'No phone'} · ${invs.length} inv · ${c.reminder_count||0}× sent${oldest>30?` · <span style="color:var(--orange)">⏰${oldest}d</span>`:''}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;color:var(--red)">${fmt(c.total_outstanding)}</div>
+        </div>
+      </div>
+      ${invs.length>0?`<div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;background:#FAFBFF;border-radius:10px;margin-bottom:10px">
+        ${invs.slice(0,4).map(i=>`<span style="font-size:12px;color:var(--muted)">${esc(i.invoice_number||'Inv')} – <strong style="color:var(--red)">${fmt(i.balance)}</strong></span>`).join('')}
+        ${invs.length>4?`<span style="font-size:12px;color:#9CA3AF">+${invs.length-4} more</span>`:''}
+      </div>`:''}
+      ${c.phone?`<button class="btn btn-wa btn-full" onclick="sendRem('${c.id}')">💬 Send WhatsApp Reminder</button>`:`<div style="text-align:center;padding:8px;font-size:13px;color:#9CA3AF;background:#F3F4F6;border-radius:10px">No phone number saved 📵</div>`}
+    </div>
+  </div>`).join('')}`;
+}
+
+// ════════════════════════════════
+// COLLECTION
+// ════════════════════════════════
+function rColl() {
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-S.collDays);
+  const overdueInvs=S.invoices.filter(i=>i.balance>0&&new Date(i.invoice_date)<cutoff);
+  const custIds=[...new Set(overdueInvs.map(i=>i.customer_id))];
+  const items=custIds.map(cid=>{
+    const c=byId(cid); if(!c) return null;
+    const invs=overdueInvs.filter(i=>i.customer_id===cid);
+    const oldest=Math.max(...invs.map(i=>daysOld(i.invoice_date)));
+    return {c,invs,oldest};
+  }).filter(Boolean).sort((a,b)=>b.oldest-a.oldest);
+  const total=items.reduce((s,i)=>s+i.c.total_outstanding,0);
+
+  return `
+  <div class="ph">
+    <div><div class="ph-ttl">🗺️ Collection</div><div class="ph-sub">Needs physical visit</div></div>
+  </div>
+  <div style="background:#fff;border-radius:16px;border:1px solid var(--border);padding:14px 16px;margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between">
+      <div>
+        <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px">Invoices older than:</div>
+        <div class="chips">
+          ${[14,30,60,90].map(d=>`<span class="chip ${S.collDays===d?'active':''}" onclick="S.collDays=${d};render()">${d}d</span>`).join('')}
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:var(--muted)">Total to collect</div>
+        <div style="font-family:Syne,sans-serif;font-size:20px;font-weight:800;color:var(--red)">${fmt(total)}</div>
+      </div>
+    </div>
+  </div>
+
+  ${items.length===0?`<div class="empty" style="background:#fff;border-radius:18px;border:1px solid var(--border)"><div class="empty-ico">🎉</div><div class="empty-ttl">No overdue customers!</div><div class="empty-sub">Try a shorter threshold</div></div>`:''}
+
+  <!-- Desktop -->
+  <div class="card tbl-only">
+    ${items.length>0?`<div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Customer</th><th>Phone</th><th>Status</th><th style="text-align:center">Reminders</th><th style="text-align:center">Oldest</th><th style="text-align:right">Outstanding</th></tr></thead>
+      <tbody>${items.map(({c,oldest})=>`<tr>
+        <td><a onclick="nav('customer',{cid:'${c.id}'})" style="font-weight:700;color:var(--brand);cursor:pointer">${esc(c.name)}</a></td>
+        <td>${c.phone?`<a href="tel:${c.phone}" style="color:var(--brand);font-size:13px">📞${c.phone}</a>`:'—'}</td>
+        <td>${c.status!=='normal'?sBadge(c.status):'<span style="color:#9CA3AF;font-size:13px">Normal</span>'}</td>
+        <td style="text-align:center;font-weight:600">${c.reminder_count||0}</td>
+        <td style="text-align:center"><span class="badge ${oldest>=90?'badge-red':oldest>=60?'badge-orange':'badge-amber'}">${oldest}d</span></td>
+        <td style="text-align:right;font-family:Syne,sans-serif;font-weight:800;color:var(--red)">${fmt(c.total_outstanding)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`:''}
+  </div>
+
+  <!-- Mobile -->
+  <div class="m-list">
+    ${items.map(({c,oldest})=>`
+    <div class="m-card" onclick="nav('customer',{cid:'${c.id}'})">
+      <div class="m-card-row">
+        <div style="flex:1;min-width:0">
+          <div class="m-card-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.name)}</div>
+          <div class="m-card-sub">${c.phone||'No phone'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px">
+          <div class="m-card-amt red">${fmt(c.total_outstanding)}</div>
+          <span class="badge ${oldest>=90?'badge-red':oldest>=60?'badge-orange':'badge-amber'}" style="margin-top:4px">${oldest}d overdue</span>
+        </div>
+      </div>
+      <div class="m-card-meta" style="margin-top:10px">
+        ${c.status!=='normal'?sBadge(c.status):''}
+        <span style="font-size:11px;color:var(--muted)">🔔 ${c.reminder_count||0} reminders</span>
+        ${c.phone?`<a href="tel:${c.phone}" onclick="event.stopPropagation()" style="font-size:12px;color:var(--brand);font-weight:600">📞 Call</a>`:''}
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ════════════════════════════════
+// SETTINGS
+// ════════════════════════════════
+function rSett() {
+  return `
+  <div class="ph"><div class="ph-ttl">⚙️ Settings & Backup</div></div>
+  <div id="sett-alert"></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-body">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="width:44px;height:44px;background:#EEF2FF;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📥</div>
+        <div style="flex:1">
+          <div style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:4px">Download Backup</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:14px">All data as Excel — customers, invoices, payments, reminders.</div>
+          <button class="btn btn-primary" onclick="dlBackup(event)">📥 Download Full Backup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-body">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="width:44px;height:44px;background:#FEF3C7;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📤</div>
+        <div style="flex:1">
+          <div style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:4px">Restore from Backup</div>
+          <div class="alert alert-warn">⚠️ <strong>Warning:</strong> This will overwrite ALL existing data. Download a backup first!</div>
+          <button class="btn btn-amber" onclick="$('rf').click()">📤 Upload Backup File</button>
+          <input type="file" id="rf" accept=".xlsx" style="display:none" onchange="handleRestore(this)">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="width:44px;height:44px;background:#F3F4F6;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">ℹ️</div>
+        <div>
+          <div style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:4px">About</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7"><strong>G Wira AR Tracker v1.0</strong><br>G Wira Trading (M) Sdn Bhd<br>Accounts Receivable only — not an accounting system.<br>Data synced via Firebase (Google Cloud).</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════
+// BADGE HELPERS
+// ════════════════════════════════
+function sBadge(s) {
+  if(s==='chase_payment') return '<span class="badge badge-red">🚨 Chase</span>';
+  if(s==='follow_up')     return '<span class="badge badge-amber">⚠️ Follow Up</span>';
+  return '';
+}
+function isBadge(s) {
+  if(s==='paid')    return '<span class="badge badge-green">Paid ✓</span>';
+  if(s==='partial') return '<span class="badge badge-amber">Partial</span>';
+  return '<span class="badge badge-red">Outstanding</span>';
+}
+
+// ════════════════════════════════
+// MODALS
+// ════════════════════════════════
+function openModal(html) {
+  $('modal-root').innerHTML=`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-pull"></div>${html}</div></div>`;
+}
+window.closeModal=()=>{ $('modal-root').innerHTML=''; };
+
+// ── ADD CUSTOMER ──
+window.openAddCust = function() {
+  openModal(`
+  <div class="modal-hdr"><span class="modal-ttl">➕ Add Customer</span><button class="modal-x" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <div id="ac-err"></div>
+    <div class="form-group"><label class="form-label">Customer Name *</label>
+      <input class="form-input" id="ac-name" placeholder="e.g. Restoran Pak Ali" autocorrect="off"></div>
+    <div class="form-group"><label class="form-label">Phone Number</label>
+      <input class="form-input" id="ac-phone" type="tel" placeholder="e.g. 0123456789"></div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" style="flex:1" id="ac-btn" onclick="saveNewCust()">Add Customer</button>
+  </div>`);
+  setTimeout(()=>$('ac-name')?.focus(),100);
+};
+
+window.saveNewCust = async function() {
+  const name=$('ac-name').value.trim(), phone=$('ac-phone').value.trim();
+  if(!name){$('ac-err').innerHTML=`<div class="alert alert-error">Name is required</div>`;return;}
+  const btn=$('ac-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try {
+    const id=await addDoc_('customers',{name,phone,total_outstanding:0,status:'normal',reminder_count:0});
+    S.customers.unshift({id,name,phone,total_outstanding:0,status:'normal',reminder_count:0});
+    closeModal(); render();
+  } catch(e){$('ac-err').innerHTML=`<div class="alert alert-error">${e.message}</div>`;btn.disabled=false;btn.textContent='Add Customer';}
+};
+
+// ── PAYMENT SEARCH ──
+window.openPaySearch = function() {
+  const list=S.customers.filter(c=>c.total_outstanding>0).sort((a,b)=>b.total_outstanding-a.total_outstanding);
+  openModal(`
+  <div class="modal-hdr"><span class="modal-ttl">💰 Select Customer</span><button class="modal-x" onclick="closeModal()">✕</button></div>
+  <div style="padding:12px 16px;border-bottom:1px solid #F3F4F6">
+    <div class="sw"><span class="si-ico2">🔍</span>
+      <input class="form-input" id="ps-inp" placeholder="Customer name..." oninput="filterPS(this.value)" autocorrect="off">
+    </div>
+  </div>
+  <div id="ps-list" style="max-height:55vh;overflow-y:auto">
+    ${list.map(c=>`<div class="sr-item" onclick="openPayModal('${c.id}')">
+      <div><div style="font-weight:600">${esc(c.name)}</div><div style="font-size:12px;color:var(--muted)">${c.phone||'—'}</div></div>
+      <div style="font-family:Syne,sans-serif;font-weight:700;color:var(--red);font-size:15px">${fmt(c.total_outstanding)}</div>
+    </div>`).join('')||`<div style="padding:32px;text-align:center;color:var(--muted)">No outstanding balances</div>`}
+  </div>`);
+  setTimeout(()=>$('ps-inp')?.focus(),100);
+};
+
+window.filterPS = function(q) {
+  const list=S.customers.filter(c=>!q||c.name.toLowerCase().includes(q.toLowerCase())||(c.phone||'').includes(q));
+  $('ps-list').innerHTML=list.map(c=>`<div class="sr-item" onclick="openPayModal('${c.id}')">
+    <div><div style="font-weight:600">${esc(c.name)}</div><div style="font-size:12px;color:var(--muted)">${c.phone||'—'}</div></div>
+    <div style="font-family:Syne,sans-serif;font-weight:700;color:${c.total_outstanding>0?'var(--red)':'var(--green)'};font-size:15px">${fmt(c.total_outstanding)}</div>
+  </div>`).join('')||`<div style="padding:32px;text-align:center;color:var(--muted)">No results</div>`;
+};
+
+// ── PAYMENT MODAL ──
+window.openPayModal = function(cid) {
+  const c=byId(cid); if(!c) return;
+  const outInvs=S.invoices.filter(i=>i.customer_id===cid&&i.balance>0).sort((a,b)=>new Date(a.invoice_date)-new Date(b.invoice_date));
+  openModal(`
+  <div class="modal-hdr"><span class="modal-ttl">💰 Record Payment</span><button class="modal-x" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <div style="background:linear-gradient(135deg,#F0F4FF,#E8F5F0);border-radius:14px;padding:14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-weight:700;font-size:15px">${esc(c.name)}</div><div style="font-size:12px;color:var(--muted)">${c.phone||''}</div></div>
+      <div style="font-family:Syne,sans-serif;font-weight:800;color:var(--red);font-size:18px">${fmt(c.total_outstanding)}</div>
+    </div>
+    <div id="pm-err"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Amount (RM) *</label>
+        <input class="form-input" id="pm-amt" type="number" inputmode="decimal" step="0.01" placeholder="0.00"></div>
+      <div class="form-group"><label class="form-label">Date</label>
+        <input class="form-input" id="pm-date" type="date" value="${toStr()}"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="pm-notes" placeholder="e.g. Bank transfer, cash..."></div>
+    <label class="form-label" style="margin-bottom:8px">Apply to invoices</label>
+    <div style="border:1.5px solid var(--border);border-radius:12px;overflow:hidden" id="pm-invs">
+      ${outInvs.length===0?`<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">No outstanding invoices</div>`:
+      outInvs.map(i=>`
+      <label class="inv-check-item">
+        <input type="checkbox" value="${i.id}" checked>
+        <div style="flex:1"><div style="font-weight:600;font-size:14px">${esc(i.invoice_number)||'Invoice'}</div>
+          <div style="font-size:12px;color:var(--muted)">${fmtD(i.invoice_date)}</div></div>
+        <div style="font-weight:700;color:var(--red)">${fmt(i.balance)}</div>
+      </label>`).join('')}
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-green" style="flex:1" id="pm-btn" onclick="savePay('${cid}')">Save Payment</button>
+  </div>`);
+  setTimeout(()=>$('pm-amt')?.focus(),100);
+};
+
+window.savePay = async function(cid) {
+  const amt=parseFloat($('pm-amt').value);
+  if(!amt||amt<=0){$('pm-err').innerHTML=`<div class="alert alert-error">Enter a valid amount</div>`;return;}
+  const selIds=[...$('pm-invs').querySelectorAll('input[type=checkbox]:checked')].map(el=>el.value);
+  if(!selIds.length){$('pm-err').innerHTML=`<div class="alert alert-error">Select at least one invoice</div>`;return;}
+  const btn=$('pm-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try {
+    const c=byId(cid);
+    const pid=await addDoc_('payments',{customer_id:cid,customer_name:c.name,amount:amt,payment_date:$('pm-date').value,notes:$('pm-notes').value.trim()});
+    S.payments.unshift({id:pid,customer_id:cid,customer_name:c.name,amount:amt,payment_date:$('pm-date').value,notes:$('pm-notes').value.trim()});
+    let rem=amt;
+    const selInvs=S.invoices.filter(i=>selIds.includes(i.id)).sort((a,b)=>new Date(a.invoice_date)-new Date(b.invoice_date));
+    for(const inv of selInvs){
+      if(rem<=0) break;
+      const apply=Math.min(rem,inv.balance);
+      const newBal=+(inv.balance-apply).toFixed(2);
+      const st=newBal<=0?'paid':newBal<inv.amount?'partial':'outstanding';
+      await upDoc('invoices',inv.id,{balance:newBal,status:st});
+      inv.balance=newBal; inv.status=st; rem=+(rem-apply).toFixed(2);
+    }
+    await recalc(cid);
+    closeModal(); render();
+  } catch(e){$('pm-err').innerHTML=`<div class="alert alert-error">${e.message}</div>`;btn.disabled=false;btn.textContent='Save Payment';}
+};
+
+// ── SEND REMINDER ──
+window.sendRem = async function(cid) {
+  const c=byId(cid); if(!c) return;
+  const outInvs=S.invoices.filter(i=>i.customer_id===cid&&i.balance>0);
+  if(!outInvs.length){alert('No outstanding invoices.');return;}
+  const lines=outInvs.map(i=>`${i.invoice_number||'Invoice'} – RM${(i.balance||0).toFixed(2)}`).join('\n');
+  const total=outInvs.reduce((s,i)=>s+(i.balance||0),0);
+  const msg=`Hi boss,\n\nFriendly reminder from G Wira Trading.\n\nOutstanding invoices:\n${lines}\n\nTotal outstanding: RM${total.toFixed(2)}\n\nKindly arrange payment. Thank you.`;
+  const newCount=(c.reminder_count||0)+1;
+  const newSt=newCount>=3?'chase_payment':newCount>=2?'follow_up':'normal';
+  const rid=await addDoc_('reminders',{customer_id:cid,customer_name:c.name,method:'whatsapp',message:msg,sent_at:new Date().toISOString()});
+  S.reminders.unshift({id:rid,customer_id:cid,customer_name:c.name,method:'whatsapp',message:msg,sent_at:new Date().toISOString()});
+  await upDoc('customers',cid,{reminder_count:newCount,status:newSt});
+  c.reminder_count=newCount; c.status=newSt;
+  updateBadge();
+  window.open(waPct(c.phone,msg),'_blank');
+  render();
+};
+
+// ── IMPORT ──
+window.openImport = function() {
+  openModal(`
+  <div class="modal-hdr"><span class="modal-ttl">📤 Import Invoices</span><button class="modal-x" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload Excel (.xlsx) or CSV. Auto-detects columns.</p>
+    <div style="background:#F8FAFF;border-radius:12px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--muted)">
+      <strong style="color:var(--text)">Columns:</strong> Customer Name, Phone, Invoice No, Invoice Date, Amount, Balance
+    </div>
+    <div id="imp-err"></div>
+    <div onclick="$('imp-file').click()" style="border:2.5px dashed #D1D5DB;border-radius:16px;padding:32px;text-align:center;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent" ontouchstart="" onmouseover="this.style.borderColor='var(--brand)';this.style.background='#F8FAFF'" onmouseout="this.style.borderColor='#D1D5DB';this.style.background=''">
+      <div style="font-size:38px;margin-bottom:8px">📂</div>
+      <div style="font-weight:700;margin-bottom:3px">Tap to upload file</div>
+      <div style="font-size:12px;color:var(--muted)">Excel (.xlsx) or CSV</div>
+      <input type="file" id="imp-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="previewImp(this)">
+    </div>
+    <div id="imp-preview"></div>
+  </div>
+  <div class="modal-foot" id="imp-foot">
+    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+  </div>`);
+};
+
+window.previewImp = function(inp) {
+  const f=inp.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=new Uint8Array(e.target.result);
+      const wb=XLSX.read(data,{type:'array',cellDates:true});
+      const raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      if(!raw.length){$('imp-err').innerHTML=`<div class="alert alert-error">No data found.</div>`;return;}
+      const keys=Object.keys(raw[0]);
+      const norm=k=>k.toLowerCase().replace(/[\s_\-]/g,'');
+      const find=(...t)=>keys.find(k=>t.some(x=>norm(k).includes(x)));
+      const cols={name:find('customer','name'),phone:find('phone','mobile','tel'),
+        inv:find('invoiceno','invoicenum','invno','invoice'),date:find('date'),
+        amount:find('amount','total'),balance:find('balance','outstanding')};
+      const rows=raw.map(r=>({
+        customer_name:String(r[cols.name]||'').trim(),
+        phone:String(r[cols.phone]||'').trim(),
+        invoice_number:String(r[cols.inv]||'').trim(),
+        invoice_date:parseXD(r[cols.date]),
+        amount:parseFloat(r[cols.amount])||0,
+        balance:cols.balance?parseFloat(r[cols.balance])||0:parseFloat(r[cols.amount])||0,
+      })).filter(r=>r.customer_name);
+      if(!rows.length){$('imp-err').innerHTML=`<div class="alert alert-error">No valid rows. Check column headers.</div>`;return;}
+      window.__impRows=rows;
+      $('imp-preview').innerHTML=`
+      <div style="margin-top:14px">
+        <p style="font-size:13px;font-weight:600;margin-bottom:8px">${rows.length} rows found. Preview:</p>
+        <div style="overflow-x:auto;border-radius:12px;border:1px solid var(--border)">
+        <table class="tbl" style="font-size:12px">
+          <thead><tr><th>Customer</th><th>Inv #</th><th>Date</th><th>Amount</th><th>Balance</th></tr></thead>
+          <tbody>${rows.slice(0,4).map(r=>`<tr>
+            <td style="font-weight:600">${esc(r.customer_name)}</td>
+            <td>${esc(r.invoice_number)||'—'}</td>
+            <td>${r.invoice_date||'—'}</td>
+            <td>RM${(r.amount||0).toFixed(2)}</td>
+            <td style="color:var(--red)">RM${(r.balance||0).toFixed(2)}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>
+        ${rows.length>4?`<p style="font-size:12px;color:var(--muted);margin-top:5px">+${rows.length-4} more rows</p>`:''}
+      </div>`;
+      $('imp-foot').innerHTML=`
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" id="do-imp-btn" onclick="doImp()">📥 Import ${rows.length} Rows</button>`;
+    }catch(err){$('imp-err').innerHTML=`<div class="alert alert-error">Could not read: ${err.message}</div>`;}
+  };
+  reader.readAsArrayBuffer(f);
+};
+
+function parseXD(v){
+  if(!v) return toStr();
+  if(v instanceof Date) return v.toISOString().split('T')[0];
+  if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;}
+  const d=new Date(v); return isNaN(d.getTime())?toStr():d.toISOString().split('T')[0];
+}
+
+window.doImp = async function(){
+  const rows=window.__impRows||[]; if(!rows.length) return;
+  const btn=$('do-imp-btn'); btn.disabled=true; btn.textContent='Importing...';
+  let count=0,errors=0;
+  const map=new Map(); rows.forEach(r=>{const k=r.customer_name.toLowerCase();if(!map.has(k))map.set(k,[]);map.get(k).push(r);});
+  for(const[,crs] of map){
+    const first=crs[0];
+    try{
+      let cid;
+      const ex=S.customers.find(c=>c.name.toLowerCase()===first.customer_name.toLowerCase());
+      if(ex){cid=ex.id;if(first.phone&&!ex.phone){await upDoc('customers',cid,{phone:first.phone});ex.phone=first.phone;}}
+      else{cid=await addDoc_('customers',{name:first.customer_name,phone:first.phone||'',total_outstanding:0,status:'normal',reminder_count:0});S.customers.push({id:cid,name:first.customer_name,phone:first.phone||'',total_outstanding:0,status:'normal',reminder_count:0});}
+      for(const r of crs){
+        const dup=S.invoices.find(i=>i.customer_id===cid&&i.invoice_number===r.invoice_number&&r.invoice_number);
+        if(dup) continue;
+        const bal=r.balance??r.amount??0;
+        const st=bal<=0?'paid':bal<r.amount?'partial':'outstanding';
+        const iid=await addDoc_('invoices',{customer_id:cid,customer_name:first.customer_name,invoice_number:r.invoice_number||'',invoice_date:r.invoice_date,amount:r.amount||0,balance:bal,status:st});
+        S.invoices.unshift({id:iid,customer_id:cid,customer_name:first.customer_name,invoice_number:r.invoice_number||'',invoice_date:r.invoice_date,amount:r.amount||0,balance:bal,status:st});
+        count++;
+      }
+      await recalc(cid);
+    }catch(e){errors++;}
+  }
+  updateBadge();
+  $('imp-preview').innerHTML=`<div class="alert alert-success" style="margin-top:14px">✅ <strong>${count} invoice${count!==1?'s':''} imported!</strong>${errors?` (${errors} errors)`:''}</div>`;
+  $('imp-foot').innerHTML=`<button class="btn btn-primary" style="flex:1" onclick="closeModal();render()">Done!</button>`;
+};
+
+// ── BACKUP ──
+window.dlBackup = async function(e){
+  const btn=e.target; btn.disabled=true; btn.textContent='Preparing...';
+  try{
+    const wb=XLSX.utils.book_new();
+    const addS=(name,data)=>XLSX.utils.book_append_sheet(wb,data.length?XLSX.utils.json_to_sheet(data):XLSX.utils.aoa_to_sheet([['No data']]),name);
+    addS('Customers',S.customers.map(c=>({id:c.id,name:c.name,phone:c.phone,total_outstanding:c.total_outstanding,status:c.status,reminder_count:c.reminder_count})));
+    addS('Invoices',S.invoices.map(i=>({id:i.id,customer_id:i.customer_id,customer_name:i.customer_name,invoice_number:i.invoice_number,invoice_date:i.invoice_date,amount:i.amount,balance:i.balance,status:i.status})));
+    addS('Payments',S.payments.map(p=>({id:p.id,customer_id:p.customer_id,customer_name:p.customer_name,amount:p.amount,payment_date:p.payment_date,notes:p.notes})));
+    addS('Reminders',S.reminders.map(r=>({id:r.id,customer_id:r.customer_id,customer_name:r.customer_name,method:r.method,sent_at:r.sent_at})));
+    XLSX.writeFile(wb,`GWira_Backup_${toStr()}.xlsx`);
+    const el=$('sett-alert'); if(el) el.innerHTML=`<div class="alert alert-success">✅ Backup downloaded!</div>`;
+  }catch(e2){const el=$('sett-alert');if(el)el.innerHTML=`<div class="alert alert-error">❌ Failed: ${e2.message}</div>`;}
+  btn.disabled=false; btn.textContent='📥 Download Full Backup';
+};
+
+window.handleRestore = function(inp){
+  const f=inp.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const parsed={};
+      wb.SheetNames.forEach(n=>{parsed[n]=XLSX.utils.sheet_to_json(wb.Sheets[n]);});
+      const summary=Object.entries(parsed).map(([k,v])=>`${k}: ${v.length}`).join(', ');
+      if(!confirm(`⚠️ RESTORE\n\nWill overwrite ALL data with:\n${summary}\n\nThis cannot be undone. Continue?`)){inp.value='';return;}
+      doRestore(parsed);
+    }catch(e){const el=$('sett-alert');if(el)el.innerHTML=`<div class="alert alert-error">Could not read: ${e.message}</div>`;}
+  };
+  reader.readAsArrayBuffer(f);
+};
+
+async function doRestore(p){
+  const el=$('sett-alert');
+  if(el) el.innerHTML=`<div class="alert alert-info">⏳ Restoring... please wait.</div>`;
+  try{
+    for(const r of (p['Customers']||[])) if(r.id) await setDoc(doc(db,'customers',r.id),{name:r.name||'',phone:r.phone||'',total_outstanding:parseFloat(r.total_outstanding)||0,status:r.status||'normal',reminder_count:parseInt(r.reminder_count)||0});
+    for(const r of (p['Invoices']||[])) if(r.id) await setDoc(doc(db,'invoices',r.id),{customer_id:r.customer_id||'',customer_name:r.customer_name||'',invoice_number:r.invoice_number||'',invoice_date:r.invoice_date||toStr(),amount:parseFloat(r.amount)||0,balance:parseFloat(r.balance)||0,status:r.status||'outstanding'});
+    for(const r of (p['Payments']||[])) if(r.id) await setDoc(doc(db,'payments',r.id),{customer_id:r.customer_id||'',customer_name:r.customer_name||'',amount:parseFloat(r.amount)||0,payment_date:r.payment_date||toStr(),notes:r.notes||''});
+    for(const r of (p['Reminders']||[])) if(r.id) await setDoc(doc(db,'reminders',r.id),{customer_id:r.customer_id||'',customer_name:r.customer_name||'',method:r.method||'whatsapp',message:r.message||'',sent_at:r.sent_at||new Date().toISOString()});
+    await loadAll(); render();
+    if(el) el.innerHTML=`<div class="alert alert-success">✅ Restore complete!</div>`;
+  }catch(e2){if(el) el.innerHTML=`<div class="alert alert-error">❌ Failed: ${e2.message}</div>`;}
+}
+
+// ── INIT ──
+async function init(){
+  const ok=firebaseConfig.apiKey&&!firebaseConfig.apiKey.includes('PASTE');
+  if(!ok){$('setup').style.display='block';return;}
+  try{
+    const app=initializeApp(firebaseConfig);
+    db=getFirestore(app);
+    await loadAll();
+    // Init FAB
+    const fab=$('fab');
+    if(fab){ fab.style.display='none'; }
+    nav('dashboard');
+  }catch(e){
+    $('page-root').innerHTML=`<div style="padding:24px"><div class="alert alert-error">❌ <strong>Firebase error:</strong> ${e.message}<br><br>Check your config keys are correct and Firestore is enabled.</div></div>`;
+  }
+}
+
+// Close more menu when tapping outside
+document.addEventListener('click',e=>{
+  const mm=$('more-menu'),mb=$('more-btn');
+  if(mm&&mb&&mm.style.display!=='none'&&!mm.contains(e.target)&&!mb.contains(e.target)){
+    mm.style.display='none'; mb.classList.remove('active');
+  }
+});
+
+init();
+</script>
+
+</body>
+</html>
