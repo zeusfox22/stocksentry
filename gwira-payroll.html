@@ -2,443 +2,288 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>G Wira Trading — Payroll System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>G Wira Payroll</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  
-  :root {
-    --black: #1a1a1a;
-    --yellow: #e8b800;
-    --blue: #1a4b8c;
-    --green: #1a6b3a;
-    --red: #c0392b;
-    --orange: #e67e22;
-    --grey: #7f8c8d;
-    --lgrey: #f5f5f5;
-    --lblue: #eaf0fb;
-    --lgreen: #eafaf1;
-    --lred: #fdf0f0;
-    --lyellow: #fefce8;
-    --white: #ffffff;
-  }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --black:#1a1a1a;--yellow:#e8b800;--blue:#1a4b8c;--green:#1a6b3a;
+  --red:#c0392b;--orange:#e67e22;--purple:#6c3483;
+  --grey:#6c757d;--lgrey:#f8f9fa;--white:#fff;
+  --lblue:#eaf0fb;--lgreen:#eafaf1;--lred:#fdf0f0;--lyellow:#fefce8;--lorange:#fef6ed;
+  --shadow:0 2px 10px rgba(0,0,0,0.08);--radius:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:var(--black);min-height:100vh;font-size:14px}
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f0f2f5;
-    color: var(--black);
-    min-height: 100vh;
-  }
+/* NAV */
+.nav{background:var(--black);border-bottom:3px solid var(--yellow);position:sticky;top:0;z-index:200}
+.nav-top{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.nav-badge{background:var(--yellow);color:var(--black);font-weight:800;font-size:11px;padding:5px 10px;border-radius:6px;letter-spacing:1px}
+.nav-title{color:white;font-size:12px;font-weight:600;opacity:0.8}
+.nav-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{flex:1;min-width:60px;padding:10px 8px;color:#888;cursor:pointer;font-size:11px;font-weight:700;border:none;background:none;border-bottom:3px solid transparent;transition:all .2s;text-transform:uppercase;white-space:nowrap;letter-spacing:0.3px}
+.nav-tab.active{color:var(--yellow);border-bottom-color:var(--yellow)}
 
-  /* NAV */
-  .nav {
-    background: var(--black);
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 3px solid var(--yellow);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-  }
-  .nav-badge {
-    background: var(--yellow);
-    color: var(--black);
-    font-weight: 800;
-    font-size: 13px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    letter-spacing: 1px;
-  }
-  .nav-title {
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-  .nav-tabs {
-    display: flex;
-    height: 100%;
-  }
-  .nav-tab {
-    padding: 14px 18px;
-    color: #aaa;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s;
-    background: none;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    letter-spacing: 0.5px;
-  }
-  .nav-tab:hover { color: white; }
-  .nav-tab.active { color: var(--yellow); border-bottom-color: var(--yellow); }
+/* MAIN */
+.main{max-width:600px;margin:0 auto;padding:16px 12px;padding-bottom:40px}
+.tab-content{display:none}.tab-content.active{display:block}
 
-  /* MAIN */
-  .main { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
+/* PAGE HEADER */
+.page-header{margin-bottom:16px}
+.page-header h2{font-size:18px;font-weight:800}
+.page-header p{font-size:12px;color:var(--grey);margin-top:2px}
 
-  /* CARDS */
-  .card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-    overflow: hidden;
-  }
-  .card-header {
-    padding: 14px 20px;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: white;
-  }
-  .card-header.blue { background: var(--blue); }
-  .card-header.green { background: var(--green); }
-  .card-header.red { background: var(--red); }
-  .card-header.black { background: var(--black); }
-  .card-header.orange { background: var(--orange); }
-  .card-body { padding: 20px; }
+/* CARDS */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+.card-header{padding:12px 16px;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;color:white}
+.ch-blue{background:var(--blue)}.ch-green{background:var(--green)}.ch-red{background:var(--red)}
+.ch-black{background:var(--black)}.ch-orange{background:var(--orange)}
+.card-body{padding:16px}
 
-  /* FORMS */
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group label { font-size: 11px; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: 0.5px; }
-  .form-group input, .form-group select {
-    padding: 9px 12px;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .form-group input:focus, .form-group select:focus { border-color: var(--blue); }
-  .form-full { grid-column: 1 / -1; }
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:var(--white);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);border-left:4px solid var(--blue)}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--grey);margin-bottom:6px}
+.stat-value{font-size:20px;font-weight:800;line-height:1}
+.stat-sub{font-size:10px;color:var(--grey);margin-top:3px}
 
-  /* BUTTONS */
-  .btn {
-    padding: 9px 18px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    border: none;
-    transition: opacity 0.2s;
-    letter-spacing: 0.5px;
-  }
-  .btn:hover { opacity: 0.85; }
-  .btn-blue { background: var(--blue); color: white; }
-  .btn-green { background: var(--green); color: white; }
-  .btn-red { background: var(--red); color: white; }
-  .btn-yellow { background: var(--yellow); color: var(--black); }
-  .btn-grey { background: var(--lgrey); color: var(--black); border: 1px solid #ddd; }
-  .btn-sm { padding: 5px 12px; font-size: 11px; }
+/* FORMS */
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.form-group label{font-size:11px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select{padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;outline:none;transition:border-color .2s;background:white;width:100%;-webkit-appearance:none;appearance:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--blue)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-  /* TABLES */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { background: var(--lgrey); padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--grey); border-bottom: 2px solid #e0e0e0; }
-  td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
-  tr:hover td { background: var(--lgrey); }
-  .td-right { text-align: right; }
+/* TOGGLES */
+.toggle-label{font-size:11px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block}
+.toggles{display:flex;gap:8px}
+.toggle-item{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 8px;border:2px solid #e0e0e0;border-radius:10px;cursor:pointer;transition:all .2s;font-size:12px;font-weight:700;user-select:none}
+.toggle-item.on{background:var(--lblue);border-color:var(--blue);color:var(--blue)}
+.toggle-dot{width:12px;height:12px;border-radius:50%;background:#ddd;transition:background .2s;flex-shrink:0}
+.toggle-item.on .toggle-dot{background:var(--blue)}
 
-  /* BADGES */
-  .badge {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  .badge-green { background: var(--lgreen); color: var(--green); }
-  .badge-red { background: var(--lred); color: var(--red); }
-  .badge-blue { background: var(--lblue); color: var(--blue); }
-  .badge-yellow { background: var(--lyellow); color: #856404; }
+/* BUTTONS */
+.btn{padding:14px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;letter-spacing:0.3px;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-full{width:100%;display:flex}
+.btn-blue{background:var(--blue);color:white}
+.btn-green{background:var(--green);color:white}
+.btn-red{background:var(--red);color:white}
+.btn-yellow{background:var(--yellow);color:var(--black)}
+.btn-orange{background:var(--orange);color:white}
+.btn-grey{background:var(--lgrey);color:var(--black);border:1px solid #ddd}
+.btn-sm{padding:8px 14px;font-size:12px}
+.btn-xs{padding:5px 10px;font-size:11px}
+.btn-row{display:flex;gap:8px;margin-top:14px}
+.btn-row .btn{flex:1}
 
-  /* STATS */
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-  .stat-card {
-    background: white;
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    border-left: 4px solid var(--blue);
-  }
-  .stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--grey); margin-bottom: 6px; }
-  .stat-value { font-size: 22px; font-weight: 800; color: var(--black); }
-  .stat-sub { font-size: 11px; color: var(--grey); margin-top: 2px; }
+/* EMPLOYEE CARDS */
+.emp-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.emp-card-top{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.emp-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white;flex-shrink:0}
+.emp-info{flex:1;min-width:0}
+.emp-name{font-size:15px;font-weight:800}
+.emp-role{font-size:11px;color:var(--grey);margin-top:1px}
+.emp-gross{font-size:14px;font-weight:800;color:var(--green);white-space:nowrap}
+.emp-chips{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.chip{padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.5px}
+.chip-on{background:var(--lblue);color:var(--blue)}
+.chip-off{background:#f0f0f0;color:#bbb;text-decoration:line-through}
+.emp-card-body{padding:0 16px 12px}
+.emp-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px solid #f5f5f5}
+.emp-row:last-child{border:none}
+.emp-row-label{color:var(--grey)}
+.emp-row-val{font-weight:700}
+.emp-footer{padding:10px 16px;background:var(--lgrey);display:flex;justify-content:flex-end}
 
-  /* TABS content */
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
+/* HISTORY ITEMS */
+.history-item{padding:12px 0;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:flex-start}
+.history-item:last-child{border:none}
+.hi-left{}
+.hi-name{font-size:14px;font-weight:700}
+.hi-sub{font-size:11px;color:var(--grey);margin-top:2px}
+.hi-right{text-align:right;flex-shrink:0;margin-left:10px}
+.hi-amount{font-size:15px;font-weight:800}
+.hi-date{font-size:11px;color:var(--grey);margin-top:2px}
 
-  /* ALERTS */
-  .alert {
-    padding: 12px 16px;
-    border-radius: 6px;
-    font-size: 13px;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .alert-green { background: var(--lgreen); border-left: 4px solid var(--green); color: var(--green); }
-  .alert-red { background: var(--lred); border-left: 4px solid var(--red); color: var(--red); }
-  .alert-blue { background: var(--lblue); border-left: 4px solid var(--blue); color: var(--blue); }
+/* PAYROLL CARD */
+.pr-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+.pr-header{background:linear-gradient(135deg,var(--blue),#2563ae);padding:16px}
+.pr-name{color:white;font-size:16px;font-weight:800}
+.pr-role{color:rgba(255,255,255,0.7);font-size:11px;margin-top:2px}
+.pr-net-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px}
+.pr-net-label{color:rgba(255,255,255,0.8);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.pr-net-amount{color:var(--yellow);font-size:22px;font-weight:800}
+.pr-body{padding:16px}
+.pr-section{margin-bottom:16px}
+.pr-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--grey);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #f0f0f0}
+.pr-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px solid #f9f9f9}
+.pr-row:last-child{border:none}
+.pr-row.earn{color:var(--green)}
+.pr-row.deduct{color:var(--red)}
+.pr-row.total{font-weight:800;font-size:14px;border-top:2px solid #e8e8e8;padding-top:9px;margin-top:2px}
+.net-bar{background:var(--yellow);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-radius:10px;margin-top:14px}
+.net-bar-label{font-weight:800;font-size:13px}
+.net-bar-amount{font-weight:800;font-size:20px}
+.employer-note{background:var(--lblue);padding:10px 14px;border-radius:8px;margin-top:8px;font-size:11px;color:var(--blue);line-height:1.5}
 
-  /* SECTION DIVIDER */
-  .section-divider {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--grey);
-    margin: 16px 0 10px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #e0e0e0;
-  }
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.3px}
+.badge-green{background:var(--lgreen);color:var(--green)}
+.badge-red{background:var(--lred);color:var(--red)}
+.badge-blue{background:var(--lblue);color:var(--blue)}
+.badge-yellow{background:var(--lyellow);color:#856404}
 
-  /* PAYSLIP PRINT STYLES */
-  @media print {
-    body { background: white; }
-    .nav, .main > *:not(#print-area) { display: none !important; }
-    #print-area { display: block !important; }
-    .payslip { page-break-after: always; }
-  }
+/* FILTER ROW */
+.filter-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.filter-row label{font-size:11px;font-weight:700;color:var(--grey);text-transform:uppercase;white-space:nowrap}
+.filter-row select{flex:1;padding:9px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;outline:none;background:white}
 
-  #print-area { display: none; }
+/* EMPTY */
+.empty{text-align:center;padding:30px 16px;color:var(--grey)}
+.empty-icon{font-size:36px;margin-bottom:8px}
+.empty-text{font-size:14px;font-weight:600;margin-bottom:3px}
+.empty-sub{font-size:12px;opacity:0.7}
 
-  .payslip {
-    width: 100%;
-    max-width: 700px;
-    margin: 0 auto;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    border: 1px solid #ccc;
-  }
-  .ps-header {
-    background: #1a1a1a;
-    color: white;
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .ps-company { font-size: 16px; font-weight: 800; }
-  .ps-sub { font-size: 10px; color: #aaa; margin-top: 2px; }
-  .ps-title { background: #e8b800; color: #1a1a1a; padding: 8px 20px; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
-  .ps-body { padding: 16px 20px; }
-  .ps-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-  .ps-info-item { display: flex; gap: 8px; }
-  .ps-info-label { font-weight: 700; color: #555; min-width: 80px; font-size: 11px; }
-  .ps-info-value { font-size: 11px; }
-  .ps-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-  .ps-table th { background: #f5f5f5; padding: 7px 10px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #555; border: 1px solid #e0e0e0; }
-  .ps-table td { padding: 7px 10px; border: 1px solid #e0e0e0; font-size: 11px; }
-  .ps-table td:last-child { text-align: right; font-weight: 600; }
-  .ps-table tr.total-row td { background: #1a1a1a; color: white; font-weight: 700; }
-  .ps-table tr.green-row td { background: #eafaf1; }
-  .ps-table tr.red-row td { background: #fdf0f0; }
-  .ps-net { background: #e8b800; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .ps-net-label { font-weight: 800; font-size: 14px; }
-  .ps-net-amount { font-weight: 800; font-size: 20px; }
-  .ps-footer { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .ps-sig-line { border-top: 1px solid #ccc; padding-top: 6px; font-size: 10px; color: #555; margin-top: 30px; }
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);z-index:9999;padding:12px 20px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.2);font-size:13px;font-weight:700;transition:transform .3s ease;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast-green{background:var(--green);color:white}
+.toast-red{background:var(--red);color:white}
 
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: white;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    overflow: hidden;
-  }
-  .modal-header {
-    padding: 16px 20px;
-    font-weight: 700;
-    font-size: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--blue);
-    color: white;
-  }
-  .modal-body { padding: 20px; }
-  .modal-footer { padding: 14px 20px; background: var(--lgrey); display: flex; justify-content: flex-end; gap: 10px; }
+/* SECTION DIVIDER */
+.sdiv{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--grey);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid #ebebeb}
 
-  .flex { display: flex; gap: 10px; align-items: center; }
-  .flex-end { justify-content: flex-end; }
-  .mt-10 { margin-top: 10px; }
-  .mt-16 { margin-top: 16px; }
-  .text-right { text-align: right; }
-  .text-green { color: var(--green); font-weight: 700; }
-  .text-red { color: var(--red); font-weight: 700; }
-  .text-grey { color: var(--grey); }
-  .font-bold { font-weight: 700; }
+/* PRINT */
+@media print{
+  body{background:white}
+  .nav,.main>*:not(#print-area){display:none!important}
+  #print-area{display:block!important}
+  .payslip{page-break-after:always}
+}
+#print-area{display:none}
+
+/* PAYSLIP */
+.payslip{font-family:Arial,sans-serif;font-size:11px;border:1px solid #ddd;margin-bottom:30px}
+.ps-top{background:var(--black);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start}
+.ps-co{font-size:16px;font-weight:800}
+.ps-co-sub{font-size:9px;color:#aaa;margin-top:2px}
+.ps-badge{background:var(--yellow);color:var(--black);padding:5px 12px;border-radius:5px;font-weight:800;font-size:11px}
+.ps-stripe{background:var(--yellow);padding:6px 20px;font-weight:800;font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.ps-info{padding:12px 20px;display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#fafafa;border-bottom:1px solid #eee}
+.ps-info-row{display:flex;gap:6px;font-size:10px}
+.ps-info-label{font-weight:700;color:#666;min-width:70px}
+.ps-table{width:100%;border-collapse:collapse;font-size:10px;margin:0 20px;width:calc(100% - 40px)}
+.ps-table th{background:#f5f5f5;padding:6px 10px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:#666;border:1px solid #eee}
+.ps-table td{padding:6px 10px;border:1px solid #eee}
+.ps-table td:last-child{text-align:right;font-weight:600}
+.ps-earn td{background:#f0faf4}
+.ps-deduct td{background:#fdf5f5}
+.ps-total-row td{background:var(--black);color:white;font-weight:800}
+.ps-table-wrap{padding:12px 20px}
+.ps-net{background:var(--yellow);padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+.ps-net-lbl{font-weight:800;font-size:14px}
+.ps-net-amt{font-weight:800;font-size:20px}
+.ps-employer{background:var(--lblue);padding:8px 20px;font-size:9px;color:var(--blue)}
+.ps-sigs{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:20px;background:#fafafa}
+.ps-sig-line{border-top:1px solid #ccc;padding-top:4px;font-size:9px;color:#777;margin-top:24px}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="nav">
-  <div class="nav-brand">
+  <div class="nav-top">
     <div class="nav-badge">G WIRA</div>
-    <div class="nav-title">PAYROLL SYSTEM</div>
+    <div class="nav-title">Payroll System</div>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab('dashboard')">Dashboard</button>
-    <button class="nav-tab" onclick="switchTab('employees')">Employees</button>
-    <button class="nav-tab" onclick="switchTab('advances')">Advances</button>
-    <button class="nav-tab" onclick="switchTab('deductions')">Deductions</button>
-    <button class="nav-tab" onclick="switchTab('payroll')">Payroll</button>
+    <button class="nav-tab active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+    <button class="nav-tab" onclick="switchTab('employees',this)">👥 Staff</button>
+    <button class="nav-tab" onclick="switchTab('advances',this)">💸 Advances</button>
+    <button class="nav-tab" onclick="switchTab('deductions',this)">⚠️ Deductions</button>
+    <button class="nav-tab" onclick="switchTab('payroll',this)">🧾 Payroll</button>
   </div>
 </nav>
 
-<!-- PRINT AREA -->
 <div id="print-area"></div>
 
-<!-- MAIN -->
 <div class="main">
 
   <!-- DASHBOARD -->
   <div id="tab-dashboard" class="tab-content active">
+    <div class="page-header">
+      <h2>Dashboard</h2>
+      <p id="dash-month-label">Current month overview</p>
+    </div>
     <div id="stats-container"></div>
     <div class="card">
-      <div class="card-header black">Current Month Summary — <span id="current-month-label"></span></div>
-      <div class="card-body">
-        <div id="dashboard-table"></div>
-      </div>
+      <div class="card-header ch-black">Staff Summary</div>
+      <div class="card-body" id="dash-summary"></div>
     </div>
     <div class="card">
-      <div class="card-header orange">Pending Advances This Month</div>
-      <div class="card-body">
-        <div id="advance-summary"></div>
-      </div>
+      <div class="card-header ch-orange">Recent Advances</div>
+      <div class="card-body" id="dash-advances"></div>
     </div>
   </div>
 
   <!-- EMPLOYEES -->
   <div id="tab-employees" class="tab-content">
+    <div class="page-header"><h2>Staff</h2><p>Manage your team</p></div>
     <div class="card">
-      <div class="card-header blue">
-        Add New Employee
-      </div>
+      <div class="card-header ch-blue">Add New Employee</div>
       <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" id="emp-name" placeholder="e.g. Kasturi">
-          </div>
-          <div class="form-group">
-            <label>Role</label>
-            <input type="text" id="emp-role" placeholder="e.g. Cashier & Admin">
-          </div>
-          <div class="form-group">
-            <label>Basic Salary (RM)</label>
-            <input type="number" id="emp-salary" placeholder="e.g. 1900">
-          </div>
-          <div class="form-group">
-            <label>Food Allowance/day (RM)</label>
-            <input type="number" id="emp-food" placeholder="0 if none">
-          </div>
-          <div class="form-group">
-            <label>Working Days/Month</label>
-            <input type="number" id="emp-days" placeholder="26" value="26">
-          </div>
-          <div class="form-group">
-            <label>Employment Type</label>
-            <select id="emp-type">
-              <option value="full">Full Time</option>
-              <option value="part">Part Time</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>IC Number</label>
-            <input type="text" id="emp-ic" placeholder="e.g. 900101-14-1234">
-          </div>
-          <div class="form-group">
-            <label>Start Date</label>
-            <input type="date" id="emp-start">
+        <div class="form-group"><label>Full Name</label><input type="text" id="emp-name" placeholder="e.g. Kasturi"></div>
+        <div class="form-group"><label>Role</label><input type="text" id="emp-role" placeholder="e.g. Cashier & Admin"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Basic Salary (RM)</label><input type="number" id="emp-salary" placeholder="1900"></div>
+          <div class="form-group"><label>Food/Day (RM)</label><input type="number" id="emp-food" placeholder="0" value="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Working Days/Month</label><input type="number" id="emp-days" placeholder="26" value="26"></div>
+          <div class="form-group"><label>Type</label>
+            <select id="emp-type"><option value="full">Full Time</option><option value="part">Part Time</option></select>
           </div>
         </div>
-        <div class="mt-16 flex flex-end">
-          <button class="btn btn-blue" onclick="addEmployee()">Add Employee</button>
+        <div class="form-row">
+          <div class="form-group"><label>IC Number</label><input type="text" id="emp-ic" placeholder="Optional"></div>
+          <div class="form-group"><label>Start Date</label><input type="date" id="emp-start"></div>
+        </div>
+        <div class="sdiv">Statutory Contributions</div>
+        <div class="toggles">
+          <div class="toggle-item on" id="tog-epf" onclick="toggleContrib('epf')"><div class="toggle-dot"></div>EPF</div>
+          <div class="toggle-item on" id="tog-socso" onclick="toggleContrib('socso')"><div class="toggle-dot"></div>SOCSO</div>
+        </div>
+        <p style="font-size:11px;color:var(--grey);margin-top:8px">Toggle off for part-time or foreign workers</p>
+        <div class="btn-row">
+          <button class="btn btn-blue btn-full" onclick="addEmployee()">➕ Add Employee</button>
         </div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="card-header green">Employee List</div>
-      <div class="card-body">
-        <div id="employee-list"></div>
-      </div>
-    </div>
+    <div id="employee-list"></div>
   </div>
 
   <!-- ADVANCES -->
   <div id="tab-advances" class="tab-content">
+    <div class="page-header"><h2>Advances</h2><p>Record every advance — deducted at month end automatically</p></div>
     <div class="card">
-      <div class="card-header orange">Record Salary Advance</div>
+      <div class="card-header ch-orange">Record Advance</div>
       <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Employee</label>
-            <select id="adv-emp"></select>
-          </div>
-          <div class="form-group">
-            <label>Amount (RM)</label>
-            <input type="number" id="adv-amount" placeholder="e.g. 450">
-          </div>
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="adv-date">
-          </div>
-          <div class="form-group">
-            <label>Month (deduct from)</label>
-            <select id="adv-month">
-              <option value="6">June 2026</option>
-              <option value="7">July 2026</option>
-              <option value="8">August 2026</option>
-            </select>
-          </div>
-          <div class="form-group form-full">
-            <label>Reason / Notes</label>
-            <input type="text" id="adv-notes" placeholder="e.g. Weekly advance">
-          </div>
+        <div class="form-group"><label>Employee</label><select id="adv-emp"></select></div>
+        <div class="form-row">
+          <div class="form-group"><label>Amount (RM)</label><input type="number" id="adv-amount" placeholder="e.g. 450"></div>
+          <div class="form-group"><label>Date Given</label><input type="date" id="adv-date"></div>
         </div>
-        <div class="mt-16 flex flex-end">
-          <button class="btn btn-orange" style="background:var(--orange);color:white;" onclick="addAdvance()">Record Advance</button>
+        <div class="form-group"><label>Deduct From Month</label><select id="adv-month"></select></div>
+        <div class="form-group"><label>Notes</label><input type="text" id="adv-notes" placeholder="e.g. Weekly advance Saturday"></div>
+        <div class="btn-row">
+          <button class="btn btn-orange btn-full" onclick="addAdvance()">💸 Record Advance</button>
         </div>
       </div>
     </div>
     <div class="card">
-      <div class="card-header black">Advance History</div>
+      <div class="card-header ch-black">Advance History</div>
       <div class="card-body">
+        <div class="filter-row"><label>Month:</label><select id="adv-filter-month" onchange="renderAdvanceList()"></select></div>
         <div id="advance-list"></div>
       </div>
     </div>
@@ -446,52 +291,36 @@
 
   <!-- DEDUCTIONS -->
   <div id="tab-deductions" class="tab-content">
+    <div class="page-header"><h2>Deductions</h2><p>Lateness, mistakes, absences</p></div>
     <div class="card">
-      <div class="card-header red">Record Deduction</div>
+      <div class="card-header ch-red">Record Deduction</div>
       <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Employee</label>
-            <select id="ded-emp"></select>
-          </div>
-          <div class="form-group">
-            <label>Type</label>
+        <div class="form-group"><label>Employee</label><select id="ded-emp"></select></div>
+        <div class="form-row">
+          <div class="form-group"><label>Type</label>
             <select id="ded-type">
               <option value="late">Lateness</option>
-              <option value="mistake">Work Mistake</option>
-              <option value="absent">Absent Without Notice</option>
+              <option value="mistake">Work Mistake (RM10)</option>
+              <option value="absent">Absent No Notice</option>
               <option value="other">Other</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Amount (RM)</label>
-            <input type="number" id="ded-amount" placeholder="e.g. 10">
-          </div>
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="ded-date">
-          </div>
-          <div class="form-group">
-            <label>Month (deduct from)</label>
-            <select id="ded-month">
-              <option value="6">June 2026</option>
-              <option value="7">July 2026</option>
-              <option value="8">August 2026</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Notes</label>
-            <input type="text" id="ded-notes" placeholder="e.g. Late 45 mins on 3 Jun">
-          </div>
+          <div class="form-group"><label>Amount (RM)</label><input type="number" id="ded-amount" placeholder="e.g. 10"></div>
         </div>
-        <div class="mt-16 flex flex-end">
-          <button class="btn btn-red" onclick="addDeduction()">Record Deduction</button>
+        <div class="form-row">
+          <div class="form-group"><label>Date</label><input type="date" id="ded-date"></div>
+          <div class="form-group"><label>Deduct From Month</label><select id="ded-month"></select></div>
+        </div>
+        <div class="form-group"><label>Notes</label><input type="text" id="ded-notes" placeholder="e.g. Late 45 mins on 3 Jun"></div>
+        <div class="btn-row">
+          <button class="btn btn-red btn-full" onclick="addDeduction()">⚠️ Record Deduction</button>
         </div>
       </div>
     </div>
     <div class="card">
-      <div class="card-header black">Deduction History</div>
+      <div class="card-header ch-black">Deduction History</div>
       <div class="card-body">
+        <div class="filter-row"><label>Month:</label><select id="ded-filter-month" onchange="renderDeductionList()"></select></div>
         <div id="deduction-list"></div>
       </div>
     </div>
@@ -499,30 +328,17 @@
 
   <!-- PAYROLL -->
   <div id="tab-payroll" class="tab-content">
+    <div class="page-header"><h2>Payroll</h2><p>Generate and print payslips for any month</p></div>
     <div class="card">
-      <div class="card-header blue">
-        Generate Payroll
-      </div>
+      <div class="card-header ch-blue">Generate Payroll</div>
       <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Select Month</label>
-            <select id="pay-month">
-              <option value="6">June 2026</option>
-              <option value="7">July 2026</option>
-              <option value="8">August 2026</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Select Employee (or All)</label>
-            <select id="pay-emp">
-              <option value="all">All Employees</option>
-            </select>
-          </div>
+        <div class="form-group"><label>Month</label><select id="pay-month"></select></div>
+        <div class="form-group"><label>Employee</label>
+          <select id="pay-emp"><option value="all">All Employees</option></select>
         </div>
-        <div class="mt-16 flex flex-end" style="gap:10px;">
-          <button class="btn btn-blue" onclick="generatePayroll()">Generate Payroll</button>
-          <button class="btn btn-yellow" onclick="printPayslips()">Print Payslips</button>
+        <div class="btn-row">
+          <button class="btn btn-blue" onclick="generatePayroll()" style="flex:1">Generate</button>
+          <button class="btn btn-yellow" onclick="printAllPayslips()" style="flex:1">🖨️ Print All</button>
         </div>
       </div>
     </div>
@@ -531,629 +347,316 @@
 
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <div class="modal-header" id="modal-header">Title</div>
-    <div class="modal-body" id="modal-body"></div>
-    <div class="modal-footer">
-      <button class="btn btn-grey" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-red" id="modal-confirm">Confirm</button>
-    </div>
-  </div>
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
-// ── DATA STORE ────────────────────────────────────────────────────────────────
-let data = {
-  employees: [],
-  advances: [],
-  deductions: []
-};
+let D={employees:[],advances:[],deductions:[]};
+let toggleState={epf:true,socso:true};
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const COLORS=['#1a4b8c','#1a6b3a','#c0392b','#e67e22','#6c3483','#117a65','#2c3e50','#16a085'];
+const typeLabel={late:'Lateness',mistake:'Mistake',absent:'Absent',other:'Other'};
 
-// Load from localStorage
-function loadData() {
-  const saved = localStorage.getItem('gwira_payroll');
-  if (saved) data = JSON.parse(saved);
-  
-  // Pre-load existing staff if empty
-  if (data.employees.length === 0) {
-    data.employees = [
-      { id: 1, name: 'Kasturi', role: 'Cashier & Admin', salary: 1900, food: 0, days: 26, type: 'full', ic: '', start: '2026-06-01' },
-      { id: 2, name: 'Loges', role: 'Driver & Delivery', salary: 2100, food: 10, days: 26, type: 'full', ic: '', start: '2026-06-01' },
-      { id: 3, name: 'Sattar', role: 'Shop Keeper & Printing', salary: 2500, food: 10, days: 26, type: 'full', ic: '', start: '2026-06-01' },
-      { id: 4, name: 'Sanjithra', role: 'Part-Time Admin', salary: 75, food: 0, days: 4, type: 'part', ic: '', start: '2026-06-01' },
+function monthKey(m,y){return `${y}-${String(m).padStart(2,'0')}`}
+function parseKey(k){const[y,m]=k.split('-');return{year:parseInt(y),month:parseInt(m)}}
+function monthLabel(k){const{year,month}=parseKey(k);return `${MONTHS[month-1]} ${year}`}
+function getColor(i){return COLORS[i%COLORS.length]}
+
+function genMonths(){
+  const opts=[];let y=2026,m=6;
+  for(let i=0;i<30;i++){opts.push(monthKey(m,y));m++;if(m>12){m=1;y++;}}
+  return opts;
+}
+
+function curMonth(){
+  const n=new Date();return monthKey(n.getMonth()+1,n.getFullYear());
+}
+
+function load(){
+  const s=localStorage.getItem('gwira_payroll_v3');
+  if(s)D=JSON.parse(s);
+  if(!D.employees||!D.employees.length){
+    D.employees=[
+      {id:1,name:'Kasturi',role:'Cashier & Admin',salary:1900,food:0,days:26,type:'full',ic:'',start:'2026-06-01',epf:true,socso:true},
+      {id:2,name:'Loges',role:'Driver & Delivery',salary:2100,food:10,days:26,type:'full',ic:'',start:'2026-06-01',epf:true,socso:true},
+      {id:3,name:'Sattar',role:'Shop Keeper & Printing',salary:2500,food:10,days:26,type:'full',ic:'',start:'2026-06-01',epf:false,socso:false},
+      {id:4,name:'Sanjithra',role:'Part-Time Admin',salary:300,food:0,days:4,type:'part',ic:'',start:'2026-06-01',epf:false,socso:false},
     ];
-    saveData();
+    save();
   }
 }
+function save(){localStorage.setItem('gwira_payroll_v3',JSON.stringify(D))}
 
-function saveData() {
-  localStorage.setItem('gwira_payroll', JSON.stringify(data));
+function calcEPF(s){return{ee:Math.round(s*0.11),er:Math.round(s*0.13)}}
+function calcSOCSO(s){const b=Math.min(s,6000);return{ee:Math.round(b*0.005*100)/100,er:Math.round(b*0.0175*100)/100}}
+function gross(e){return e.salary+(e.food*e.days)}
+
+function calcPayroll(e,mk){
+  const g=gross(e);
+  const epf=e.epf?calcEPF(e.salary):{ee:0,er:0};
+  const socso=e.socso?calcSOCSO(e.salary):{ee:0,er:0};
+  const adv=D.advances.filter(a=>a.empId===e.id&&a.month===mk).reduce((s,a)=>s+a.amount,0);
+  const ded=D.deductions.filter(d=>d.empId===e.id&&d.month===mk).reduce((s,d)=>s+d.amount,0);
+  const totalDed=epf.ee+socso.ee+adv+ded;
+  return{gross:g,epf,socso,advances:adv,deductions:ded,totalDed,net:g-totalDed};
 }
 
-// ── EPF / SOCSO CALC ──────────────────────────────────────────────────────────
-function calcEPF(salary) {
-  if (salary <= 0) return { employee: 0, employer: 0 };
-  // Standard EPF rates
-  const employee = Math.round(salary * 0.11);
-  const employer = Math.round(salary * 0.13);
-  return { employee, employer };
+function toggleContrib(k){
+  toggleState[k]=!toggleState[k];
+  document.getElementById('tog-'+k).classList.toggle('on',toggleState[k]);
+  document.querySelector(`#tog-${k} .toggle-dot`).style.background=toggleState[k]?'var(--blue)':'#ddd';
 }
 
-function calcSOCSO(salary) {
-  if (salary <= 0) return { employee: 0, employer: 0 };
-  // SOCSO rate approx 0.5% employee, 1.75% employer (capped at RM4000)
-  const base = Math.min(salary, 4000);
-  const employee = Math.round(base * 0.005 * 100) / 100;
-  const employer = Math.round(base * 0.0175 * 100) / 100;
-  return { employee, employer };
+function addEmployee(){
+  const name=document.getElementById('emp-name').value.trim();
+  const role=document.getElementById('emp-role').value.trim();
+  const salary=parseFloat(document.getElementById('emp-salary').value)||0;
+  const food=parseFloat(document.getElementById('emp-food').value)||0;
+  const days=parseInt(document.getElementById('emp-days').value)||26;
+  const type=document.getElementById('emp-type').value;
+  const ic=document.getElementById('emp-ic').value.trim();
+  const start=document.getElementById('emp-start').value;
+  if(!name||!salary){toast('Enter name and salary','red');return}
+  D.employees.push({id:Date.now(),name,role,salary,food,days,type,ic,start,epf:toggleState.epf,socso:toggleState.socso});
+  save();
+  ['emp-name','emp-role','emp-salary','emp-ic','emp-start'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('emp-food').value='0';
+  document.getElementById('emp-days').value='26';
+  toggleState={epf:true,socso:true};
+  ['epf','socso'].forEach(k=>{document.getElementById('tog-'+k).classList.add('on');document.querySelector(`#tog-${k} .toggle-dot`).style.background='var(--blue)'});
+  renderAll();toast('Employee added!','green');
 }
 
-function calcEIS(salary) {
-  const base = Math.min(salary, 4000);
-  const rate = 0.002;
-  return { employee: Math.round(base * rate * 100) / 100, employer: Math.round(base * rate * 100) / 100 };
+function deleteEmployee(id){
+  if(!confirm('Remove this employee?'))return;
+  D.employees=D.employees.filter(e=>e.id!==id);
+  save();renderAll();toast('Removed','red');
 }
 
-function getTotalSalary(emp) {
-  return emp.salary + (emp.food * emp.days);
+function addAdvance(){
+  const empId=parseInt(document.getElementById('adv-emp').value);
+  const amount=parseFloat(document.getElementById('adv-amount').value)||0;
+  const date=document.getElementById('adv-date').value;
+  const month=document.getElementById('adv-month').value;
+  const notes=document.getElementById('adv-notes').value.trim();
+  if(!empId||!amount||!date){toast('Fill all fields','red');return}
+  D.advances.push({id:Date.now(),empId,amount,date,month,notes});
+  save();document.getElementById('adv-amount').value='';document.getElementById('adv-notes').value='';
+  renderAll();toast('Advance recorded!','green');
 }
 
-function getAdvancesForMonth(empId, month) {
-  return data.advances.filter(a => a.empId === empId && a.month == month)
-    .reduce((sum, a) => sum + a.amount, 0);
+function deleteAdvance(id){if(!confirm('Delete?'))return;D.advances=D.advances.filter(a=>a.id!==id);save();renderAll();toast('Deleted','red')}
+
+function addDeduction(){
+  const empId=parseInt(document.getElementById('ded-emp').value);
+  const type=document.getElementById('ded-type').value;
+  const amount=parseFloat(document.getElementById('ded-amount').value)||0;
+  const date=document.getElementById('ded-date').value;
+  const month=document.getElementById('ded-month').value;
+  const notes=document.getElementById('ded-notes').value.trim();
+  if(!empId||!amount||!date){toast('Fill all fields','red');return}
+  D.deductions.push({id:Date.now(),empId,type,amount,date,month,notes});
+  save();document.getElementById('ded-amount').value='';document.getElementById('ded-notes').value='';
+  renderAll();toast('Deduction recorded!','green');
 }
 
-function getDeductionsForMonth(empId, month) {
-  return data.deductions.filter(d => d.empId === empId && d.month == month)
-    .reduce((sum, d) => sum + d.amount, 0);
-}
+function deleteDeduction(id){if(!confirm('Delete?'))return;D.deductions=D.deductions.filter(d=>d.id!==id);save();renderAll();toast('Deleted','red')}
 
-function getMonthName(m) {
-  const months = ['', 'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
-  return months[m];
-}
-
-// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  event.target.classList.add('active');
-  renderAll();
-}
-
-// ── ADD EMPLOYEE ──────────────────────────────────────────────────────────────
-function addEmployee() {
-  const name = document.getElementById('emp-name').value.trim();
-  const role = document.getElementById('emp-role').value.trim();
-  const salary = parseFloat(document.getElementById('emp-salary').value) || 0;
-  const food = parseFloat(document.getElementById('emp-food').value) || 0;
-  const days = parseInt(document.getElementById('emp-days').value) || 26;
-  const type = document.getElementById('emp-type').value;
-  const ic = document.getElementById('emp-ic').value.trim();
-  const start = document.getElementById('emp-start').value;
-
-  if (!name || !salary) {
-    alert('Please fill in at least the name and salary.');
-    return;
-  }
-
-  const emp = {
-    id: Date.now(),
-    name, role, salary, food, days, type, ic, start, active: true
-  };
-  data.employees.push(emp);
-  saveData();
-
-  // Clear form
-  ['emp-name','emp-role','emp-salary','emp-food','emp-ic','emp-start'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('emp-days').value = '26';
-
-  renderAll();
-  showAlert('Employee added successfully!', 'green');
-}
-
-// ── ADD ADVANCE ───────────────────────────────────────────────────────────────
-function addAdvance() {
-  const empId = parseInt(document.getElementById('adv-emp').value);
-  const amount = parseFloat(document.getElementById('adv-amount').value) || 0;
-  const date = document.getElementById('adv-date').value;
-  const month = parseInt(document.getElementById('adv-month').value);
-  const notes = document.getElementById('adv-notes').value.trim();
-
-  if (!empId || !amount || !date) {
-    alert('Please fill in all required fields.');
-    return;
-  }
-
-  data.advances.push({ id: Date.now(), empId, amount, date, month, notes });
-  saveData();
-
-  document.getElementById('adv-amount').value = '';
-  document.getElementById('adv-notes').value = '';
-
-  renderAll();
-  showAlert('Advance recorded!', 'green');
-}
-
-// ── ADD DEDUCTION ─────────────────────────────────────────────────────────────
-function addDeduction() {
-  const empId = parseInt(document.getElementById('ded-emp').value);
-  const type = document.getElementById('ded-type').value;
-  const amount = parseFloat(document.getElementById('ded-amount').value) || 0;
-  const date = document.getElementById('ded-date').value;
-  const month = parseInt(document.getElementById('ded-month').value);
-  const notes = document.getElementById('ded-notes').value.trim();
-
-  if (!empId || !amount || !date) {
-    alert('Please fill in all required fields.');
-    return;
-  }
-
-  data.deductions.push({ id: Date.now(), empId, type, amount, date, month, notes });
-  saveData();
-
-  document.getElementById('ded-amount').value = '';
-  document.getElementById('ded-notes').value = '';
-
-  renderAll();
-  showAlert('Deduction recorded!', 'green');
-}
-
-// ── GENERATE PAYROLL ──────────────────────────────────────────────────────────
-function generatePayroll() {
-  const month = parseInt(document.getElementById('pay-month').value);
-  const empFilter = document.getElementById('pay-emp').value;
-
-  const emps = empFilter === 'all' ? data.employees : data.employees.filter(e => e.id == empFilter);
-
-  let html = '';
-  let grandTotal = 0;
-
-  emps.forEach(emp => {
-    const gross = getTotalSalary(emp);
-    const epf = emp.type === 'full' ? calcEPF(emp.salary) : { employee: 0, employer: 0 };
-    const socso = emp.type === 'full' ? calcSOCSO(emp.salary) : { employee: 0, employer: 0 };
-    const eis = emp.type === 'full' ? calcEIS(emp.salary) : { employee: 0, employer: 0 };
-    const advances = getAdvancesForMonth(emp.id, month);
-    const deductions = getDeductionsForMonth(emp.id, month);
-    const totalDeductions = epf.employee + socso.employee + eis.employee + advances + deductions;
-    const netPay = gross - totalDeductions;
-    grandTotal += netPay;
-
-    html += `
-    <div class="card" style="margin-bottom:16px;">
-      <div class="card-header green" style="justify-content:space-between;">
-        <span>${emp.name} — ${emp.role}</span>
-        <span>Net Pay: RM ${netPay.toFixed(2)}</span>
+function renderEmployees(){
+  const el=document.getElementById('employee-list');
+  if(!D.employees.length){el.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No employees yet</div></div>`;return}
+  el.innerHTML=D.employees.map((e,i)=>{
+    const g=gross(e);
+    const chips=['epf','socso'].map(k=>`<span class="chip ${e[k]?'chip-on':'chip-off'}">${k.toUpperCase()}</span>`).join('');
+    return `<div class="emp-card">
+      <div class="emp-card-top">
+        <div class="emp-avatar" style="background:${getColor(i)}">${e.name.charAt(0)}</div>
+        <div class="emp-info">
+          <div class="emp-name">${e.name}</div>
+          <div class="emp-role">${e.role}</div>
+          <div class="emp-chips">${chips}</div>
+        </div>
+        <div class="emp-gross">RM ${g.toFixed(0)}</div>
       </div>
-      <div class="card-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-          <div>
-            <div class="section-divider">EARNINGS</div>
-            <table>
-              <tr class="green-row" style="background:var(--lgreen)"><td>Basic Salary</td><td class="td-right">RM ${emp.salary.toFixed(2)}</td></tr>
-              ${emp.food > 0 ? `<tr style="background:var(--lgreen)"><td>Food Allowance (${emp.days} days x RM${emp.food})</td><td class="td-right">RM ${(emp.food * emp.days).toFixed(2)}</td></tr>` : ''}
-              <tr style="background:#d5f5e3;font-weight:700;"><td>GROSS SALARY</td><td class="td-right">RM ${gross.toFixed(2)}</td></tr>
-            </table>
-          </div>
-          <div>
-            <div class="section-divider">DEDUCTIONS</div>
-            <table>
-              ${epf.employee > 0 ? `<tr style="background:var(--lred)"><td>EPF (Employee 11%)</td><td class="td-right">RM ${epf.employee.toFixed(2)}</td></tr>` : ''}
-              ${socso.employee > 0 ? `<tr style="background:var(--lred)"><td>SOCSO (Employee 0.5%)</td><td class="td-right">RM ${socso.employee.toFixed(2)}</td></tr>` : ''}
-              ${eis.employee > 0 ? `<tr style="background:var(--lred)"><td>EIS (Employee 0.2%)</td><td class="td-right">RM ${eis.employee.toFixed(2)}</td></tr>` : ''}
-              ${advances > 0 ? `<tr style="background:var(--lred)"><td>Salary Advances</td><td class="td-right">RM ${advances.toFixed(2)}</td></tr>` : ''}
-              ${deductions > 0 ? `<tr style="background:var(--lred)"><td>Lateness / Mistakes</td><td class="td-right">RM ${deductions.toFixed(2)}</td></tr>` : ''}
-              <tr style="background:#fde8e8;font-weight:700;"><td>TOTAL DEDUCTIONS</td><td class="td-right">RM ${totalDeductions.toFixed(2)}</td></tr>
-            </table>
-          </div>
+      <div class="emp-card-body">
+        <div class="emp-row"><span class="emp-row-label">Basic Salary</span><span class="emp-row-val">RM ${e.salary.toFixed(2)}</span></div>
+        ${e.food>0?`<div class="emp-row"><span class="emp-row-label">Food (${e.days}d×RM${e.food})</span><span class="emp-row-val">RM ${(e.food*e.days).toFixed(2)}</span></div>`:''}
+        <div class="emp-row"><span class="emp-row-label">Type</span><span><span class="badge ${e.type==='full'?'badge-blue':'badge-yellow'}">${e.type==='full'?'Full Time':'Part Time'}</span></span></div>
+      </div>
+      <div class="emp-footer"><button class="btn btn-red btn-xs" onclick="deleteEmployee(${e.id})">Remove</button></div>
+    </div>`;
+  }).join('');
+}
+
+function renderAdvanceList(){
+  const filter=document.getElementById('adv-filter-month')?.value;
+  const filtered=filter?D.advances.filter(a=>a.month===filter):D.advances;
+  const el=document.getElementById('advance-list');
+  if(!filtered.length){el.innerHTML=`<div class="empty"><div class="empty-icon">💸</div><div class="empty-text">No advances</div></div>`;return}
+  el.innerHTML=filtered.slice().reverse().map(a=>{
+    const e=D.employees.find(x=>x.id===a.empId);
+    return `<div class="history-item">
+      <div class="hi-left"><div class="hi-name">${e?e.name:'—'}</div><div class="hi-sub">${monthLabel(a.month)}${a.notes?' · '+a.notes:''}</div></div>
+      <div class="hi-right"><div class="hi-amount" style="color:var(--red)">-RM ${a.amount.toFixed(2)}</div><div class="hi-date">${a.date} <button onclick="deleteAdvance(${a.id})" style="background:none;border:none;color:var(--grey);font-size:11px;cursor:pointer;padding:0 2px">✕</button></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderDeductionList(){
+  const filter=document.getElementById('ded-filter-month')?.value;
+  const filtered=filter?D.deductions.filter(d=>d.month===filter):D.deductions;
+  const el=document.getElementById('deduction-list');
+  if(!filtered.length){el.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">No deductions</div></div>`;return}
+  el.innerHTML=filtered.slice().reverse().map(d=>{
+    const e=D.employees.find(x=>x.id===d.empId);
+    return `<div class="history-item">
+      <div class="hi-left"><div class="hi-name">${e?e.name:'—'}</div><div class="hi-sub">${typeLabel[d.type]||d.type} · ${monthLabel(d.month)}${d.notes?' · '+d.notes:''}</div></div>
+      <div class="hi-right"><div class="hi-amount" style="color:var(--red)">-RM ${d.amount.toFixed(2)}</div><div class="hi-date">${d.date} <button onclick="deleteDeduction(${d.id})" style="background:none;border:none;color:var(--grey);font-size:11px;cursor:pointer;padding:0 2px">✕</button></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderDashboard(){
+  const cm=curMonth();
+  document.getElementById('dash-month-label').textContent=monthLabel(cm);
+  const totalGross=D.employees.reduce((s,e)=>s+gross(e),0);
+  const totalAdv=D.advances.filter(a=>a.month===cm).reduce((s,a)=>s+a.amount,0);
+  const totalDed=D.deductions.filter(d=>d.month===cm).reduce((s,d)=>s+d.amount,0);
+  const totalNet=D.employees.reduce((s,e)=>s+calcPayroll(e,cm).net,0);
+  document.getElementById('stats-container').innerHTML=`
+  <div class="stats-grid">
+    <div class="stat" style="border-left-color:var(--blue)"><div class="stat-label">Total Staff</div><div class="stat-value">${D.employees.length}</div></div>
+    <div class="stat" style="border-left-color:var(--green)"><div class="stat-label">Gross Bill</div><div class="stat-value">RM ${totalGross.toLocaleString()}</div></div>
+    <div class="stat" style="border-left-color:var(--orange)"><div class="stat-label">Advances</div><div class="stat-value">RM ${totalAdv.toLocaleString()}</div><div class="stat-sub">This month</div></div>
+    <div class="stat" style="border-left-color:var(--green)"><div class="stat-label">Est. Net Pay</div><div class="stat-value">RM ${totalNet.toLocaleString()}</div></div>
+  </div>`;
+  document.getElementById('dash-summary').innerHTML=D.employees.map((e,i)=>{
+    const p=calcPayroll(e,cm);
+    return `<div class="history-item">
+      <div class="hi-left" style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:10px;background:${getColor(i)};display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:14px;flex-shrink:0">${e.name.charAt(0)}</div>
+        <div><div class="hi-name">${e.name}</div><div class="hi-sub">${e.role}</div></div>
+      </div>
+      <div class="hi-right"><div class="hi-amount" style="color:var(--green)">RM ${p.net.toFixed(2)}</div><div class="hi-date">Net Pay</div></div>
+    </div>`;
+  }).join('');
+  const recentAdv=D.advances.filter(a=>a.month===cm).slice(-4).reverse();
+  document.getElementById('dash-advances').innerHTML=recentAdv.length?
+  recentAdv.map(a=>{const e=D.employees.find(x=>x.id===a.empId);return`<div class="history-item"><div class="hi-left"><div class="hi-name">${e?e.name:'—'}</div><div class="hi-sub">${a.notes||'Advance'}</div></div><div class="hi-right"><div class="hi-amount" style="color:var(--red)">-RM ${a.amount.toFixed(2)}</div><div class="hi-date">${a.date}</div></div></div>`;}).join(''):
+  `<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">No advances this month</div></div>`;
+}
+
+function generatePayroll(){
+  const month=document.getElementById('pay-month').value;
+  const empFilter=document.getElementById('pay-emp').value;
+  const emps=empFilter==='all'?D.employees:D.employees.filter(e=>e.id==empFilter);
+  if(!emps.length){document.getElementById('payroll-output').innerHTML=`<div class="empty"><div class="empty-icon">🧾</div><div class="empty-text">No employees</div></div>`;return}
+  document.getElementById('payroll-output').innerHTML=emps.map((e,i)=>{
+    const p=calcPayroll(e,month);
+    const advDet=D.advances.filter(a=>a.empId===e.id&&a.month===month);
+    const dedDet=D.deductions.filter(d=>d.empId===e.id&&d.month===month);
+    return `<div class="pr-card">
+      <div class="pr-header">
+        <div class="pr-name">${e.name}</div>
+        <div class="pr-role">${e.role}</div>
+        <div class="pr-net-row"><div class="pr-net-label">Net Pay</div><div class="pr-net-amount">RM ${p.net.toFixed(2)}</div></div>
+      </div>
+      <div class="pr-body">
+        <div class="pr-section">
+          <div class="pr-section-title">Earnings</div>
+          <div class="pr-row earn"><span>Basic Salary</span><span>RM ${e.salary.toFixed(2)}</span></div>
+          ${e.food>0?`<div class="pr-row earn"><span>Food (${e.days}d×RM${e.food})</span><span>RM ${(e.food*e.days).toFixed(2)}</span></div>`:''}
+          <div class="pr-row earn total"><span>Gross</span><span>RM ${p.gross.toFixed(2)}</span></div>
         </div>
-        <div style="background:var(--yellow);padding:12px 16px;border-radius:6px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-weight:800;font-size:14px;">NET PAY — ${getMonthName(month)} 2026</span>
-          <span style="font-weight:800;font-size:20px;">RM ${netPay.toFixed(2)}</span>
+        <div class="pr-section">
+          <div class="pr-section-title">Deductions</div>
+          ${p.epf.ee>0?`<div class="pr-row deduct"><span>EPF (Employee 11%)</span><span>RM ${p.epf.ee.toFixed(2)}</span></div>`:''}
+          ${p.socso.ee>0?`<div class="pr-row deduct"><span>SOCSO (Employee 0.5%)</span><span>RM ${p.socso.ee.toFixed(2)}</span></div>`:''}
+          ${advDet.map(a=>`<div class="pr-row deduct"><span>Advance${a.notes?' ('+a.notes+')':''}</span><span>RM ${a.amount.toFixed(2)}</span></div>`).join('')}
+          ${dedDet.map(d=>`<div class="pr-row deduct"><span>${typeLabel[d.type]||'Deduction'}${d.notes?' ('+d.notes+')':''}</span><span>RM ${d.amount.toFixed(2)}</span></div>`).join('')}
+          <div class="pr-row deduct total"><span>Total Deductions</span><span>RM ${p.totalDed.toFixed(2)}</span></div>
         </div>
-        ${emp.type === 'full' ? `
-        <div style="margin-top:10px;padding:10px;background:var(--lblue);border-radius:6px;font-size:12px;color:var(--blue);">
-          <strong>Employer Contributions:</strong> &nbsp;
-          EPF: RM ${epf.employer.toFixed(2)} &nbsp;|&nbsp;
-          SOCSO: RM ${socso.employer.toFixed(2)} &nbsp;|&nbsp;
-          EIS: RM ${eis.employer.toFixed(2)} &nbsp;|&nbsp;
-          <strong>Total: RM ${(epf.employer + socso.employer + eis.employer).toFixed(2)}</strong>
-        </div>` : ''}
-        <div class="flex flex-end mt-10">
-          <button class="btn btn-yellow btn-sm" onclick="printSinglePayslip(${emp.id}, ${month})">Print Payslip</button>
-        </div>
+        <div class="net-bar"><div class="net-bar-label">NET PAY — ${monthLabel(month).toUpperCase()}</div><div class="net-bar-amount">RM ${p.net.toFixed(2)}</div></div>
+        ${(p.epf.er||p.socso.er)?`<div class="employer-note"><strong>Your employer cost:</strong> ${p.epf.er>0?`EPF: RM ${p.epf.er.toFixed(2)} `:''}${p.socso.er>0?`SOCSO: RM ${p.socso.er.toFixed(2)}`:''}  |  Total employer contributions: RM ${(p.epf.er+p.socso.er).toFixed(2)}</div>`:''}
+        <div class="btn-row" style="margin-top:12px"><button class="btn btn-yellow btn-full btn-sm" onclick="printPayslip(${e.id},'${month}')">🖨️ Print Payslip</button></div>
       </div>
     </div>`;
-  });
-
-  html += `
-  <div class="card">
-    <div class="card-header black">
-      <span>TOTAL PAYROLL — ${getMonthName(month)} 2026</span>
-      <span>RM ${grandTotal.toFixed(2)}</span>
-    </div>
-  </div>`;
-
-  document.getElementById('payroll-output').innerHTML = html;
+  }).join('');
 }
 
-// ── PRINT PAYSLIP ─────────────────────────────────────────────────────────────
-function printSinglePayslip(empId, month) {
-  const emp = data.employees.find(e => e.id === empId);
-  if (!emp) return;
-
-  const gross = getTotalSalary(emp);
-  const epf = emp.type === 'full' ? calcEPF(emp.salary) : { employee: 0, employer: 0 };
-  const socso = emp.type === 'full' ? calcSOCSO(emp.salary) : { employee: 0, employer: 0 };
-  const eis = emp.type === 'full' ? calcEIS(emp.salary) : { employee: 0, employer: 0 };
-  const advances = getAdvancesForMonth(emp.id, month);
-  const deductions = getDeductionsForMonth(emp.id, month);
-  const totalDeductions = epf.employee + socso.employee + eis.employee + advances + deductions;
-  const netPay = gross - totalDeductions;
-
-  // Get advance and deduction details
-  const advDetails = data.advances.filter(a => a.empId === empId && a.month == month);
-  const dedDetails = data.deductions.filter(d => d.empId === empId && d.month == month);
-
-  const html = `
-  <div class="payslip">
-    <div class="ps-header">
-      <div>
-        <div class="ps-company">G WIRA TRADING M SDN BHD</div>
-        <div class="ps-sub">Company No: 1361206-M</div>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#aaa;">
-        Payslip — ${getMonthName(month)} 2026
-      </div>
+function buildPayslip(e,month){
+  const p=calcPayroll(e,month);
+  const advDet=D.advances.filter(a=>a.empId===e.id&&a.month===month);
+  const dedDet=D.deductions.filter(d=>d.empId===e.id&&d.month===month);
+  return `<div class="payslip">
+    <div class="ps-top"><div><div class="ps-co">G WIRA TRADING M SDN BHD</div><div class="ps-co-sub">Company No: 1361206-M</div></div><div class="ps-badge">${monthLabel(month).toUpperCase()}</div></div>
+    <div class="ps-stripe">PAYSLIP — SALARY STATEMENT</div>
+    <div class="ps-info">
+      <div class="ps-info-row"><span class="ps-info-label">Employee</span><span>${e.name}</span></div>
+      <div class="ps-info-row"><span class="ps-info-label">Position</span><span>${e.role}</span></div>
+      <div class="ps-info-row"><span class="ps-info-label">IC Number</span><span>${e.ic||'—'}</span></div>
+      <div class="ps-info-row"><span class="ps-info-label">Pay Period</span><span>${monthLabel(month)}</span></div>
     </div>
-    <div class="ps-title">PAYSLIP — ${getMonthName(month).toUpperCase()} 2026</div>
-    <div class="ps-body">
-      <div class="ps-info-grid">
-        <div class="ps-info-item"><span class="ps-info-label">Employee:</span><span class="ps-info-value">${emp.name}</span></div>
-        <div class="ps-info-item"><span class="ps-info-label">Position:</span><span class="ps-info-value">${emp.role}</span></div>
-        <div class="ps-info-item"><span class="ps-info-label">IC No:</span><span class="ps-info-value">${emp.ic || '—'}</span></div>
-        <div class="ps-info-item"><span class="ps-info-label">Pay Period:</span><span class="ps-info-value">1 ${getMonthName(month)} — 30 ${getMonthName(month)} 2026</span></div>
-      </div>
-
+    <div class="ps-table-wrap">
       <table class="ps-table">
         <tr><th colspan="2">EARNINGS</th></tr>
-        <tr class="green-row"><td>Basic Salary (inclusive of overtime)</td><td>RM ${emp.salary.toFixed(2)}</td></tr>
-        ${emp.food > 0 ? `<tr class="green-row"><td>Food Allowance (${emp.days} days x RM${emp.food}/day)</td><td>RM ${(emp.food * emp.days).toFixed(2)}</td></tr>` : ''}
-        <tr class="total-row"><td>GROSS SALARY</td><td>RM ${gross.toFixed(2)}</td></tr>
+        <tr class="ps-earn"><td>Basic Salary (inclusive of overtime)</td><td>RM ${e.salary.toFixed(2)}</td></tr>
+        ${e.food>0?`<tr class="ps-earn"><td>Food Allowance (${e.days} days × RM${e.food}/day)</td><td>RM ${(e.food*e.days).toFixed(2)}</td></tr>`:''}
+        <tr class="ps-total-row"><td>GROSS SALARY</td><td>RM ${p.gross.toFixed(2)}</td></tr>
       </table>
-
-      <table class="ps-table">
+      <table class="ps-table" style="margin-top:8px">
         <tr><th colspan="2">DEDUCTIONS</th></tr>
-        ${epf.employee > 0 ? `<tr class="red-row"><td>EPF Contribution (Employee — 11%)</td><td>RM ${epf.employee.toFixed(2)}</td></tr>` : ''}
-        ${socso.employee > 0 ? `<tr class="red-row"><td>SOCSO Contribution (Employee — 0.5%)</td><td>RM ${socso.employee.toFixed(2)}</td></tr>` : ''}
-        ${eis.employee > 0 ? `<tr class="red-row"><td>EIS Contribution (Employee — 0.2%)</td><td>RM ${eis.employee.toFixed(2)}</td></tr>` : ''}
-        ${advDetails.map(a => `<tr class="red-row"><td>Salary Advance — ${a.date} ${a.notes ? '('+a.notes+')' : ''}</td><td>RM ${a.amount.toFixed(2)}</td>`).join('')}
-        ${dedDetails.map(d => `<tr class="red-row"><td>${d.type === 'late' ? 'Lateness Deduction' : d.type === 'mistake' ? 'Work Mistake Deduction' : d.type === 'absent' ? 'Absent Without Notice' : 'Deduction'} — ${d.date} ${d.notes ? '('+d.notes+')' : ''}</td><td>RM ${d.amount.toFixed(2)}</td>`).join('')}
-        <tr class="total-row"><td>TOTAL DEDUCTIONS</td><td>RM ${totalDeductions.toFixed(2)}</td></tr>
+        ${p.epf.ee>0?`<tr class="ps-deduct"><td>EPF — Employee (11%)</td><td>RM ${p.epf.ee.toFixed(2)}</td></tr>`:''}
+        ${p.socso.ee>0?`<tr class="ps-deduct"><td>SOCSO — Employee (0.5%)</td><td>RM ${p.socso.ee.toFixed(2)}</td></tr>`:''}
+        ${advDet.map(a=>`<tr class="ps-deduct"><td>Salary Advance — ${a.date}${a.notes?' ('+a.notes+')':''}</td><td>RM ${a.amount.toFixed(2)}</td></tr>`).join('')}
+        ${dedDet.map(d=>`<tr class="ps-deduct"><td>${typeLabel[d.type]||'Deduction'} — ${d.date}${d.notes?' ('+d.notes+')':''}</td><td>RM ${d.amount.toFixed(2)}</td></tr>`).join('')}
+        <tr class="ps-total-row"><td>TOTAL DEDUCTIONS</td><td>RM ${p.totalDed.toFixed(2)}</td></tr>
       </table>
-
-      ${emp.type === 'full' ? `
-      <table class="ps-table">
+      ${(p.epf.er||p.socso.er)?`<table class="ps-table" style="margin-top:8px">
         <tr><th colspan="2">EMPLOYER CONTRIBUTIONS (Not deducted from salary)</th></tr>
-        <tr><td>EPF (Employer — 13%)</td><td>RM ${epf.employer.toFixed(2)}</td></tr>
-        <tr><td>SOCSO (Employer — 1.75%)</td><td>RM ${socso.employer.toFixed(2)}</td></tr>
-        <tr><td>EIS (Employer — 0.2%)</td><td>RM ${eis.employer.toFixed(2)}</td></tr>
-      </table>` : ''}
+        ${p.epf.er>0?`<tr><td>EPF — Employer (13%)</td><td>RM ${p.epf.er.toFixed(2)}</td></tr>`:''}
+        ${p.socso.er>0?`<tr><td>SOCSO — Employer (1.75%)</td><td>RM ${p.socso.er.toFixed(2)}</td></tr>`:''}
+      </table>`:''}
     </div>
-
-    <div class="ps-net">
-      <span class="ps-net-label">NET PAY</span>
-      <span class="ps-net-amount">RM ${netPay.toFixed(2)}</span>
-    </div>
-
-    <div class="ps-footer">
-      <div>
-        <div class="ps-sig-line">Employee Signature & Date</div>
-      </div>
-      <div>
-        <div class="ps-sig-line">Authorised by: Deva Rajiswaran (Director)</div>
-      </div>
-    </div>
+    <div class="ps-net"><div class="ps-net-lbl">NET PAY</div><div class="ps-net-amt">RM ${p.net.toFixed(2)}</div></div>
+    <div class="ps-sigs"><div><div class="ps-sig-line">Employee Signature & Date</div></div><div><div class="ps-sig-line">Authorised: Deva Rajiswaran (Director)</div></div></div>
   </div>`;
-
-  document.getElementById('print-area').innerHTML = html;
-  window.print();
 }
 
-function printPayslips() {
-  const month = parseInt(document.getElementById('pay-month').value);
-  const empFilter = document.getElementById('pay-emp').value;
-  const emps = empFilter === 'all' ? data.employees : data.employees.filter(e => e.id == empFilter);
+function printPayslip(empId,month){const e=D.employees.find(x=>x.id==empId);if(!e)return;document.getElementById('print-area').innerHTML=buildPayslip(e,month);window.print()}
+function printAllPayslips(){const month=document.getElementById('pay-month').value;const empFilter=document.getElementById('pay-emp').value;const emps=empFilter==='all'?D.employees:D.employees.filter(e=>e.id==empFilter);document.getElementById('print-area').innerHTML=emps.map(e=>buildPayslip(e,month)).join('');window.print()}
 
-  let allHtml = '';
-  emps.forEach(emp => {
-    const gross = getTotalSalary(emp);
-    const epf = emp.type === 'full' ? calcEPF(emp.salary) : { employee: 0, employer: 0 };
-    const socso = emp.type === 'full' ? calcSOCSO(emp.salary) : { employee: 0, employer: 0 };
-    const eis = emp.type === 'full' ? calcEIS(emp.salary) : { employee: 0, employer: 0 };
-    const advances = getAdvancesForMonth(emp.id, month);
-    const deductions = getDeductionsForMonth(emp.id, month);
-    const totalDeductions = epf.employee + socso.employee + eis.employee + advances + deductions;
-    const netPay = gross - totalDeductions;
-    const advDetails = data.advances.filter(a => a.empId === emp.id && a.month == month);
-    const dedDetails = data.deductions.filter(d => d.empId === emp.id && d.month == month);
-
-    allHtml += `
-    <div class="payslip" style="margin-bottom:40px;page-break-after:always;">
-      <div class="ps-header">
-        <div>
-          <div class="ps-company">G WIRA TRADING M SDN BHD</div>
-          <div class="ps-sub">Company No: 1361206-M</div>
-        </div>
-        <div style="text-align:right;font-size:11px;color:#aaa;">Payslip — ${getMonthName(month)} 2026</div>
-      </div>
-      <div class="ps-title">PAYSLIP — ${getMonthName(month).toUpperCase()} 2026</div>
-      <div class="ps-body">
-        <div class="ps-info-grid">
-          <div class="ps-info-item"><span class="ps-info-label">Employee:</span><span class="ps-info-value">${emp.name}</span></div>
-          <div class="ps-info-item"><span class="ps-info-label">Position:</span><span class="ps-info-value">${emp.role}</span></div>
-          <div class="ps-info-item"><span class="ps-info-label">IC No:</span><span class="ps-info-value">${emp.ic || '—'}</span></div>
-          <div class="ps-info-item"><span class="ps-info-label">Pay Period:</span><span class="ps-info-value">1 — 30 ${getMonthName(month)} 2026</span></div>
-        </div>
-        <table class="ps-table">
-          <tr><th colspan="2">EARNINGS</th></tr>
-          <tr class="green-row"><td>Basic Salary (inclusive of overtime)</td><td>RM ${emp.salary.toFixed(2)}</td></tr>
-          ${emp.food > 0 ? `<tr class="green-row"><td>Food Allowance (${emp.days} days x RM${emp.food}/day)</td><td>RM ${(emp.food * emp.days).toFixed(2)}</td></tr>` : ''}
-          <tr class="total-row"><td>GROSS SALARY</td><td>RM ${gross.toFixed(2)}</td></tr>
-        </table>
-        <table class="ps-table">
-          <tr><th colspan="2">DEDUCTIONS</th></tr>
-          ${epf.employee > 0 ? `<tr class="red-row"><td>EPF (Employee 11%)</td><td>RM ${epf.employee.toFixed(2)}</td></tr>` : ''}
-          ${socso.employee > 0 ? `<tr class="red-row"><td>SOCSO (Employee 0.5%)</td><td>RM ${socso.employee.toFixed(2)}</td></tr>` : ''}
-          ${eis.employee > 0 ? `<tr class="red-row"><td>EIS (Employee 0.2%)</td><td>RM ${eis.employee.toFixed(2)}</td></tr>` : ''}
-          ${advDetails.map(a => `<tr class="red-row"><td>Salary Advance — ${a.date}</td><td>RM ${a.amount.toFixed(2)}</td></tr>`).join('')}
-          ${dedDetails.map(d => `<tr class="red-row"><td>${d.type === 'late' ? 'Lateness' : d.type === 'mistake' ? 'Work Mistake' : 'Deduction'} — ${d.date}</td><td>RM ${d.amount.toFixed(2)}</td></tr>`).join('')}
-          <tr class="total-row"><td>TOTAL DEDUCTIONS</td><td>RM ${totalDeductions.toFixed(2)}</td></tr>
-        </table>
-      </div>
-      <div class="ps-net">
-        <span class="ps-net-label">NET PAY</span>
-        <span class="ps-net-amount">RM ${netPay.toFixed(2)}</span>
-      </div>
-      <div class="ps-footer">
-        <div><div class="ps-sig-line">Employee Signature & Date</div></div>
-        <div><div class="ps-sig-line">Authorised by: Deva Rajiswaran (Director)</div></div>
-      </div>
-    </div>`;
+function populateSelects(){
+  const opts=genMonths();const cm=curMonth();
+  ['adv-month','ded-month','pay-month','adv-filter-month','ded-filter-month'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const cur=el.value;
+    el.innerHTML=opts.map(k=>`<option value="${k}" ${k===cm&&!cur?'selected':''}>${monthLabel(k)}</option>`).join('');
+    if(cur)el.value=cur;
   });
-
-  document.getElementById('print-area').innerHTML = allHtml;
-  window.print();
-}
-
-// ── RENDER FUNCTIONS ──────────────────────────────────────────────────────────
-function renderEmployeeList() {
-  const container = document.getElementById('employee-list');
-  if (data.employees.length === 0) {
-    container.innerHTML = '<p class="text-grey" style="text-align:center;padding:20px;">No employees added yet.</p>';
-    return;
-  }
-  let html = '<table><thead><tr><th>Name</th><th>Role</th><th>Basic Salary</th><th>Food Allowance</th><th>Total Package</th><th>Type</th><th></th></tr></thead><tbody>';
-  data.employees.forEach(emp => {
-    const total = getTotalSalary(emp);
-    html += `<tr>
-      <td><strong>${emp.name}</strong></td>
-      <td>${emp.role}</td>
-      <td>RM ${emp.salary.toFixed(2)}</td>
-      <td>${emp.food > 0 ? 'RM ' + emp.food + '/day' : '—'}</td>
-      <td><strong>RM ${total.toFixed(2)}</strong></td>
-      <td><span class="badge ${emp.type === 'full' ? 'badge-blue' : 'badge-yellow'}">${emp.type === 'full' ? 'Full Time' : 'Part Time'}</span></td>
-      <td><button class="btn btn-red btn-sm" onclick="deleteEmployee(${emp.id})">Remove</button></td>
-    </tr>`;
+  ['adv-emp','ded-emp'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const cur=el.value;
+    el.innerHTML='<option value="">Select employee</option>'+D.employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+    if(cur)el.value=cur;
   });
-  html += '</tbody></table>';
-  container.innerHTML = html;
+  const pe=document.getElementById('pay-emp');if(pe){const cur=pe.value;pe.innerHTML='<option value="all">All Employees</option>'+D.employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');if(cur)pe.value=cur;}
 }
 
-function renderAdvanceList() {
-  const container = document.getElementById('advance-list');
-  if (data.advances.length === 0) {
-    container.innerHTML = '<p class="text-grey" style="text-align:center;padding:20px;">No advances recorded yet.</p>';
-    return;
-  }
-  let html = '<table><thead><tr><th>Employee</th><th>Amount</th><th>Date</th><th>Month</th><th>Notes</th><th></th></tr></thead><tbody>';
-  data.advances.slice().reverse().forEach(adv => {
-    const emp = data.employees.find(e => e.id === adv.empId);
-    html += `<tr>
-      <td><strong>${emp ? emp.name : '—'}</strong></td>
-      <td class="text-red">RM ${adv.amount.toFixed(2)}</td>
-      <td>${adv.date}</td>
-      <td>${getMonthName(adv.month)} 2026</td>
-      <td>${adv.notes || '—'}</td>
-      <td><button class="btn btn-red btn-sm" onclick="deleteAdvance(${adv.id})">Delete</button></td>
-    </tr>`;
-  });
-  html += '</tbody></table>';
-  container.innerHTML = html;
+function toast(msg,type='green'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast toast-${type} show`;setTimeout(()=>t.classList.remove('show'),2500)}
+
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(btn)btn.classList.add('active');
+  renderAll();
 }
 
-function renderDeductionList() {
-  const container = document.getElementById('deduction-list');
-  if (data.deductions.length === 0) {
-    container.innerHTML = '<p class="text-grey" style="text-align:center;padding:20px;">No deductions recorded yet.</p>';
-    return;
-  }
-  let html = '<table><thead><tr><th>Employee</th><th>Type</th><th>Amount</th><th>Date</th><th>Month</th><th>Notes</th><th></th></tr></thead><tbody>';
-  data.deductions.slice().reverse().forEach(ded => {
-    const emp = data.employees.find(e => e.id === ded.empId);
-    const typeLabels = { late: 'Lateness', mistake: 'Work Mistake', absent: 'Absent', other: 'Other' };
-    html += `<tr>
-      <td><strong>${emp ? emp.name : '—'}</strong></td>
-      <td><span class="badge badge-red">${typeLabels[ded.type] || ded.type}</span></td>
-      <td class="text-red">RM ${ded.amount.toFixed(2)}</td>
-      <td>${ded.date}</td>
-      <td>${getMonthName(ded.month)} 2026</td>
-      <td>${ded.notes || '—'}</td>
-      <td><button class="btn btn-red btn-sm" onclick="deleteDeduction(${ded.id})">Delete</button></td>
-    </tr>`;
-  });
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
+function renderAll(){populateSelects();renderEmployees();renderAdvanceList();renderDeductionList();renderDashboard()}
 
-function renderDashboard() {
-  const currentMonth = 6;
-  document.getElementById('current-month-label').textContent = getMonthName(currentMonth) + ' 2026';
+function setDates(){const t=new Date().toISOString().split('T')[0];['adv-date','ded-date'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=t})}
 
-  // Stats
-  const totalSalary = data.employees.reduce((s, e) => s + getTotalSalary(e), 0);
-  const totalAdvances = data.advances.filter(a => a.month == currentMonth).reduce((s, a) => s + a.amount, 0);
-  const totalDeductions = data.deductions.filter(d => d.month == currentMonth).reduce((s, d) => s + d.amount, 0);
-
-  document.getElementById('stats-container').innerHTML = `
-  <div class="stats-grid">
-    <div class="stat-card" style="border-left-color:var(--blue)">
-      <div class="stat-label">Total Employees</div>
-      <div class="stat-value">${data.employees.length}</div>
-      <div class="stat-sub">Active staff</div>
-    </div>
-    <div class="stat-card" style="border-left-color:var(--green)">
-      <div class="stat-label">Monthly Salary Bill</div>
-      <div class="stat-value">RM ${totalSalary.toFixed(0)}</div>
-      <div class="stat-sub">Gross before deductions</div>
-    </div>
-    <div class="stat-card" style="border-left-color:var(--orange)">
-      <div class="stat-label">Advances This Month</div>
-      <div class="stat-value">RM ${totalAdvances.toFixed(0)}</div>
-      <div class="stat-sub">${getMonthName(currentMonth)} 2026</div>
-    </div>
-    <div class="stat-card" style="border-left-color:var(--red)">
-      <div class="stat-label">Deductions This Month</div>
-      <div class="stat-value">RM ${totalDeductions.toFixed(0)}</div>
-      <div class="stat-sub">${getMonthName(currentMonth)} 2026</div>
-    </div>
-  </div>`;
-
-  // Dashboard table
-  let html = '<table><thead><tr><th>Employee</th><th>Gross</th><th>Advances</th><th>Deductions</th><th>EPF (EE)</th><th>SOCSO (EE)</th><th>Est. Net Pay</th></tr></thead><tbody>';
-  data.employees.forEach(emp => {
-    const gross = getTotalSalary(emp);
-    const epf = emp.type === 'full' ? calcEPF(emp.salary) : { employee: 0 };
-    const socso = emp.type === 'full' ? calcSOCSO(emp.salary) : { employee: 0 };
-    const eis = emp.type === 'full' ? calcEIS(emp.salary) : { employee: 0 };
-    const adv = getAdvancesForMonth(emp.id, currentMonth);
-    const ded = getDeductionsForMonth(emp.id, currentMonth);
-    const net = gross - epf.employee - socso.employee - eis.employee - adv - ded;
-    html += `<tr>
-      <td><strong>${emp.name}</strong><br><small class="text-grey">${emp.role}</small></td>
-      <td>RM ${gross.toFixed(2)}</td>
-      <td class="${adv > 0 ? 'text-red' : ''}">RM ${adv.toFixed(2)}</td>
-      <td class="${ded > 0 ? 'text-red' : ''}">RM ${ded.toFixed(2)}</td>
-      <td>RM ${epf.employee.toFixed(2)}</td>
-      <td>RM ${socso.employee.toFixed(2)}</td>
-      <td><strong class="text-green">RM ${net.toFixed(2)}</strong></td>
-    </tr>`;
-  });
-  html += '</tbody></table>';
-  document.getElementById('dashboard-table').innerHTML = html;
-
-  // Advance summary
-  const thisMonthAdvances = data.advances.filter(a => a.month == currentMonth);
-  if (thisMonthAdvances.length === 0) {
-    document.getElementById('advance-summary').innerHTML = '<p class="text-grey" style="text-align:center;padding:16px;">No advances recorded for this month.</p>';
-  } else {
-    let ahtml = '<table><thead><tr><th>Employee</th><th>Date</th><th>Amount</th><th>Notes</th></tr></thead><tbody>';
-    thisMonthAdvances.forEach(adv => {
-      const emp = data.employees.find(e => e.id === adv.empId);
-      ahtml += `<tr><td>${emp ? emp.name : '—'}</td><td>${adv.date}</td><td class="text-red">RM ${adv.amount.toFixed(2)}</td><td>${adv.notes || '—'}</td></tr>`;
-    });
-    ahtml += '</tbody></table>';
-    document.getElementById('advance-summary').innerHTML = ahtml;
-  }
-}
-
-function renderSelects() {
-  ['adv-emp', 'ded-emp', 'pay-emp'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const current = el.value;
-    if (id === 'pay-emp') {
-      el.innerHTML = '<option value="all">All Employees</option>';
-    } else {
-      el.innerHTML = '<option value="">Select employee</option>';
-    }
-    data.employees.forEach(emp => {
-      const opt = document.createElement('option');
-      opt.value = emp.id;
-      opt.textContent = emp.name + ' — ' + emp.role;
-      el.appendChild(opt);
-    });
-    if (current) el.value = current;
-  });
-}
-
-function renderAll() {
-  renderEmployeeList();
-  renderAdvanceList();
-  renderDeductionList();
-  renderDashboard();
-  renderSelects();
-}
-
-// ── DELETE ────────────────────────────────────────────────────────────────────
-function deleteEmployee(id) {
-  if (confirm('Remove this employee?')) {
-    data.employees = data.employees.filter(e => e.id !== id);
-    saveData();
-    renderAll();
-  }
-}
-function deleteAdvance(id) {
-  if (confirm('Delete this advance record?')) {
-    data.advances = data.advances.filter(a => a.id !== id);
-    saveData();
-    renderAll();
-  }
-}
-function deleteDeduction(id) {
-  if (confirm('Delete this deduction?')) {
-    data.deductions = data.deductions.filter(d => d.id !== id);
-    saveData();
-    renderAll();
-  }
-}
-
-// ── MODAL ─────────────────────────────────────────────────────────────────────
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-
-// ── ALERT ─────────────────────────────────────────────────────────────────────
-function showAlert(msg, type) {
-  const el = document.createElement('div');
-  el.className = `alert alert-${type}`;
-  el.style.position = 'fixed';
-  el.style.top = '80px';
-  el.style.right = '20px';
-  el.style.zIndex = '9999';
-  el.style.minWidth = '250px';
-  el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3000);
-}
-
-// ── SET DEFAULT DATES ─────────────────────────────────────────────────────────
-function setDefaultDates() {
-  const today = new Date().toISOString().split('T')[0];
-  ['adv-date', 'ded-date'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el && !el.value) el.value = today;
-  });
-}
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-loadData();
-renderAll();
-setDefaultDates();
+load();renderAll();setDates();
 </script>
 </body>
 </html>
