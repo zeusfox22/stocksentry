@@ -14,7 +14,7 @@
   --shadow:0 2px 10px rgba(0,0,0,0.08);--radius:12px;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:var(--black);min-height:100vh;font-size:14px}
-
+ 
 /* NAV */
 .nav{background:var(--black);border-bottom:3px solid var(--yellow);position:sticky;top:0;z-index:200}
 .nav-top{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
@@ -24,37 +24,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav-tabs::-webkit-scrollbar{display:none}
 .nav-tab{flex:1;min-width:60px;padding:10px 8px;color:#888;cursor:pointer;font-size:11px;font-weight:700;border:none;background:none;border-bottom:3px solid transparent;transition:all .2s;text-transform:uppercase;white-space:nowrap;letter-spacing:0.3px}
 .nav-tab.active{color:var(--yellow);border-bottom-color:var(--yellow)}
-
+ 
 /* MAIN */
 .main{max-width:600px;margin:0 auto;padding:16px 12px;padding-bottom:40px}
 .tab-content{display:none}.tab-content.active{display:block}
-
+ 
 /* PAGE HEADER */
 .page-header{margin-bottom:16px}
 .page-header h2{font-size:18px;font-weight:800}
 .page-header p{font-size:12px;color:var(--grey);margin-top:2px}
-
+ 
 /* CARDS */
 .card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
 .card-header{padding:12px 16px;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;color:white}
 .ch-blue{background:var(--blue)}.ch-green{background:var(--green)}.ch-red{background:var(--red)}
 .ch-black{background:var(--black)}.ch-orange{background:var(--orange)}
 .card-body{padding:16px}
-
+ 
 /* STATS */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .stat{background:var(--white);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);border-left:4px solid var(--blue)}
 .stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--grey);margin-bottom:6px}
 .stat-value{font-size:20px;font-weight:800;line-height:1}
 .stat-sub{font-size:10px;color:var(--grey);margin-top:3px}
-
+ 
 /* FORMS */
 .form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
 .form-group label{font-size:11px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:0.5px}
 .form-group input,.form-group select{padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;outline:none;transition:border-color .2s;background:white;width:100%;-webkit-appearance:none;appearance:none}
 .form-group input:focus,.form-group select:focus{border-color:var(--blue)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
+ 
 /* TOGGLES */
 .toggle-label{font-size:11px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block}
 .toggles{display:flex;gap:8px}
@@ -62,7 +62,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .toggle-item.on{background:var(--lblue);border-color:var(--blue);color:var(--blue)}
 .toggle-dot{width:12px;height:12px;border-radius:50%;background:#ddd;transition:background .2s;flex-shrink:0}
 .toggle-item.on .toggle-dot{background:var(--blue)}
-
+ 
 /* BUTTONS */
 .btn{padding:14px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;letter-spacing:0.3px;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn-full{width:100%;display:flex}
@@ -76,7 +76,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-xs{padding:5px 10px;font-size:11px}
 .btn-row{display:flex;gap:8px;margin-top:14px}
 .btn-row .btn{flex:1}
-
+ 
 /* EMPLOYEE CARDS */
 .emp-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
 .emp-card-top{display:flex;align-items:center;gap:12px;padding:14px 16px}
@@ -95,7 +95,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .emp-row-label{color:var(--grey)}
 .emp-row-val{font-weight:700}
 .emp-footer{padding:10px 16px;background:var(--lgrey);display:flex;justify-content:flex-end}
-
+ 
 /* HISTORY ITEMS */
 .history-item{padding:12px 0;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:flex-start}
 .history-item:last-child{border:none}
@@ -105,7 +105,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hi-right{text-align:right;flex-shrink:0;margin-left:10px}
 .hi-amount{font-size:15px;font-weight:800}
 .hi-date{font-size:11px;color:var(--grey);margin-top:2px}
-
+ 
 /* PAYROLL CARD */
 .pr-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
 .pr-header{background:linear-gradient(135deg,var(--blue),#2563ae);padding:16px}
@@ -126,34 +126,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .net-bar-label{font-weight:800;font-size:13px}
 .net-bar-amount{font-weight:800;font-size:20px}
 .employer-note{background:var(--lblue);padding:10px 14px;border-radius:8px;margin-top:8px;font-size:11px;color:var(--blue);line-height:1.5}
-
+ 
 /* BADGES */
 .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.3px}
 .badge-green{background:var(--lgreen);color:var(--green)}
 .badge-red{background:var(--lred);color:var(--red)}
 .badge-blue{background:var(--lblue);color:var(--blue)}
 .badge-yellow{background:var(--lyellow);color:#856404}
-
+ 
 /* FILTER ROW */
 .filter-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .filter-row label{font-size:11px;font-weight:700;color:var(--grey);text-transform:uppercase;white-space:nowrap}
 .filter-row select{flex:1;padding:9px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;outline:none;background:white}
-
+ 
 /* EMPTY */
 .empty{text-align:center;padding:30px 16px;color:var(--grey)}
 .empty-icon{font-size:36px;margin-bottom:8px}
 .empty-text{font-size:14px;font-weight:600;margin-bottom:3px}
 .empty-sub{font-size:12px;opacity:0.7}
-
+ 
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);z-index:9999;padding:12px 20px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.2);font-size:13px;font-weight:700;transition:transform .3s ease;pointer-events:none;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast-green{background:var(--green);color:white}
 .toast-red{background:var(--red);color:white}
-
+ 
 /* SECTION DIVIDER */
 .sdiv{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--grey);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid #ebebeb}
-
+ 
 /* PRINT */
 @media print{
   body{background:white}
@@ -162,7 +162,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .payslip{page-break-after:always}
 }
 #print-area{display:none}
-
+ 
 /* PAYSLIP */
 .payslip{font-family:Arial,sans-serif;font-size:11px;border:1px solid #ddd;margin-bottom:30px}
 .ps-top{background:var(--black);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start}
@@ -190,7 +190,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
-
+ 
 <nav class="nav">
   <div class="nav-top">
     <div class="nav-badge">G WIRA</div>
@@ -204,11 +204,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="nav-tab" onclick="switchTab('payroll',this)">🧾 Payroll</button>
   </div>
 </nav>
-
+ 
 <div id="print-area"></div>
-
+ 
 <div class="main">
-
+ 
   <!-- DASHBOARD -->
   <div id="tab-dashboard" class="tab-content active">
     <div class="page-header">
@@ -225,7 +225,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="card-body" id="dash-advances"></div>
     </div>
   </div>
-
+ 
   <!-- EMPLOYEES -->
   <div id="tab-employees" class="tab-content">
     <div class="page-header"><h2>Staff</h2><p>Manage your team</p></div>
@@ -261,7 +261,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div id="employee-list"></div>
   </div>
-
+ 
   <!-- ADVANCES -->
   <div id="tab-advances" class="tab-content">
     <div class="page-header"><h2>Advances</h2><p>Record every advance — deducted at month end automatically</p></div>
@@ -288,7 +288,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
   </div>
-
+ 
   <!-- DEDUCTIONS -->
   <div id="tab-deductions" class="tab-content">
     <div class="page-header"><h2>Deductions</h2><p>Lateness, mistakes, absences</p></div>
@@ -325,7 +325,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
   </div>
-
+ 
   <!-- PAYROLL -->
   <div id="tab-payroll" class="tab-content">
     <div class="page-header"><h2>Payroll</h2><p>Generate and print payslips for any month</p></div>
@@ -344,33 +344,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div id="payroll-output"></div>
   </div>
-
+ 
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <script>
 let D={employees:[],advances:[],deductions:[]};
 let toggleState={epf:true,socso:true};
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const COLORS=['#1a4b8c','#1a6b3a','#c0392b','#e67e22','#6c3483','#117a65','#2c3e50','#16a085'];
 const typeLabel={late:'Lateness',mistake:'Mistake',absent:'Absent',other:'Other'};
-
+ 
 function monthKey(m,y){return `${y}-${String(m).padStart(2,'0')}`}
 function parseKey(k){const[y,m]=k.split('-');return{year:parseInt(y),month:parseInt(m)}}
 function monthLabel(k){const{year,month}=parseKey(k);return `${MONTHS[month-1]} ${year}`}
 function getColor(i){return COLORS[i%COLORS.length]}
-
+ 
 function genMonths(){
   const opts=[];let y=2026,m=6;
   for(let i=0;i<30;i++){opts.push(monthKey(m,y));m++;if(m>12){m=1;y++;}}
   return opts;
 }
-
+ 
 function curMonth(){
   const n=new Date();return monthKey(n.getMonth()+1,n.getFullYear());
 }
-
+ 
 function load(){
   const s=localStorage.getItem('gwira_payroll_v3');
   if(s)D=JSON.parse(s);
@@ -385,11 +385,11 @@ function load(){
   }
 }
 function save(){localStorage.setItem('gwira_payroll_v3',JSON.stringify(D))}
-
+ 
 function calcEPF(s){return{ee:Math.round(s*0.11),er:Math.round(s*0.13)}}
 function calcSOCSO(s){const b=Math.min(s,6000);return{ee:Math.round(b*0.005*100)/100,er:Math.round(b*0.0175*100)/100}}
 function gross(e){return e.salary+(e.food*e.days)}
-
+ 
 function calcPayroll(e,mk){
   const g=gross(e);
   const epf=e.epf?calcEPF(e.salary):{ee:0,er:0};
@@ -399,13 +399,13 @@ function calcPayroll(e,mk){
   const totalDed=epf.ee+socso.ee+adv+ded;
   return{gross:g,epf,socso,advances:adv,deductions:ded,totalDed,net:g-totalDed};
 }
-
+ 
 function toggleContrib(k){
   toggleState[k]=!toggleState[k];
   document.getElementById('tog-'+k).classList.toggle('on',toggleState[k]);
   document.querySelector(`#tog-${k} .toggle-dot`).style.background=toggleState[k]?'var(--blue)':'#ddd';
 }
-
+ 
 function addEmployee(){
   const name=document.getElementById('emp-name').value.trim();
   const role=document.getElementById('emp-role').value.trim();
@@ -425,13 +425,13 @@ function addEmployee(){
   ['epf','socso'].forEach(k=>{document.getElementById('tog-'+k).classList.add('on');document.querySelector(`#tog-${k} .toggle-dot`).style.background='var(--blue)'});
   renderAll();toast('Employee added!','green');
 }
-
+ 
 function deleteEmployee(id){
   if(!confirm('Remove this employee?'))return;
   D.employees=D.employees.filter(e=>e.id!==id);
   save();renderAll();toast('Removed','red');
 }
-
+ 
 function addAdvance(){
   const empId=parseInt(document.getElementById('adv-emp').value);
   const amount=parseFloat(document.getElementById('adv-amount').value)||0;
@@ -443,9 +443,9 @@ function addAdvance(){
   save();document.getElementById('adv-amount').value='';document.getElementById('adv-notes').value='';
   renderAll();toast('Advance recorded!','green');
 }
-
+ 
 function deleteAdvance(id){if(!confirm('Delete?'))return;D.advances=D.advances.filter(a=>a.id!==id);save();renderAll();toast('Deleted','red')}
-
+ 
 function addDeduction(){
   const empId=parseInt(document.getElementById('ded-emp').value);
   const type=document.getElementById('ded-type').value;
@@ -458,9 +458,9 @@ function addDeduction(){
   save();document.getElementById('ded-amount').value='';document.getElementById('ded-notes').value='';
   renderAll();toast('Deduction recorded!','green');
 }
-
+ 
 function deleteDeduction(id){if(!confirm('Delete?'))return;D.deductions=D.deductions.filter(d=>d.id!==id);save();renderAll();toast('Deleted','red')}
-
+ 
 function renderEmployees(){
   const el=document.getElementById('employee-list');
   if(!D.employees.length){el.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No employees yet</div></div>`;return}
@@ -486,7 +486,7 @@ function renderEmployees(){
     </div>`;
   }).join('');
 }
-
+ 
 function renderAdvanceList(){
   const filter=document.getElementById('adv-filter-month')?.value;
   const filtered=filter?D.advances.filter(a=>a.month===filter):D.advances;
@@ -500,7 +500,7 @@ function renderAdvanceList(){
     </div>`;
   }).join('');
 }
-
+ 
 function renderDeductionList(){
   const filter=document.getElementById('ded-filter-month')?.value;
   const filtered=filter?D.deductions.filter(d=>d.month===filter):D.deductions;
@@ -514,7 +514,7 @@ function renderDeductionList(){
     </div>`;
   }).join('');
 }
-
+ 
 function renderDashboard(){
   const cm=curMonth();
   document.getElementById('dash-month-label').textContent=monthLabel(cm);
@@ -544,7 +544,7 @@ function renderDashboard(){
   recentAdv.map(a=>{const e=D.employees.find(x=>x.id===a.empId);return`<div class="history-item"><div class="hi-left"><div class="hi-name">${e?e.name:'—'}</div><div class="hi-sub">${a.notes||'Advance'}</div></div><div class="hi-right"><div class="hi-amount" style="color:var(--red)">-RM ${a.amount.toFixed(2)}</div><div class="hi-date">${a.date}</div></div></div>`;}).join(''):
   `<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">No advances this month</div></div>`;
 }
-
+ 
 function generatePayroll(){
   const month=document.getElementById('pay-month').value;
   const empFilter=document.getElementById('pay-emp').value;
@@ -582,7 +582,7 @@ function generatePayroll(){
     </div>`;
   }).join('');
 }
-
+ 
 function buildPayslip(e,month){
   const p=calcPayroll(e,month);
   const advDet=D.advances.filter(a=>a.empId===e.id&&a.month===month);
@@ -621,10 +621,10 @@ function buildPayslip(e,month){
     <div class="ps-sigs"><div><div class="ps-sig-line">Employee Signature & Date</div></div><div><div class="ps-sig-line">Authorised: Deva Rajiswaran (Director)</div></div></div>
   </div>`;
 }
-
+ 
 function printPayslip(empId,month){const e=D.employees.find(x=>x.id==empId);if(!e)return;document.getElementById('print-area').innerHTML=buildPayslip(e,month);window.print()}
 function printAllPayslips(){const month=document.getElementById('pay-month').value;const empFilter=document.getElementById('pay-emp').value;const emps=empFilter==='all'?D.employees:D.employees.filter(e=>e.id==empFilter);document.getElementById('print-area').innerHTML=emps.map(e=>buildPayslip(e,month)).join('');window.print()}
-
+ 
 function populateSelects(){
   const opts=genMonths();const cm=curMonth();
   ['adv-month','ded-month','pay-month','adv-filter-month','ded-filter-month'].forEach(id=>{
@@ -641,9 +641,9 @@ function populateSelects(){
   });
   const pe=document.getElementById('pay-emp');if(pe){const cur=pe.value;pe.innerHTML='<option value="all">All Employees</option>'+D.employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');if(cur)pe.value=cur;}
 }
-
+ 
 function toast(msg,type='green'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast toast-${type} show`;setTimeout(()=>t.classList.remove('show'),2500)}
-
+ 
 function switchTab(tab,btn){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
@@ -651,11 +651,11 @@ function switchTab(tab,btn){
   if(btn)btn.classList.add('active');
   renderAll();
 }
-
+ 
 function renderAll(){populateSelects();renderEmployees();renderAdvanceList();renderDeductionList();renderDashboard()}
-
+ 
 function setDates(){const t=new Date().toISOString().split('T')[0];['adv-date','ded-date'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=t})}
-
+ 
 load();renderAll();setDates();
 </script>
 </body>
