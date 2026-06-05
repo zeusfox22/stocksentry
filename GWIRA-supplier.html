@@ -147,6 +147,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .toast.success{border-color:#86efac;color:var(--green)}
 .toast.error{border-color:#fca5a5;color:var(--red)}
 .empty{text-align:center;padding:40px 20px;color:var(--text2)}
+.search-wrap{position:relative;margin-bottom:12px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text3)}
+.search-bar{width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px 11px 36px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.search-bar:focus{border-color:var(--yellow)}
+.search-bar::placeholder{color:var(--text3)}
 </style>
 </head>
 <body>
@@ -161,6 +166,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       <div class="icon-btn" onclick="showAddSupplier()">＋</div>
       <div class="icon-btn" onclick="showMonthlyReport()">📅</div>
       <div class="icon-btn" onclick="showSummary()">📊</div>
+      <div class="icon-btn" onclick="openModal('backup-modal')" title="Backup">💾</div>
     </div>
   </div>
   <div class="master-section">
@@ -194,7 +200,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   </div>
 </div>
 
-<div class="main" id="supplier-list"></div>
+<div class="main">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-bar" type="text" placeholder="Search supplier..." oninput="searchSuppliers(this.value)">
+  </div>
+  <div id="supplier-list"></div>
+</div>
 
 <button class="add-fab" onclick="showAddSupplier()">+</button>
 <div class="toast" id="toast"></div>
@@ -314,6 +326,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   </div>
 </div>
 
+<!-- PAYMENT HISTORY MODAL -->
+<div class="modal-overlay" id="pay-history-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Payment History</div>
+    <div id="pay-history-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div id="pay-history-content"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('pay-history-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- MONTHLY REPORT MODAL -->
 <div class="modal-overlay" id="monthly-modal">
   <div class="modal">
@@ -348,6 +373,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 let D={suppliers:[]};
 let activeId=null;
 let currentFilter='all';
+let currentSearch='';
 const expandedCards=new Set();
 
 function today(){return new Date().toISOString().split('T')[0]}
@@ -475,9 +501,12 @@ function getFiltered(){
   if(currentFilter==='stopped') list=list.filter(s=>s.stopped&&getOutstanding(s)>0);
   else if(currentFilter==='active') list=list.filter(s=>!s.stopped&&getOutstanding(s)>0);
   else if(currentFilter==='cleared') list=list.filter(s=>getOutstanding(s)<=0);
+  if(currentSearch){const q=currentSearch.toLowerCase();list=list.filter(s=>s.name.toLowerCase().includes(q));}
   list.sort((a,b)=>getOutstanding(b)-getOutstanding(a));
   return list;
 }
+
+function searchSuppliers(q){currentSearch=q;render();}
 
 function render(){
   renderMaster();
@@ -552,6 +581,7 @@ function render(){
         </div>
         <div class="card-actions-2">
           <button class="action-btn btn-edit" onclick="showEditModal(${s.id})">✏️ Edit</button>
+          <button class="action-btn" style="background:#f0f9ff;color:#0284c7;border:1.5px solid #bae6fd" onclick="showPayHistory(${s.id})">📋 Payments</button>
           <button class="action-btn ${s.stopped?'btn-resume':'btn-stop'}" onclick="toggleStop(${s.id})">${s.stopped?'✅ Resume':'❌ Stop'}</button>
           <button class="action-btn btn-delete" onclick="showDeleteModal(${s.id})">🗑️ Delete</button>
         </div>
@@ -576,7 +606,36 @@ function filterSuppliers(f,btn){
 
 // PAYMENT
 function getInvPaidAmt(s,invId){
-  return(s.payments||[]).filter(p=>p.invId===invId).reduce((a,p)=>a+p.amount,0);
+  // First apply linked payments to their specific invoice
+  const linked=(s.payments||[]).filter(p=>p.invId===invId).reduce((a,p)=>a+p.amount,0);
+  
+  // Then apply unlinked payments to invoices in order (oldest first)
+  const unlinkedPayments=(s.payments||[]).filter(p=>!p.invId).map(p=>p.amount);
+  const invoicesSorted=[...(s.invoices||[])].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  
+  let unlinkedForThisInv=0;
+  let remaining=[...unlinkedPayments];
+  
+  for(const inv of invoicesSorted){
+    const invLinked=(s.payments||[]).filter(p=>p.invId===inv.id).reduce((a,p)=>a+p.amount,0);
+    const invTotal=Math.max(0,inv.amount-invLinked);
+    let allocated=0;
+    const newRemaining=[];
+    for(const pmt of remaining){
+      if(invTotal-allocated>0){
+        const apply=Math.min(pmt,invTotal-allocated);
+        allocated+=apply;
+        if(pmt-apply>0) newRemaining.push(pmt-apply);
+        if(inv.id===invId) unlinkedForThisInv+=apply;
+      } else {
+        newRemaining.push(pmt);
+      }
+    }
+    remaining=newRemaining;
+    if(inv.id===invId) break;
+  }
+  
+  return linked+unlinkedForThisInv;
 }
 
 function showPayModal(id){
@@ -779,6 +838,41 @@ function copySummary(){
 }
 
 
+
+function showPayHistory(id){
+  activeId=id;
+  const s=D.suppliers.find(x=>x.id===id);
+  document.getElementById('pay-history-name').textContent=s.name;
+  const pays=s.payments||[];
+  if(!pays.length){
+    document.getElementById('pay-history-content').innerHTML='<div style="text-align:center;padding:20px;color:var(--text2)">No payments recorded yet.</div>';
+  } else {
+    const rows=pays.map(p=>{
+      const inv=p.invId?(s.invoices||[]).find(i=>i.id===p.invId):null;
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--green)">RM ${p.amount.toFixed(2)}</div>
+          <div style="font-size:10px;color:var(--text2);margin-top:2px">${p.date} · ${p.method||''}${p.notes?' · '+p.notes:''}</div>
+          ${inv?`<div style="font-size:10px;color:var(--blue);margin-top:1px">→ ${inv.ref}</div>`:'<div style="font-size:10px;color:var(--text3);margin-top:1px">→ General payment</div>'}
+        </div>
+        <button onclick="deletePayment(${id},${p.id})" style="width:30px;height:30px;border-radius:8px;background:var(--red-light);color:var(--red);border:1px solid #fca5a5;font-size:14px;cursor:pointer;flex-shrink:0">✕</button>
+      </div>`;
+    }).join('');
+    document.getElementById('pay-history-content').innerHTML=rows;
+  }
+  openModal('pay-history-modal');
+}
+
+function deletePayment(supId,payId){
+  if(!confirm('Delete this payment?')) return;
+  const s=D.suppliers.find(x=>x.id===supId);
+  s.payments=s.payments.filter(p=>p.id!==payId);
+  save();
+  showPayHistory(supId);
+  render();
+  toast('Payment deleted','error');
+}
+
 // MONTHLY REPORT
 function showMonthlyReport(){
   // Build list of all months that have data
@@ -926,7 +1020,74 @@ function toast(msg,type='success'){
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
+
+function exportBackup_suppliers(){
+  const data = localStorage.getItem('gwira_suppliers_v1');
+  if(!data){toast('No data to backup','error');return;}
+  const backup = '---GWIRA-BACKUP-SUPPLIERS---\n' + data + '\n---END-BACKUP---';
+  navigator.clipboard.writeText(backup)
+    .then(()=>toast('Backup copied! Paste in Notes or WhatsApp ✓','success'))
+    .catch(()=>{
+      // Fallback - show in textarea
+      document.getElementById('restore-text-suppliers').value=backup;
+      toast('Copied to text box - select all and copy manually','success');
+    });
+}
+
+function restoreBackup_suppliers(){
+  const text = document.getElementById('restore-text-suppliers').value.trim();
+  if(!text){toast('Paste your backup text first','error');return;}
+  
+  // Extract JSON from backup
+  let json = text;
+  if(text.includes('---GWIRA-BACKUP-')){
+    const match = text.match(/---GWIRA-BACKUP-[A-Z]+---\n([\s\S]+?)\n---END-BACKUP---/);
+    if(match) json = match[1];
+  }
+  
+  try{
+    const parsed = JSON.parse(json);
+    if(!parsed){toast('Invalid backup data','error');return;}
+    if(!confirm('This will overwrite ALL current data. Are you sure?')) return;
+    localStorage.setItem('gwira_suppliers_v1', JSON.stringify(parsed));
+    D = parsed;
+    closeModal('backup-modal');
+    render();
+    toast('Data restored successfully ✓','success');
+  } catch(e){
+    toast('Invalid backup — check the text and try again','error');
+  }
+}
+
 load();render();
 </script>
+
+<!-- BACKUP MODAL -->
+<div class="modal-overlay" id="backup-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💾 Backup & Restore</div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Save your data to Notes or WhatsApp to yourself. To restore, paste your backup text below.</div>
+      
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">📤 Export Backup</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Copies all your data. Paste it somewhere safe.</div>
+        <button class="modal-btn modal-confirm" style="margin:0" onclick="exportBackup_suppliers()">Copy Backup to Clipboard 📋</button>
+      </div>
+
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">📥 Restore from Backup</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Paste your previously exported backup text here.</div>
+        <textarea class="form-input" id="restore-text-suppliers" rows="4" placeholder="Paste your backup text here..." style="margin-bottom:10px;font-family:monospace;font-size:11px"></textarea>
+        <button class="modal-btn" style="background:var(--red-light);color:var(--red);border:1.5px solid #fca5a5;margin:0;padding:12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;width:100%;font-family:'Plus Jakarta Sans',sans-serif" onclick="restoreBackup_suppliers()">⚠️ Restore Data (Overwrites Current)</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('backup-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
