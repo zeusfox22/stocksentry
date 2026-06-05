@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>G Wira — Collections</title>
+<title>G Wira Collections</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Collections">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj4KICA8cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjM2IiBmaWxsPSIjMWYyOTM3Ii8+CiAgPCEtLSBSZWNlaXB0IHNoYXBlIC0tPgogIDxyZWN0IHg9IjUyIiB5PSIzNSIgd2lkdGg9Ijc2IiBoZWlnaHQ9IjkwIiByeD0iNiIgZmlsbD0iI2Y1OWUwYiIvPgogIDxyZWN0IHg9IjUyIiB5PSIzNSIgd2lkdGg9Ijc2IiBoZWlnaHQ9IjkwIiByeD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDk3NzA2IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8IS0tIFJlY2VpcHQgbGluZXMgLS0+CiAgPHJlY3QgeD0iNjQiIHk9IjU0IiB3aWR0aD0iNTIiIGhlaWdodD0iNiIgcng9IjMiIGZpbGw9IiMxZjI5MzciLz4KICA8cmVjdCB4PSI2NCIgeT0iNjgiIHdpZHRoPSI0MCIgaGVpZ2h0PSI2IiByeD0iMyIgZmlsbD0iIzFmMjkzNyIvPgogIDxyZWN0IHg9IjY0IiB5PSI4MiIgd2lkdGg9IjQ2IiBoZWlnaHQ9IjYiIHJ4PSIzIiBmaWxsPSIjMWYyOTM3Ii8+CiAgPHJlY3QgeD0iNjQiIHk9Ijk2IiB3aWR0aD0iMzYiIGhlaWdodD0iNiIgcng9IjMiIGZpbGw9IiMxZjI5MzciLz4KICA8IS0tIFppZ3phZyBib3R0b20gLS0+CiAgPHBvbHlsaW5lIHBvaW50cz0iNTIsMTI1IDYyLDExNSA3MiwxMjUgODIsMTE1IDkyLDEyNSAxMDIsMTE1IDExMiwxMjUgMTIyLDExNSAxMjgsMTI1IiBmaWxsPSJub25lIiBzdHJva2U9IiMxZjI5MzciIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gUk0gc3ltYm9sIC0tPgogIDx0ZXh0IHg9IjkwIiB5PSIxNTgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2Y1OWUwYiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q09MTEVDVDwvdGV4dD4KPC9zdmc+">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -178,6 +182,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
     <div class="modal-handle"></div>
     <div class="modal-title">💰 Record Payment</div>
     <div id="pay-cust-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Which Invoice?</label><select class="form-input" id="pay-invoice-select"></select></div>
     <div class="form-group"><label class="form-label">Amount (RM)</label><input class="form-input" type="number" id="pay-amount" placeholder="0.00"></div>
     <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="pay-date"></div>
     <div class="form-group"><label class="form-label">Method</label>
@@ -448,13 +453,30 @@ function renderCustomers(){
     const balColor=getBalColor(status);
     const isOpen=expandedCards.has(c.id);
     const invRows=(c.invoices||[]).map(inv=>{
-      const s=getInvStatus(inv,c.terms);
-      return `<tr class="invoice-row">
-        <td><div class="inv-status-wrap"><div class="inv-dot" style="background:${s.dot}"></div><div><div class="inv-ref">${inv.ref}</div><div class="inv-date-text">${inv.date}</div></div></div></td>
-        <td><div class="inv-amount-text" style="color:${s.color}">RM ${inv.amount.toFixed(2)}</div><div class="inv-days-badge" style="background:${s.bg};color:${s.color}">${s.label}</div></td>
+      const paidAmt=getInvPaid(c,inv.id);
+      const remaining=Math.max(0,inv.amount-paidAmt);
+      const isFullyPaid=remaining<=0;
+      const isPartial=paidAmt>0&&!isFullyPaid;
+      let dot,color,bg,label;
+      if(isFullyPaid){dot='#16a34a';color='#16a34a';bg='#dcfce7';label='✅ Paid';}
+      else if(isPartial){
+        const s=getInvStatus(inv,c.terms);
+        dot='#f59e0b';color='#d97706';bg='#fef9c3';
+        label='Partial — RM '+remaining.toFixed(2)+' left';
+      } else {
+        const s=getInvStatus(inv,c.terms);
+        dot=s.dot;color=s.color;bg=s.bg;label=s.label;
+      }
+      return `<tr class="invoice-row" style="${isFullyPaid?'opacity:0.5':''}">
+        <td><div class="inv-status-wrap"><div class="inv-dot" style="background:${dot}"></div><div><div class="inv-ref">${inv.ref}</div><div class="inv-date-text">${inv.date}</div></div></div></td>
+        <td>
+          <div class="inv-amount-text" style="color:${color}">RM ${inv.amount.toFixed(2)}</div>
+          ${isPartial?`<div style="font-size:9px;color:#16a34a;margin-top:1px">Paid: RM ${paidAmt.toFixed(2)}</div>`:''}
+          <div class="inv-days-badge" style="background:${bg};color:${color}">${label}</div>
+        </td>
       </tr>`;
     }).join('');
-    const payRows=(c.payments||[]).map(p=>`<tr><td colspan="2" style="padding:8px 12px;font-size:11px;color:#16a34a;background:#f0fdf4">✓ Paid RM ${p.amount.toFixed(2)} — ${p.date} (${p.method})${p.notes?' · '+p.notes:''}</td></tr>`).join('');
+    const payRows='';
     let flags='';
     if(c.stopped) flags+=`<span class="flag flag-stop">⛔ STOPPED</span>`;
     else if(status==='critical') flags+=`<span class="flag flag-urgent">🔴 URGENT</span>`;
@@ -506,6 +528,10 @@ function filterCustomers(f,btn){currentFilter=f;document.querySelectorAll('.tab-
 function searchCustomers(q){currentSearch=q;renderCustomers()}
 
 // PAYMENT
+function getInvPaid(c,invId){
+  return(c.payments||[]).filter(p=>p.invId===invId).reduce((s,p)=>s+p.amount,0);
+}
+
 function showPayModal(id){
   activeId=id;
   const c=D.customers.find(x=>x.id===id);
@@ -513,6 +539,24 @@ function showPayModal(id){
   document.getElementById('pay-amount').value='';
   document.getElementById('pay-date').value=today();
   document.getElementById('pay-notes').value='';
+  // Populate invoice dropdown — only show unpaid/partial invoices
+  const sel=document.getElementById('pay-invoice-select');
+  sel.innerHTML='';
+  (c.invoices||[]).forEach(inv=>{
+    const paid=getInvPaid(c,inv.id);
+    const remaining=Math.max(0,inv.amount-paid);
+    if(remaining>0){
+      const opt=document.createElement('option');
+      opt.value=inv.id;
+      opt.textContent=inv.ref+' — RM '+remaining.toFixed(2)+' remaining ('+inv.date+')';
+      sel.appendChild(opt);
+    }
+  });
+  if(sel.options.length===0){
+    const opt=document.createElement('option');
+    opt.value='';opt.textContent='All invoices paid';
+    sel.appendChild(opt);
+  }
   openModal('pay-modal');
 }
 
@@ -521,13 +565,16 @@ function confirmPayment(){
   const date=document.getElementById('pay-date').value;
   const method=document.getElementById('pay-method').value;
   const notes=document.getElementById('pay-notes').value;
+  const invId=parseInt(document.getElementById('pay-invoice-select').value)||null;
   if(!amount||!date){toast('Enter amount and date','error');return;}
   const c=D.customers.find(x=>x.id===activeId);
   const rno=genReceiptNo();
   if(!c.payments) c.payments=[];
-  const payment={id:Date.now(),amount,date,method,notes,receiptNo:rno};
+  // Find selected invoice ref for receipt
+  const selInv=invId?(c.invoices||[]).find(i=>i.id===invId):null;
+  const payment={id:Date.now(),amount,date,method,notes,receiptNo:rno,invId:invId};
   c.payments.push(payment);
-  lastPayment={customer:c.name,amount,date,method,notes,receiptNo:rno,balAfter:getBalance(c)};
+  lastPayment={customer:c.name,amount,date,method,notes,receiptNo:rno,invRef:selInv?selInv.ref:'',balAfter:getBalance(c)};
   save();
   closeModal('pay-modal');
   renderCustomers();
@@ -545,6 +592,7 @@ function showReceipt(p){
     <div class="receipt-row"><span class="receipt-label">Receipt No.</span><span class="receipt-value">${p.receiptNo}</span></div>
     <div class="receipt-row"><span class="receipt-label">Date</span><span class="receipt-value">${d}</span></div>
     <div class="receipt-row"><span class="receipt-label">Customer</span><span class="receipt-value">${p.customer}</span></div>
+    ${p.invRef?`<div class="receipt-row"><span class="receipt-label">Invoice</span><span class="receipt-value">${p.invRef}</span></div>`:''}
     <div class="receipt-row"><span class="receipt-label">Method</span><span class="receipt-value">${p.method}</span></div>
     ${p.notes?`<div class="receipt-row"><span class="receipt-label">Notes</span><span class="receipt-value">${p.notes}</span></div>`:''}
     <div class="receipt-total"><span class="receipt-total-label">AMOUNT PAID</span><span class="receipt-total-value">RM ${p.amount.toFixed(2)}</span></div>
