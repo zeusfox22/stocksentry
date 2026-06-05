@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>G Wira — Supplier Debt Tracker</title>
+<title>G Wira Suppliers</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Suppliers">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj4KICA8cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjM2IiBmaWxsPSIjMWYyOTM3Ii8+CiAgPCEtLSBCb3ggYm9keSAtLT4KICA8cmVjdCB4PSIzNSIgeT0iNzIiIHdpZHRoPSIxMTAiIGhlaWdodD0iNzUiIHJ4PSI0IiBmaWxsPSIjZjU5ZTBiIi8+CiAgPCEtLSBCb3ggdG9wIGZsYXBzIC0tPgogIDxwYXRoIGQ9Ik0zNSA3MiBMOTAgNTUgTDE0NSA3MiIgZmlsbD0iI2Q5NzcwNiIvPgogIDxwYXRoIGQ9Ik0zNSA3MiBMNTUgNTggTDU1IDcyIFoiIGZpbGw9IiNmYmJmMjQiLz4KICA8cGF0aCBkPSJNMTQ1IDcyIEwxMjUgNTggTDEyNSA3MiBaIiBmaWxsPSIjZmJiZjI0Ii8+CiAgPCEtLSBDZW50ZXIgbGluZSBvbiBib3ggLS0+CiAgPGxpbmUgeDE9IjkwIiB5MT0iNzIiIHgyPSI5MCIgeTI9IjE0NyIgc3Ryb2tlPSIjZDk3NzA2IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8IS0tIFRhcGUgc3RyaXAgLS0+CiAgPHJlY3QgeD0iNzAiIHk9IjU1IiB3aWR0aD0iNDAiIGhlaWdodD0iMTIiIHJ4PSIzIiBmaWxsPSIjZmVmM2M3Ii8+CiAgPCEtLSBIb3Jpem9udGFsIHN0cmlwZSBvbiBib3ggLS0+CiAgPHJlY3QgeD0iMzUiIHk9IjEwMCIgd2lkdGg9IjExMCIgaGVpZ2h0PSIxMCIgZmlsbD0iI2Q5NzcwNiIvPgogIDx0ZXh0IHg9IjkwIiB5PSIxNjgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2Y1OWUwYiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U1VQUExJRVI8L3RleHQ+Cjwvc3ZnPg==">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -155,6 +159,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
     </div>
     <div class="header-actions">
       <div class="icon-btn" onclick="showAddSupplier()">＋</div>
+      <div class="icon-btn" onclick="showMonthlyReport()">📅</div>
       <div class="icon-btn" onclick="showSummary()">📊</div>
     </div>
   </div>
@@ -208,6 +213,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
     <div class="modal-handle"></div>
     <div class="modal-title">💰 Record Payment</div>
     <div id="pay-sup-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Which Invoice?</label><select class="form-input" id="pay-inv-select"></select></div>
     <div class="form-group"><label class="form-label">Amount (RM)</label><input class="form-input" type="number" id="pay-amount" placeholder="0.00"></div>
     <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="pay-date"></div>
     <div class="form-group"><label class="form-label">Method</label>
@@ -304,6 +310,23 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
     <div class="modal-actions">
       <button class="modal-btn modal-cancel" onclick="closeModal('delete-modal')">Cancel</button>
       <button class="modal-btn modal-delete" onclick="confirmDelete()">Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY REPORT MODAL -->
+<div class="modal-overlay" id="monthly-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📅 Monthly Report</div>
+    <div class="form-group">
+      <label class="form-label">Select Month</label>
+      <select class="form-input" id="monthly-select" onchange="renderMonthlyReport()"></select>
+    </div>
+    <div id="monthly-content"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('monthly-modal')">Close</button>
+      <button class="modal-btn modal-confirm" onclick="copyMonthlyReport()">Copy 📋</button>
     </div>
   </div>
 </div>
@@ -552,6 +575,10 @@ function filterSuppliers(f,btn){
 }
 
 // PAYMENT
+function getInvPaidAmt(s,invId){
+  return(s.payments||[]).filter(p=>p.invId===invId).reduce((a,p)=>a+p.amount,0);
+}
+
 function showPayModal(id){
   activeId=id;
   const s=D.suppliers.find(x=>x.id===id);
@@ -559,6 +586,22 @@ function showPayModal(id){
   document.getElementById('pay-amount').value='';
   document.getElementById('pay-date').value=today();
   document.getElementById('pay-notes').value='';
+  // Populate invoice dropdown
+  const sel=document.getElementById('pay-inv-select');
+  sel.innerHTML='';
+  (s.invoices||[]).forEach(inv=>{
+    const paid=getInvPaidAmt(s,inv.id);
+    const remaining=Math.max(0,inv.amount-paid);
+    if(remaining>0){
+      const opt=document.createElement('option');
+      opt.value=inv.id;
+      opt.textContent=inv.ref+' — RM '+remaining.toFixed(2)+' remaining ('+inv.date+')';
+      sel.appendChild(opt);
+    }
+  });
+  if(sel.options.length===0){
+    const opt=document.createElement('option');opt.value='';opt.textContent='All invoices paid';sel.appendChild(opt);
+  }
   openModal('pay-modal');
 }
 
@@ -567,10 +610,11 @@ function confirmPayment(){
   const date=document.getElementById('pay-date').value;
   const method=document.getElementById('pay-method').value;
   const notes=document.getElementById('pay-notes').value;
+  const invId=parseInt(document.getElementById('pay-inv-select').value)||null;
   if(!amount||!date){toast('Enter amount and date','error');return;}
   const s=D.suppliers.find(x=>x.id===activeId);
   if(!s.payments) s.payments=[];
-  s.payments.push({id:Date.now(),amount,date,method,notes});
+  s.payments.push({id:Date.now(),amount,date,method,notes,invId});
   const wasCleared=getOutstanding(s)<=0;
   save();
   closeModal('pay-modal');
@@ -732,6 +776,145 @@ function copySummary(){
   let t=`G WIRA SUPPLIER DEBT\n${new Date().toLocaleDateString('en-MY')}\n\nTOTAL: ${fmt(total)}\nPAID: ${fmt(paid)}\nREMAINING: ${fmt(Math.max(0,total-paid))}\n\n`;
   D.suppliers.forEach(s=>t+=`${s.name}: ${fmt(getOutstanding(s))} (${getPct(s)}% cleared)\n`);
   navigator.clipboard.writeText(t).then(()=>toast('Copied ✓','success')).catch(()=>{});
+}
+
+
+// MONTHLY REPORT
+function showMonthlyReport(){
+  // Build list of all months that have data
+  const months = new Set();
+  D.suppliers.forEach(s=>{
+    (s.invoices||[]).forEach(inv=>{if(inv.date)months.add(inv.date.substring(0,7))});
+    (s.payments||[]).forEach(p=>{if(p.date)months.add(p.date.substring(0,7))});
+  });
+  const sortedMonths=[...months].sort().reverse();
+  const sel=document.getElementById('monthly-select');
+  sel.innerHTML='';
+  if(sortedMonths.length===0){
+    const opt=document.createElement('option');
+    opt.textContent='No data yet';sel.appendChild(opt);
+  } else {
+    sortedMonths.forEach(m=>{
+      const opt=document.createElement('option');
+      opt.value=m;
+      const d=new Date(m+'-01');
+      opt.textContent=d.toLocaleDateString('en-MY',{month:'long',year:'numeric'});
+      sel.appendChild(opt);
+    });
+  }
+  renderMonthlyReport();
+  openModal('monthly-modal');
+}
+
+function renderMonthlyReport(){
+  const sel=document.getElementById('monthly-select');
+  const month=sel.value;
+  if(!month){document.getElementById('monthly-content').innerHTML='';return;}
+  
+  const d=new Date(month+'-01');
+  const monthLabel=d.toLocaleDateString('en-MY',{month:'long',year:'numeric'});
+
+  // New purchases this month
+  let totalPurchases=0;
+  let purchaseRows='';
+  D.suppliers.forEach(s=>{
+    const invs=(s.invoices||[]).filter(inv=>inv.date&&inv.date.startsWith(month));
+    if(invs.length>0){
+      invs.forEach(inv=>{
+        totalPurchases+=inv.amount;
+        purchaseRows+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <div><div style="font-weight:600">${s.name.split(' ').slice(0,3).join(' ')}</div><div style="font-size:10px;color:var(--text3)">${inv.ref} · ${inv.date}</div></div>
+          <div style="font-family:'DM Mono';font-weight:700;color:var(--text)">${fmt(inv.amount)}</div>
+        </div>`;
+      });
+    }
+  });
+
+  // Payments made this month
+  let totalPayments=0;
+  let paymentRows='';
+  D.suppliers.forEach(s=>{
+    const pays=(s.payments||[]).filter(p=>p.date&&p.date.startsWith(month));
+    if(pays.length>0){
+      pays.forEach(p=>{
+        totalPayments+=p.amount;
+        paymentRows+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <div><div style="font-weight:600">${s.name.split(' ').slice(0,3).join(' ')}</div><div style="font-size:10px;color:var(--text3)">${p.date} · ${p.method}${p.notes?' · '+p.notes:''}</div></div>
+          <div style="font-family:'DM Mono';font-weight:700;color:#16a34a">-${fmt(p.amount)}</div>
+        </div>`;
+      });
+    }
+  });
+
+  const net=totalPurchases-totalPayments;
+
+  let html=`
+    <div style="margin-bottom:16px;padding:12px;background:var(--surface);border-radius:10px;border:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;margin-bottom:10px;font-weight:700">${monthLabel} Summary</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="text-align:center">
+          <div style="font-size:13px;font-weight:800;color:var(--red);font-family:'DM Mono'">${fmt(totalPurchases)}</div>
+          <div style="font-size:9px;color:var(--text2);margin-top:2px;text-transform:uppercase">Purchased</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:13px;font-weight:800;color:#16a34a;font-family:'DM Mono'">${fmt(totalPayments)}</div>
+          <div style="font-size:9px;color:var(--text2);margin-top:2px;text-transform:uppercase">Paid</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:13px;font-weight:800;color:${net>0?'var(--red)':'#16a34a'};font-family:'DM Mono'">${net>0?'+':''}${fmt(net)}</div>
+          <div style="font-size:9px;color:var(--text2);margin-top:2px;text-transform:uppercase">Net</div>
+        </div>
+      </div>
+    </div>`;
+
+  if(purchaseRows){
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;font-weight:700;margin-bottom:8px">📦 New Purchases</div>
+      ${purchaseRows}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:12px;font-weight:800">
+        <span>Total Purchased</span><span style="font-family:'DM Mono';color:var(--red)">${fmt(totalPurchases)}</span>
+      </div>
+    </div>`;
+  } else {
+    html+=`<div style="margin-bottom:16px;padding:10px;background:var(--surface);border-radius:8px;font-size:12px;color:var(--text2)">No purchases recorded this month.</div>`;
+  }
+
+  if(paymentRows){
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;font-weight:700;margin-bottom:8px">💰 Payments Made</div>
+      ${paymentRows}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:12px;font-weight:800">
+        <span>Total Paid</span><span style="font-family:'DM Mono';color:#16a34a">${fmt(totalPayments)}</span>
+      </div>
+    </div>`;
+  } else {
+    html+=`<div style="margin-bottom:16px;padding:10px;background:var(--surface);border-radius:8px;font-size:12px;color:var(--text2)">No payments made this month.</div>`;
+  }
+
+  document.getElementById('monthly-content').innerHTML=html;
+}
+
+function copyMonthlyReport(){
+  const sel=document.getElementById('monthly-select');
+  const month=sel.value;
+  if(!month) return;
+  const d=new Date(month+'-01');
+  const monthLabel=d.toLocaleDateString('en-MY',{month:'long',year:'numeric'});
+  let text=`G WIRA SUPPLIER REPORT — ${monthLabel}\n${'='.repeat(35)}\n\n`;
+  
+  let totalP=0,totalPay=0;
+  text+='PURCHASES:\n';
+  D.suppliers.forEach(s=>{
+    const invs=(s.invoices||[]).filter(inv=>inv.date&&inv.date.startsWith(month));
+    invs.forEach(inv=>{totalP+=inv.amount;text+=`${s.name}: ${fmt(inv.amount)} (${inv.date})\n`;});
+  });
+  text+=`Total: ${fmt(totalP)}\n\nPAYMENTS:\n`;
+  D.suppliers.forEach(s=>{
+    const pays=(s.payments||[]).filter(p=>p.date&&p.date.startsWith(month));
+    pays.forEach(p=>{totalPay+=p.amount;text+=`${s.name}: ${fmt(p.amount)} (${p.date})\n`;});
+  });
+  text+=`Total: ${fmt(totalPay)}\n\nNET: ${fmt(totalP-totalPay)}`;
+  navigator.clipboard.writeText(text).then(()=>toast('Copied ✓','success')).catch(()=>{});
 }
 
 function openModal(id){document.getElementById(id).classList.add('open')}
