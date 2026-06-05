@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>G Wira — Supplier Debt Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f4f5f7;--white:#ffffff;--surface:#f9fafb;--border:#e5e7eb;
+  --text:#111827;--text2:#6b7280;--text3:#9ca3af;
+  --yellow:#f59e0b;--yellow-light:#fef3c7;
+  --green:#16a34a;--green-light:#dcfce7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --orange:#ea580c;--orange-light:#ffedd5;
+  --blue:#2563eb;--blue-light:#dbeafe;
+  --black:#1f2937;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+.header{background:var(--black);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.2)}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-badge{background:var(--yellow);color:var(--black);font-weight:800;font-size:11px;padding:5px 10px;border-radius:8px;letter-spacing:2px}
+.logo-title{font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.5px}
+.header-actions{display:flex;gap:8px}
+.icon-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:all .2s}
+.icon-btn:hover{background:rgba(255,255,255,0.2)}
+
+/* MASTER PROGRESS */
+.master-section{background:var(--black);padding:0 16px 16px}
+.master-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.master-label-text{font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px}
+.master-pct{font-size:13px;font-weight:800;color:var(--yellow);font-family:'DM Mono',monospace}
+.master-bar-wrap{height:10px;background:rgba(255,255,255,0.1);border-radius:20px;overflow:hidden;margin-bottom:8px}
+.master-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--yellow),#f97316);transition:width .8s ease;position:relative}
+.master-bar-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);animation:shimmer 2s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.master-numbers{display:flex;justify-content:space-between}
+.master-num{text-align:center}
+.master-num-value{font-size:13px;font-weight:800;font-family:'DM Mono',monospace}
+.master-num-label{font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-top:1px}
+
+/* TABS */
+.tabs{display:flex;padding:10px 16px 6px;gap:6px;overflow-x:auto;scrollbar-width:none;background:var(--white);border-bottom:1px solid var(--border)}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);white-space:nowrap;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.tab-btn.active{background:var(--black);color:var(--yellow);border-color:var(--black)}
+
+/* MAIN */
+.main{padding:12px 16px 80px}
+
+/* SUPPLIER CARDS */
+.supplier-card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04);position:relative}
+.card-top-bar{height:4px;width:100%}
+.card-header{padding:14px 14px 12px;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.card-info{flex:1;min-width:0}
+.card-name{font-size:14px;font-weight:800;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.badge{padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.badge-stopped{background:var(--red-light);color:var(--red)}
+.badge-active{background:var(--green-light);color:var(--green)}
+.badge-critical{background:var(--red-light);color:var(--red)}
+.badge-warning{background:var(--yellow-light);color:var(--yellow)}
+.badge-good{background:var(--green-light);color:var(--green)}
+
+/* PROGRESS BAR */
+.progress-wrap{margin-bottom:6px}
+.progress-label{display:flex;justify-content:space-between;margin-bottom:4px}
+.progress-pct{font-size:11px;font-weight:800;font-family:'DM Mono',monospace}
+.progress-remaining{font-size:10px;color:var(--text2)}
+.progress-bar-bg{height:8px;background:#f3f4f6;border-radius:20px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:20px;transition:width .8s ease}
+
+.card-right{text-align:right;flex-shrink:0}
+.card-outstanding{font-size:16px;font-weight:800;font-family:'DM Mono',monospace;color:var(--red);line-height:1;margin-bottom:3px}
+.card-outstanding.cleared{color:var(--green)}
+.card-inv-count{font-size:9px;color:var(--text3)}
+.chevron{font-size:12px;color:var(--text3);margin-top:4px;transition:transform .2s;display:block;text-align:right}
+.chevron.open{transform:rotate(180deg)}
+
+/* EXPANDED */
+.card-expanded{display:none;border-top:1.5px solid var(--border)}
+.card-expanded.open{display:block}
+
+/* INVOICE TABLE */
+.inv-table{width:100%;border-collapse:collapse}
+.inv-table th{background:var(--surface);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+.inv-table th:last-child{text-align:right}
+.inv-row{border-bottom:1px solid var(--border)}
+.inv-row:last-child{border:none}
+.inv-row td{padding:10px 12px;font-size:12px;vertical-align:middle}
+.inv-row td:last-child{text-align:right}
+.inv-ref-text{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text2)}
+.inv-date-small{font-size:10px;color:var(--text3);margin-top:1px}
+.inv-amt{font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:var(--red)}
+.pay-row td{padding:8px 12px;font-size:11px;background:#f0fdf4;color:var(--green)}
+
+/* CARD ACTIONS */
+.card-actions{padding:12px;display:flex;gap:8px;flex-wrap:wrap;background:var(--surface);border-top:1px solid var(--border)}
+.card-actions-2{padding:0 12px 12px;display:flex;gap:8px;background:var(--surface)}
+.action-btn{flex:1;min-width:70px;padding:10px 6px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all .2s;text-align:center;font-family:'Plus Jakarta Sans',sans-serif}
+.btn-pay{background:var(--yellow);color:var(--white)}
+.btn-invoice{background:var(--white);color:var(--text);border:1.5px solid var(--border)}
+.btn-edit{background:var(--blue-light);color:var(--blue);border:1.5px solid #93c5fd}
+.btn-delete{background:var(--red-light);color:var(--red);border:1.5px solid #fca5a5}
+.btn-resume{background:var(--green-light);color:var(--green);border:1.5px solid #86efac}
+.btn-stop{background:var(--red-light);color:var(--red);border:1.5px solid #fca5a5}
+.btn-note{background:var(--white);color:var(--text);border:1.5px solid var(--border)}
+.note-bar{margin:0 12px 10px;padding:8px 10px;background:var(--yellow-light);border:1px solid #fde68a;border-radius:8px;font-size:11px;color:#92400e;display:flex;gap:6px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px;max-height:85vh;overflow-y:auto;box-shadow:0 -8px 32px rgba(0,0,0,0.15)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:16px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
+.form-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.form-input:focus{border-color:var(--yellow)}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-btn{flex:1;padding:14px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif}
+.modal-confirm{background:var(--yellow);color:var(--white)}
+.modal-cancel{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+.modal-delete{background:var(--red);color:var(--white)}
+
+/* CELEBRATION */
+.celebration{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:2000;align-items:center;justify-content:center;flex-direction:column}
+.celebration.show{display:flex}
+.celebration-emoji{font-size:80px;animation:bounce 0.5s infinite alternate}
+@keyframes bounce{from{transform:scale(1)}to{transform:scale(1.2)}}
+.celebration-text{font-size:24px;font-weight:800;color:var(--yellow);margin-top:16px;text-align:center}
+.celebration-sub{font-size:14px;color:rgba(255,255,255,0.7);margin-top:8px;text-align:center}
+.celebration-btn{margin-top:24px;padding:14px 32px;background:var(--yellow);color:var(--black);border:none;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+
+.add-fab{position:fixed;bottom:24px;right:16px;width:52px;height:52px;background:var(--yellow);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 8px 24px rgba(245,158,11,0.4);transition:all .2s;z-index:50;border:none;color:var(--black);font-weight:800}
+.add-fab:active{transform:scale(0.95)}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:#86efac;color:var(--green)}
+.toast.error{border-color:#fca5a5;color:var(--red)}
+.empty{text-align:center;padding:40px 20px;color:var(--text2)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-badge">G WIRA</div>
+      <div class="logo-title">SUPPLIER DEBT TRACKER</div>
+    </div>
+    <div class="header-actions">
+      <div class="icon-btn" onclick="showAddSupplier()">＋</div>
+      <div class="icon-btn" onclick="showSummary()">📊</div>
+    </div>
+  </div>
+  <div class="master-section">
+    <div class="master-label">
+      <span class="master-label-text">🎯 Total Debt Clearance</span>
+      <span class="master-pct" id="master-pct">0%</span>
+    </div>
+    <div class="master-bar-wrap">
+      <div class="master-bar-fill" id="master-bar" style="width:0%"></div>
+    </div>
+    <div class="master-numbers">
+      <div class="master-num">
+        <div class="master-num-value" style="color:#86efac" id="master-paid">RM0</div>
+        <div class="master-num-label">Paid</div>
+      </div>
+      <div class="master-num">
+        <div class="master-num-value" style="color:var(--yellow)" id="master-remaining">RM0</div>
+        <div class="master-num-label">Remaining</div>
+      </div>
+      <div class="master-num">
+        <div class="master-num-value" style="color:rgba(255,255,255,0.7)" id="master-total">RM0</div>
+        <div class="master-num-label">Total</div>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="filterSuppliers('all',this)">All</button>
+    <button class="tab-btn" onclick="filterSuppliers('stopped',this)">❌ Stopped</button>
+    <button class="tab-btn" onclick="filterSuppliers('active',this)">✅ Active</button>
+    <button class="tab-btn" onclick="filterSuppliers('cleared',this)">🎉 Cleared</button>
+  </div>
+</div>
+
+<div class="main" id="supplier-list"></div>
+
+<button class="add-fab" onclick="showAddSupplier()">+</button>
+<div class="toast" id="toast"></div>
+
+<!-- CELEBRATION -->
+<div class="celebration" id="celebration">
+  <div class="celebration-emoji">🎉</div>
+  <div class="celebration-text" id="cel-text">SUPPLIER CLEARED!</div>
+  <div class="celebration-sub" id="cel-sub">Outstanding balance fully paid!</div>
+  <button class="celebration-btn" onclick="closeCelebration()">Keep Going 💪</button>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💰 Record Payment</div>
+    <div id="pay-sup-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Amount (RM)</label><input class="form-input" type="number" id="pay-amount" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="pay-date"></div>
+    <div class="form-group"><label class="form-label">Method</label>
+      <select class="form-input" id="pay-method">
+        <option value="DuitNow">DuitNow / Transfer</option>
+        <option value="Cash">Cash</option>
+        <option value="Cheque">Cheque</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><input class="form-input" type="text" id="pay-notes" placeholder="e.g. Partial payment, negotiated..."></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('pay-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmPayment()">Record ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD INVOICE MODAL -->
+<div class="modal-overlay" id="inv-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Add Invoice</div>
+    <div id="inv-sup-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Invoice No.</label><input class="form-input" type="text" id="inv-ref" placeholder="e.g. INV-001"></div>
+    <div class="form-group"><label class="form-label">Amount (RM)</label><input class="form-input" type="number" id="inv-amount" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="inv-date"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('inv-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmInvoice()">Add ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTE MODAL -->
+<div class="modal-overlay" id="note-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📝 Note</div>
+    <div id="note-sup-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="note-text" rows="4" placeholder="e.g. Negotiating payment plan..."></textarea></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('note-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmNote()">Save ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Edit Supplier</div>
+    <div class="form-group"><label class="form-label">Supplier Name</label><input class="form-input" type="text" id="edit-name" placeholder="Supplier name"></div>
+    <div class="form-group"><label class="form-label">Status</label>
+      <select class="form-input" id="edit-status">
+        <option value="active">✅ Active</option>
+        <option value="stopped">❌ Stopped</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('edit-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmEdit()">Save ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SUPPLIER MODAL -->
+<div class="modal-overlay" id="add-sup-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">➕ Add Supplier</div>
+    <div class="form-group"><label class="form-label">Supplier Name</label><input class="form-input" type="text" id="ns-name" placeholder="Supplier name"></div>
+    <div class="form-group"><label class="form-label">Status</label>
+      <select class="form-input" id="ns-status">
+        <option value="active">✅ Active</option>
+        <option value="stopped">❌ Stopped</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Opening Balance (RM)</label><input class="form-input" type="number" id="ns-balance" placeholder="0.00" value="0"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('add-sup-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmAddSupplier()">Add ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🗑️ Delete Supplier</div>
+    <div id="del-sup-name" style="font-size:13px;color:var(--text2);margin-bottom:12px;font-weight:600"></div>
+    <div style="font-size:13px;color:var(--red);background:var(--red-light);padding:12px;border-radius:10px;margin-bottom:8px">⚠️ This will permanently delete all invoices and payment history. Cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="modal-btn modal-delete" onclick="confirmDelete()">Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY MODAL -->
+<div class="modal-overlay" id="summary-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📊 Debt Summary</div>
+    <div id="summary-content"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('summary-modal')">Close</button>
+      <button class="modal-btn modal-confirm" onclick="copySummary()">Copy 📋</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let D={suppliers:[]};
+let activeId=null;
+let currentFilter='all';
+const expandedCards=new Set();
+
+function today(){return new Date().toISOString().split('T')[0]}
+function fmt(n){return'RM '+n.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmtK(n){return n>=1000?'RM '+(n/1000).toFixed(1)+'k':'RM '+n.toFixed(0)}
+
+function getTotalInvoiced(s){return(s.invoices||[]).reduce((a,i)=>a+i.amount,0)}
+function getTotalPaid(s){return(s.payments||[]).reduce((a,p)=>a+p.amount,0)}
+function getOutstanding(s){return Math.max(0,getTotalInvoiced(s)-getTotalPaid(s))}
+function getPct(s){
+  const total=getTotalInvoiced(s);
+  if(total<=0) return 100;
+  return Math.min(100,Math.round((getTotalPaid(s)/total)*100));
+}
+
+function getBarColor(pct){
+  if(pct>=100) return '#16a34a';
+  if(pct>=60) return '#22c55e';
+  if(pct>=30) return '#f59e0b';
+  return '#ef4444';
+}
+
+function getStatus(s){
+  if(getOutstanding(s)<=0) return 'cleared';
+  return s.stopped?'stopped':'active';
+}
+
+function load(){
+  const saved=localStorage.getItem('gwira_suppliers_v1');
+  if(saved) D=JSON.parse(saved);
+  if(!D.suppliers||!D.suppliers.length) initData();
+}
+function save(){localStorage.setItem('gwira_suppliers_v1',JSON.stringify(D))}
+
+function initData(){
+  const data=[
+    {id:1,name:'Neo Pac Sdn Bhd',stopped:true,note:'Stopped supply. Clear to resume. Priority #1.',
+     invoices:[
+       {id:101,ref:'INV-01',date:'2025-11-03',amount:95.20},
+       {id:102,ref:'INV-02',date:'2025-11-06',amount:7496.80},
+       {id:103,ref:'INV-03',date:'2025-11-10',amount:952.20},
+       {id:104,ref:'INV-04',date:'2025-12-05',amount:2820.00},
+       {id:105,ref:'INV-05',date:'2025-12-10',amount:1949.00},
+       {id:106,ref:'INV-06',date:'2025-12-13',amount:5694.00},
+       {id:107,ref:'INV-07',date:'2025-12-18',amount:1450.00},
+       {id:108,ref:'INV-08',date:'2025-12-26',amount:2022.00},
+       {id:109,ref:'INV-09',date:'2025-12-29',amount:1380.00},
+       {id:110,ref:'INV-10',date:'2026-01-06',amount:6027.00},
+       {id:111,ref:'INV-11',date:'2026-01-22',amount:1600.00},
+       {id:112,ref:'INV-12',date:'2026-02-07',amount:460.00},
+       {id:113,ref:'INV-13',date:'2026-03-13',amount:11567.70},
+       {id:114,ref:'INV-14',date:'2026-03-16',amount:1190.00},
+       {id:115,ref:'INV-15',date:'2026-03-18',amount:1769.15},
+       {id:116,ref:'INV-16',date:'2026-04-07',amount:125.00},
+     ],
+     payments:[{id:201,amount:2000,date:'2026-05-01',method:'DuitNow',notes:'Partial payment'}]},
+
+    {id:2,name:'Tan Zhuan Plastic Industries',stopped:true,note:'Stopped supply. 30 day terms. Clear to resume.',
+     invoices:[
+       {id:121,ref:'INV-01',date:'2025-12-23',amount:300.00},
+       {id:122,ref:'CR-NOTE',date:'2025-12-23',amount:-16.04},
+       {id:123,ref:'INV-02',date:'2026-03-03',amount:19219.93},
+       {id:124,ref:'INV-03',date:'2026-03-06',amount:4595.09},
+     ],
+     payments:[
+       {id:221,amount:5000,date:'2026-05-12',method:'DuitNow',notes:'Partial'},
+       {id:222,amount:3000,date:'2026-05-27',method:'DuitNow',notes:'Partial'},
+     ]},
+
+    {id:3,name:'Shangwei Industries',stopped:true,note:'Stopped supply. April + May invoices unpaid.',
+     invoices:[
+       {id:131,ref:'APR-INV',date:'2026-04-08',amount:9829.60},
+       {id:132,ref:'MAY-INV',date:'2026-05-12',amount:16078.80},
+     ],
+     payments:[{id:231,amount:4000,date:'2026-05-20',method:'DuitNow',notes:'Partial'}]},
+
+    {id:4,name:'Eastern Rise',stopped:false,note:'Active supplier. Clear outstanding to maintain supply.',
+     invoices:[
+       {id:141,ref:'INV-01',date:'2026-02-12',amount:2790.00},
+       {id:142,ref:'INV-02',date:'2026-04-01',amount:2790.00},
+     ],
+     payments:[{id:241,amount:1010,date:'2026-05-01',method:'DuitNow',notes:'Partial'}]},
+
+    {id:5,name:'Helipro Enterprise',stopped:false,note:'Active supplier.',
+     invoices:[
+       {id:151,ref:'INV-01',date:'2026-03-16',amount:2161.20},
+       {id:152,ref:'INV-02',date:'2026-05-04',amount:3390.00},
+     ],
+     payments:[]},
+
+    {id:6,name:'T.L.Tee Trading',stopped:false,note:'Active supplier.',
+     invoices:[
+       {id:161,ref:'INV-01',date:'2026-05-29',amount:988.40},
+       {id:162,ref:'INV-02',date:'2026-05-29',amount:234.00},
+     ],
+     payments:[]},
+
+    {id:7,name:'WT Plastic',stopped:false,note:'Active supplier.',
+     invoices:[{id:171,ref:'INV-01',date:'2026-05-04',amount:3300.00}],
+     payments:[]},
+
+    {id:8,name:'Power Paper',stopped:false,note:'Active supplier.',
+     invoices:[{id:181,ref:'INV-01',date:'2026-05-01',amount:1676.68}],
+     payments:[]},
+  ];
+  D.suppliers=data;
+  save();
+}
+
+// RENDER
+function renderMaster(){
+  const total=D.suppliers.reduce((a,s)=>a+getTotalInvoiced(s),0);
+  const paid=D.suppliers.reduce((a,s)=>a+getTotalPaid(s),0);
+  const remaining=Math.max(0,total-paid);
+  const pct=total>0?Math.min(100,Math.round((paid/total)*100)):0;
+  document.getElementById('master-pct').textContent=pct+'% cleared';
+  document.getElementById('master-bar').style.width=pct+'%';
+  document.getElementById('master-paid').textContent=fmtK(paid);
+  document.getElementById('master-remaining').textContent=fmtK(remaining);
+  document.getElementById('master-total').textContent=fmtK(total);
+}
+
+function getFiltered(){
+  let list=[...D.suppliers];
+  if(currentFilter==='stopped') list=list.filter(s=>s.stopped&&getOutstanding(s)>0);
+  else if(currentFilter==='active') list=list.filter(s=>!s.stopped&&getOutstanding(s)>0);
+  else if(currentFilter==='cleared') list=list.filter(s=>getOutstanding(s)<=0);
+  list.sort((a,b)=>getOutstanding(b)-getOutstanding(a));
+  return list;
+}
+
+function render(){
+  renderMaster();
+  const list=getFiltered();
+  const el=document.getElementById('supplier-list');
+  if(!list.length){el.innerHTML=`<div class="empty" style="padding-top:40px"><div style="font-size:40px">🎉</div><div style="margin-top:10px;font-weight:700">No suppliers here!</div></div>`;return;}
+
+  el.innerHTML=list.map(s=>{
+    const outstanding=getOutstanding(s);
+    const totalInv=getTotalInvoiced(s);
+    const totalPaid=getTotalPaid(s);
+    const pct=getPct(s);
+    const status=getStatus(s);
+    const isOpen=expandedCards.has(s.id);
+    const barColor=getBarColor(pct);
+    const isCleared=outstanding<=0;
+
+    // Badges
+    let badges='';
+    if(s.stopped&&!isCleared) badges+=`<span class="badge badge-stopped">❌ Stopped</span>`;
+    else if(!s.stopped&&!isCleared) badges+=`<span class="badge badge-active">✅ Active</span>`;
+    if(isCleared) badges+=`<span class="badge badge-good">🎉 CLEARED</span>`;
+
+    // Invoice rows
+    const invRows=(s.invoices||[]).map(inv=>`
+      <tr class="inv-row">
+        <td>
+          <div class="inv-ref-text">${inv.ref}</div>
+          <div class="inv-date-small">${inv.date}</div>
+        </td>
+        <td><div class="inv-amt" style="color:${inv.amount<0?'#16a34a':'#dc2626'}">${inv.amount<0?'-':''} RM ${Math.abs(inv.amount).toFixed(2)}</div></td>
+      </tr>`).join('');
+
+    const payRows=(s.payments||[]).map(p=>`
+      <tr class="pay-row">
+        <td colspan="2">✓ Paid ${fmt(p.amount)} — ${p.date} (${p.method})${p.notes?' · '+p.notes:''}</td>
+      </tr>`).join('');
+
+    return `
+    <div class="supplier-card" id="scard-${s.id}">
+      <div class="card-top-bar" style="background:${barColor}"></div>
+      <div class="card-header" onclick="toggleCard(${s.id})">
+        <div class="card-info" style="flex:1;min-width:0">
+          <div class="card-name">${s.name}</div>
+          <div class="card-badges">${badges}</div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span class="progress-pct" style="color:${barColor}">${pct}% cleared</span>
+              <span class="progress-remaining">${fmt(totalPaid)} paid of ${fmt(totalInv)}</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-right" style="margin-left:12px;flex-shrink:0">
+          <div class="card-outstanding ${isCleared?'cleared':''}">${isCleared?'✓ CLEAR':fmt(outstanding)}</div>
+          <div class="card-inv-count">${(s.invoices||[]).length} invoice${(s.invoices||[]).length!==1?'s':''}</div>
+          <span class="chevron ${isOpen?'open':''}">▼</span>
+        </div>
+      </div>
+      <div class="card-expanded ${isOpen?'open':''}">
+        ${s.note?`<div class="note-bar">📌 <span>${s.note}</span></div>`:''}
+        <table class="inv-table">
+          <thead><tr><th>Invoice</th><th style="text-align:right">Amount</th></tr></thead>
+          <tbody>${invRows}${payRows}</tbody>
+        </table>
+        <div class="card-actions">
+          <button class="action-btn btn-pay" onclick="showPayModal(${s.id})">💰 Pay</button>
+          <button class="action-btn btn-invoice" onclick="showInvModal(${s.id})">+ Invoice</button>
+          <button class="action-btn btn-note" onclick="showNoteModal(${s.id})">📝 Note</button>
+        </div>
+        <div class="card-actions-2">
+          <button class="action-btn btn-edit" onclick="showEditModal(${s.id})">✏️ Edit</button>
+          <button class="action-btn ${s.stopped?'btn-resume':'btn-stop'}" onclick="toggleStop(${s.id})">${s.stopped?'✅ Resume':'❌ Stop'}</button>
+          <button class="action-btn btn-delete" onclick="showDeleteModal(${s.id})">🗑️ Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(id){
+  if(expandedCards.has(id)) expandedCards.delete(id);
+  else expandedCards.add(id);
+  render();
+  setTimeout(()=>{const el=document.getElementById('scard-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});},100);
+}
+
+function filterSuppliers(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// PAYMENT
+function showPayModal(id){
+  activeId=id;
+  const s=D.suppliers.find(x=>x.id===id);
+  document.getElementById('pay-sup-name').textContent=s.name+' — Outstanding: '+fmt(getOutstanding(s));
+  document.getElementById('pay-amount').value='';
+  document.getElementById('pay-date').value=today();
+  document.getElementById('pay-notes').value='';
+  openModal('pay-modal');
+}
+
+function confirmPayment(){
+  const amount=parseFloat(document.getElementById('pay-amount').value)||0;
+  const date=document.getElementById('pay-date').value;
+  const method=document.getElementById('pay-method').value;
+  const notes=document.getElementById('pay-notes').value;
+  if(!amount||!date){toast('Enter amount and date','error');return;}
+  const s=D.suppliers.find(x=>x.id===activeId);
+  if(!s.payments) s.payments=[];
+  s.payments.push({id:Date.now(),amount,date,method,notes});
+  const wasCleared=getOutstanding(s)<=0;
+  save();
+  closeModal('pay-modal');
+  render();
+  if(wasCleared){
+    celebrate(s.name);
+  } else {
+    toast(fmt(amount)+' paid to '+s.name+' ✓','success');
+  }
+}
+
+function celebrate(name){
+  document.getElementById('cel-text').textContent=name.toUpperCase()+' — CLEARED! 🎉';
+  document.getElementById('cel-sub').textContent='Outstanding balance fully paid! One less anchor. Keep going!';
+  document.getElementById('celebration').classList.add('show');
+}
+function closeCelebration(){document.getElementById('celebration').classList.remove('show')}
+
+// INVOICE
+function showInvModal(id){
+  activeId=id;
+  const s=D.suppliers.find(x=>x.id===id);
+  document.getElementById('inv-sup-name').textContent=s.name;
+  document.getElementById('inv-ref').value='';
+  document.getElementById('inv-amount').value='';
+  document.getElementById('inv-date').value=today();
+  openModal('inv-modal');
+}
+function confirmInvoice(){
+  const ref=document.getElementById('inv-ref').value.trim()||'INV';
+  const amount=parseFloat(document.getElementById('inv-amount').value)||0;
+  const date=document.getElementById('inv-date').value;
+  if(!amount||!date){toast('Enter amount and date','error');return;}
+  const s=D.suppliers.find(x=>x.id===activeId);
+  if(!s.invoices) s.invoices=[];
+  s.invoices.push({id:Date.now(),ref,amount,date});
+  expandedCards.add(activeId);
+  save();closeModal('inv-modal');render();
+  toast('Invoice added ✓','success');
+}
+
+// NOTE
+function showNoteModal(id){
+  activeId=id;
+  const s=D.suppliers.find(x=>x.id===id);
+  document.getElementById('note-sup-name').textContent=s.name;
+  document.getElementById('note-text').value=s.note||'';
+  openModal('note-modal');
+}
+function confirmNote(){
+  D.suppliers.find(x=>x.id===activeId).note=document.getElementById('note-text').value.trim();
+  save();closeModal('note-modal');render();toast('Note saved ✓','success');
+}
+
+// EDIT
+function showEditModal(id){
+  activeId=id;
+  const s=D.suppliers.find(x=>x.id===id);
+  document.getElementById('edit-name').value=s.name;
+  document.getElementById('edit-status').value=s.stopped?'stopped':'active';
+  openModal('edit-modal');
+}
+function confirmEdit(){
+  const s=D.suppliers.find(x=>x.id===activeId);
+  s.name=document.getElementById('edit-name').value.trim()||s.name;
+  s.stopped=document.getElementById('edit-status').value==='stopped';
+  save();closeModal('edit-modal');render();toast('Updated ✓','success');
+}
+
+// STOP
+function toggleStop(id){
+  const s=D.suppliers.find(x=>x.id===id);
+  s.stopped=!s.stopped;
+  save();render();
+  toast(s.stopped?'❌ Marked as stopped':'✅ Marked as active','success');
+}
+
+// DELETE
+function showDeleteModal(id){
+  activeId=id;
+  const s=D.suppliers.find(x=>x.id===id);
+  document.getElementById('del-sup-name').textContent=s.name;
+  openModal('delete-modal');
+}
+function confirmDelete(){
+  D.suppliers=D.suppliers.filter(x=>x.id!==activeId);
+  expandedCards.delete(activeId);
+  save();closeModal('delete-modal');render();toast('Deleted','error');
+}
+
+// ADD SUPPLIER
+function showAddSupplier(){
+  document.getElementById('ns-name').value='';
+  document.getElementById('ns-balance').value='0';
+  openModal('add-sup-modal');
+}
+function confirmAddSupplier(){
+  const name=document.getElementById('ns-name').value.trim();
+  const stopped=document.getElementById('ns-status').value==='stopped';
+  const balance=parseFloat(document.getElementById('ns-balance').value)||0;
+  if(!name){toast('Enter name','error');return;}
+  const newId=Math.max(0,...D.suppliers.map(s=>s.id))+1;
+  D.suppliers.push({
+    id:newId,name,stopped,note:'',
+    invoices:balance>0?[{id:Date.now(),ref:'Opening Balance',date:today(),amount:balance}]:[],
+    payments:[]
+  });
+  save();closeModal('add-sup-modal');render();toast(name+' added ✓','success');
+}
+
+// SUMMARY
+function showSummary(){
+  const total=D.suppliers.reduce((a,s)=>a+getTotalInvoiced(s),0);
+  const paid=D.suppliers.reduce((a,s)=>a+getTotalPaid(s),0);
+  const remaining=Math.max(0,total-paid);
+  const pct=total>0?Math.round((paid/total)*100):0;
+
+  let html=`
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Total Debt</div>
+      <div style="font-size:26px;font-weight:800;color:var(--red);font-family:'DM Mono'">${fmt(total)}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--green-light);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;margin-bottom:4px">Paid</div>
+        <div style="font-size:16px;font-weight:800;color:var(--green);font-family:'DM Mono'">${fmt(paid)}</div>
+      </div>
+      <div style="background:var(--red-light);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase;margin-bottom:4px">Remaining</div>
+        <div style="font-size:16px;font-weight:800;color:var(--red);font-family:'DM Mono'">${fmt(remaining)}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Per Supplier</div>`;
+
+  [...D.suppliers].sort((a,b)=>getOutstanding(b)-getOutstanding(a)).forEach(s=>{
+    const spct=getPct(s);
+    const sout=getOutstanding(s);
+    html+=`
+      <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:12px;font-weight:600">${s.name.split(' ').slice(0,3).join(' ')}</span>
+          <span style="font-family:'DM Mono';font-size:12px;font-weight:700;color:${sout<=0?'#16a34a':'#dc2626'}">${sout<=0?'CLEARED':fmt(sout)}</span>
+        </div>
+        <div style="height:5px;background:#f3f4f6;border-radius:10px;overflow:hidden">
+          <div style="height:100%;width:${spct}%;background:${getBarColor(spct)};border-radius:10px"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${spct}% cleared</div>
+      </div>`;
+  });
+  html+=`</div>`;
+  document.getElementById('summary-content').innerHTML=html;
+  openModal('summary-modal');
+}
+
+function copySummary(){
+  const total=D.suppliers.reduce((a,s)=>a+getTotalInvoiced(s),0);
+  const paid=D.suppliers.reduce((a,s)=>a+getTotalPaid(s),0);
+  let t=`G WIRA SUPPLIER DEBT\n${new Date().toLocaleDateString('en-MY')}\n\nTOTAL: ${fmt(total)}\nPAID: ${fmt(paid)}\nREMAINING: ${fmt(Math.max(0,total-paid))}\n\n`;
+  D.suppliers.forEach(s=>t+=`${s.name}: ${fmt(getOutstanding(s))} (${getPct(s)}% cleared)\n`);
+  navigator.clipboard.writeText(t).then(()=>toast('Copied ✓','success')).catch(()=>{});
+}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+load();render();
+</script>
+</body>
+</html>
