@@ -151,6 +151,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
     <div class="header-actions">
       <div class="icon-btn" onclick="showAddCustomer()">＋</div>
       <div class="icon-btn" onclick="showSummary()">📊</div>
+      <div class="icon-btn" onclick="openModal('backup-modal')" title="Backup">💾</div>
     </div>
   </div>
   <div class="stats-row" id="stats-row"></div>
@@ -759,7 +760,74 @@ function toast(msg,type='success'){
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
+
+function exportBackup_collections(){
+  const data = localStorage.getItem('gwira_coll_v3');
+  if(!data){toast('No data to backup','error');return;}
+  const backup = '---GWIRA-BACKUP-COLLECTIONS---\n' + data + '\n---END-BACKUP---';
+  navigator.clipboard.writeText(backup)
+    .then(()=>toast('Backup copied! Paste in Notes or WhatsApp ✓','success'))
+    .catch(()=>{
+      // Fallback - show in textarea
+      document.getElementById('restore-text-collections').value=backup;
+      toast('Copied to text box - select all and copy manually','success');
+    });
+}
+
+function restoreBackup_collections(){
+  const text = document.getElementById('restore-text-collections').value.trim();
+  if(!text){toast('Paste your backup text first','error');return;}
+  
+  // Extract JSON from backup
+  let json = text;
+  if(text.includes('---GWIRA-BACKUP-')){
+    const match = text.match(/---GWIRA-BACKUP-[A-Z]+---\n([\s\S]+?)\n---END-BACKUP---/);
+    if(match) json = match[1];
+  }
+  
+  try{
+    const parsed = JSON.parse(json);
+    if(!parsed){toast('Invalid backup data','error');return;}
+    if(!confirm('This will overwrite ALL current data. Are you sure?')) return;
+    localStorage.setItem('gwira_coll_v3', JSON.stringify(parsed));
+    D = parsed;
+    closeModal('backup-modal');
+    renderCustomers();
+    toast('Data restored successfully ✓','success');
+  } catch(e){
+    toast('Invalid backup — check the text and try again','error');
+  }
+}
+
 load();renderCustomers();
 </script>
+
+<!-- BACKUP MODAL -->
+<div class="modal-overlay" id="backup-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💾 Backup & Restore</div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Save your data to Notes or WhatsApp to yourself. To restore, paste your backup text below.</div>
+      
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">📤 Export Backup</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Copies all your data. Paste it somewhere safe.</div>
+        <button class="modal-btn modal-confirm" style="margin:0" onclick="exportBackup_collections()">Copy Backup to Clipboard 📋</button>
+      </div>
+
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">📥 Restore from Backup</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Paste your previously exported backup text here.</div>
+        <textarea class="form-input" id="restore-text-collections" rows="4" placeholder="Paste your backup text here..." style="margin-bottom:10px;font-family:monospace;font-size:11px"></textarea>
+        <button class="modal-btn" style="background:var(--red-light);color:var(--red);border:1.5px solid #fca5a5;margin:0;padding:12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;width:100%;font-family:'Plus Jakarta Sans',sans-serif" onclick="restoreBackup_collections()">⚠️ Restore Data (Overwrites Current)</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('backup-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
