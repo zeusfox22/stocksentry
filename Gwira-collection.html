@@ -368,7 +368,15 @@ function getCustStatus(c){
   if(!invs.length) return 'current';
   let worst='current';
   const order=['current','warning','danger','critical'];
-  invs.forEach(inv=>{const s=getInvStatus(inv,c.terms).status;if(order.indexOf(s)>order.indexOf(worst))worst=s;});
+  // Only check invoices that still have outstanding balance
+  invs.forEach(inv=>{
+    const paid=getInvPaid(c,inv.id);
+    const remaining=Math.max(0,inv.amount-paid);
+    if(remaining>0){
+      const s=getInvStatus(inv,c.terms).status;
+      if(order.indexOf(s)>order.indexOf(worst))worst=s;
+    }
+  });
   return worst;
 }
 
