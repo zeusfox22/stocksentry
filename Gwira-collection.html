@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>G Wira — Collections</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f4f5f7;--white:#ffffff;--surface:#f9fafb;--border:#e5e7eb;--border2:#d1d5db;
+  --text:#111827;--text2:#6b7280;--text3:#9ca3af;
+  --yellow:#f59e0b;--yellow-light:#fef3c7;
+  --green:#16a34a;--green-light:#dcfce7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --orange:#ea580c;--orange-light:#ffedd5;
+  --amber:#d97706;--amber-light:#fef9c3;
+  --blue:#2563eb;--blue-light:#dbeafe;
+  --grey:#6b7280;--grey-light:#f3f4f6;
+  --black:#1f2937;--black-light:#e5e7eb;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.header{background:var(--white);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-badge{background:var(--black);color:var(--yellow);font-weight:800;font-size:11px;padding:5px 10px;border-radius:8px;letter-spacing:2px}
+.logo-title{font-size:12px;font-weight:700;color:var(--text2);letter-spacing:0.5px}
+.header-actions{display:flex;gap:8px}
+.icon-btn{width:36px;height:36px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:all .2s}
+.icon-btn:hover{background:var(--border)}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px 16px 12px}
+.stat-pill{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center}
+.stat-pill-value{font-size:14px;font-weight:800;line-height:1;margin-bottom:3px}
+.stat-pill-label{font-size:9px;color:var(--text2);font-weight:600;letter-spacing:0.5px;text-transform:uppercase}
+.tabs{display:flex;padding:0 16px 10px;gap:6px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--text2);white-space:nowrap;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.tab-btn.active{background:var(--black);color:var(--yellow);border-color:var(--black)}
+.main{padding:12px 16px 80px}
+.search-wrap{position:relative;margin-bottom:12px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text3)}
+.search-bar{width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px 11px 36px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.search-bar:focus{border-color:var(--yellow)}
+.search-bar::placeholder{color:var(--text3)}
+.customer-card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04);position:relative}
+.card-left-bar{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:16px 0 0 16px}
+.card-header{padding:14px 14px 14px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.card-info{flex:1;min-width:0}
+.card-name{font-size:14px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.card-terms{font-size:10px;color:var(--text2);background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-weight:600}
+.status-badge{padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.card-right{text-align:right;flex-shrink:0;margin-left:12px}
+.card-balance{font-size:16px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;margin-bottom:3px}
+.card-balance-label{font-size:9px;color:var(--text3)}
+.chevron{font-size:12px;color:var(--text3);margin-left:6px;transition:transform .2s;display:inline-block}
+.chevron.open{transform:rotate(180deg)}
+.s-current{background:var(--green-light);color:var(--green)}
+.s-warning{background:var(--amber-light);color:var(--amber)}
+.s-danger{background:var(--orange-light);color:var(--orange)}
+.s-critical{background:var(--red-light);color:var(--red)}
+.s-stopped{background:var(--black-light);color:var(--black)}
+.s-cleared{background:var(--green-light);color:var(--green)}
+.bar-current{background:var(--green)}.bar-warning{background:var(--amber)}.bar-danger{background:var(--orange)}.bar-critical{background:var(--red)}.bar-stopped{background:#374151}.bar-cleared{background:var(--green)}
+.card-expanded{display:none;border-top:1.5px solid var(--border)}
+.card-expanded.open{display:block}
+.invoice-table{width:100%;border-collapse:collapse}
+.invoice-table th{background:var(--surface);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+.invoice-table th:last-child{text-align:right}
+.invoice-row{border-bottom:1px solid var(--border)}
+.invoice-row:last-child{border:none}
+.invoice-row td{padding:10px 12px;font-size:12px;vertical-align:middle}
+.invoice-row td:last-child{text-align:right}
+.inv-status-wrap{display:flex;align-items:center;gap:8px}
+.inv-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.inv-ref{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text2)}
+.inv-date-text{font-size:10px;color:var(--text3);margin-top:1px}
+.inv-amount-text{font-family:'DM Mono',monospace;font-weight:700;font-size:13px}
+.inv-days-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;margin-top:2px}
+.payment-row td{padding:8px 12px;font-size:11px;color:var(--green);background:#f0fdf4}
+.card-actions{padding:12px;display:flex;gap:8px;flex-wrap:wrap;background:var(--surface);border-top:1px solid var(--border)}
+.card-actions-row2{padding:0 12px 12px;display:flex;gap:8px;flex-wrap:wrap;background:var(--surface)}
+.action-btn{flex:1;min-width:70px;padding:10px 6px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all .2s;text-align:center;font-family:'Plus Jakarta Sans',sans-serif}
+.btn-pay{background:var(--yellow);color:var(--white)}
+.btn-invoice{background:var(--white);color:var(--text);border:1.5px solid var(--border)}
+.btn-note{background:var(--white);color:var(--text);border:1.5px solid var(--border)}
+.btn-stop{background:var(--red-light);color:var(--red);border:1.5px solid #fca5a5}
+.btn-resume{background:var(--green-light);color:var(--green);border:1.5px solid #86efac}
+.btn-statement{background:var(--blue-light);color:var(--blue);border:1.5px solid #93c5fd}
+.btn-edit{background:#f0f9ff;color:#0284c7;border:1.5px solid #bae6fd}
+.btn-delete{background:var(--red-light);color:var(--red);border:1.5px solid #fca5a5}
+.note-bar{margin:0 12px 10px;padding:8px 10px;background:var(--yellow-light);border:1px solid #fde68a;border-radius:8px;font-size:11px;color:#92400e;display:flex;gap:6px;align-items:flex-start}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px;max-height:85vh;overflow-y:auto;box-shadow:0 -8px 32px rgba(0,0,0,0.15)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:16px;color:var(--text)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
+.form-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.form-input:focus{border-color:var(--yellow)}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-btn{flex:1;padding:14px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.modal-confirm{background:var(--yellow);color:var(--white)}
+.modal-cancel{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+.modal-delete{background:var(--red);color:var(--white)}
+
+/* RECEIPT */
+.receipt-wrap{background:var(--white);border:2px dashed var(--border2);border-radius:12px;padding:20px;margin-bottom:16px;font-family:'DM Mono',monospace}
+.receipt-header{text-align:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px dashed var(--border2)}
+.receipt-co{font-size:14px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;color:var(--black)}
+.receipt-co-sub{font-size:10px;color:var(--text2);margin-top:2px}
+.receipt-title{background:var(--yellow);color:var(--white);font-weight:800;font-size:12px;padding:4px 12px;border-radius:20px;display:inline-block;margin-top:8px;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:1px}
+.receipt-row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid var(--border)}
+.receipt-row:last-child{border:none}
+.receipt-label{color:var(--text2)}
+.receipt-value{font-weight:600;color:var(--text)}
+.receipt-total{display:flex;justify-content:space-between;padding:12px 0 0;font-size:14px;font-weight:800;margin-top:4px;border-top:2px solid var(--black)}
+.receipt-total-label{color:var(--black)}
+.receipt-total-value{color:var(--green)}
+.receipt-footer{text-align:center;margin-top:12px;font-size:10px;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif}
+.receipt-no{font-size:10px;color:var(--text3);text-align:center;margin-top:4px}
+
+.statement-content{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;margin-bottom:14px;white-space:pre-wrap;font-family:'DM Mono',monospace;line-height:1.7;color:var(--text);max-height:300px;overflow-y:auto}
+.add-fab{position:fixed;bottom:24px;right:16px;width:52px;height:52px;background:var(--black);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,0.2);transition:all .2s;z-index:50;border:none;color:var(--yellow);font-weight:800}
+.add-fab:active{transform:scale(0.95)}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:#86efac;color:var(--green)}
+.toast.error{border-color:#fca5a5;color:var(--red)}
+.empty{text-align:center;padding:40px 20px;color:var(--text2)}
+.empty-icon{font-size:40px;margin-bottom:10px}
+.flag{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700}
+.flag-urgent{background:var(--red-light);color:var(--red)}
+.flag-chase{background:var(--amber-light);color:var(--amber)}
+.flag-stop{background:var(--black-light);color:var(--black)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-badge">G WIRA</div>
+      <div class="logo-title">COLLECTIONS TRACKER</div>
+    </div>
+    <div class="header-actions">
+      <div class="icon-btn" onclick="showAddCustomer()">＋</div>
+      <div class="icon-btn" onclick="showSummary()">📊</div>
+    </div>
+  </div>
+  <div class="stats-row" id="stats-row"></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="filterCustomers('all',this)">All</button>
+    <button class="tab-btn" onclick="filterCustomers('critical',this)">🔴 Critical</button>
+    <button class="tab-btn" onclick="filterCustomers('danger',this)">🟠 Overdue</button>
+    <button class="tab-btn" onclick="filterCustomers('warning',this)">🟡 Due Soon</button>
+    <button class="tab-btn" onclick="filterCustomers('current',this)">🟢 Current</button>
+    <button class="tab-btn" onclick="filterCustomers('stopped',this)">⛔ Stopped</button>
+    <button class="tab-btn" onclick="filterCustomers('cleared',this)">✅ Cleared</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-bar" type="text" placeholder="Search customer..." oninput="searchCustomers(this.value)">
+  </div>
+  <div id="customer-list"></div>
+</div>
+
+<button class="add-fab" onclick="showAddCustomer()">+</button>
+<div class="toast" id="toast"></div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💰 Record Payment</div>
+    <div id="pay-cust-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Amount (RM)</label><input class="form-input" type="number" id="pay-amount" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="pay-date"></div>
+    <div class="form-group"><label class="form-label">Method</label>
+      <select class="form-input" id="pay-method">
+        <option value="DuitNow">DuitNow / Transfer</option>
+        <option value="Cash">Cash</option>
+        <option value="Cheque">Cheque</option>
+        <option value="TNG">TNG / QR</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><input class="form-input" type="text" id="pay-notes" placeholder="e.g. Partial, cheque no..."></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('pay-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmPayment()">Record ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="receipt-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🧾 Payment Receipt</div>
+    <div class="receipt-wrap" id="receipt-content"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('receipt-modal')">Close</button>
+      <button class="modal-btn modal-confirm" onclick="copyReceipt()">Copy for WhatsApp 📋</button>
+    </div>
+  </div>
+</div>
+
+<!-- INVOICE MODAL -->
+<div class="modal-overlay" id="invoice-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Add Invoice</div>
+    <div id="inv-cust-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Invoice No.</label><input class="form-input" type="text" id="inv-ref" placeholder="e.g. I-007001"></div>
+    <div class="form-group"><label class="form-label">Amount (RM)</label><input class="form-input" type="number" id="inv-amount" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="inv-date"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('invoice-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmInvoice()">Add ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTE MODAL -->
+<div class="modal-overlay" id="note-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📝 Chase Note</div>
+    <div id="note-cust-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="note-text" rows="4" placeholder="e.g. Promised RM500 on Monday..."></textarea></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('note-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmNote()">Save ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT CUSTOMER MODAL -->
+<div class="modal-overlay" id="edit-cust-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Edit Customer</div>
+    <div class="form-group"><label class="form-label">Customer Name</label><input class="form-input" type="text" id="ec-name" placeholder="Customer name"></div>
+    <div class="form-group"><label class="form-label">Credit Terms</label>
+      <select class="form-input" id="ec-terms">
+        <option value="cod">COD</option>
+        <option value="7">1 Week</option>
+        <option value="14">2 Weeks</option>
+        <option value="30">30 Days</option>
+        <option value="btb">Bill to Bill</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('edit-cust-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmEditCustomer()">Save ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🗑️ Delete Customer</div>
+    <div id="delete-cust-name" style="font-size:13px;color:var(--text2);margin-bottom:8px;font-weight:600"></div>
+    <div style="font-size:13px;color:var(--red);background:var(--red-light);padding:12px;border-radius:10px;margin-bottom:8px">
+      ⚠️ This will permanently delete the customer and all their invoices and payment history. This cannot be undone.
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="modal-btn modal-delete" onclick="confirmDelete()">Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CUSTOMER MODAL -->
+<div class="modal-overlay" id="add-cust-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">➕ Add Customer</div>
+    <div class="form-group"><label class="form-label">Name</label><input class="form-input" type="text" id="nc-name" placeholder="Customer name"></div>
+    <div class="form-group"><label class="form-label">Credit Terms</label>
+      <select class="form-input" id="nc-terms">
+        <option value="cod">COD</option>
+        <option value="7">1 Week</option>
+        <option value="14">2 Weeks</option>
+        <option value="30">30 Days</option>
+        <option value="btb">Bill to Bill</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Opening Balance (RM)</label><input class="form-input" type="number" id="nc-balance" placeholder="0.00" value="0"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('add-cust-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmAddCustomer()">Add ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATEMENT MODAL -->
+<div class="modal-overlay" id="statement-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📄 Statement</div>
+    <div class="statement-content" id="stmt-content"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('statement-modal')">Close</button>
+      <button class="modal-btn modal-confirm" onclick="copyStatement()">Copy for WhatsApp 📋</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY MODAL -->
+<div class="modal-overlay" id="summary-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📊 Summary</div>
+    <div id="summary-content"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('summary-modal')">Close</button>
+      <button class="modal-btn modal-confirm" onclick="copySummary()">Copy 📋</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let D={customers:[]};
+let activeId=null;
+let lastPayment=null;
+let currentFilter='all';
+let currentSearch='';
+const expandedCards=new Set();
+const TERMS={cod:'COD',7:'1 Week',14:'2 Weeks',30:'30 Days',btb:'Bill to Bill'};
+
+function today(){return new Date().toISOString().split('T')[0]}
+function daysDiff(d){return Math.floor((new Date()-new Date(d))/86400000)}
+function genReceiptNo(){return 'RCP-'+Date.now().toString().slice(-6)}
+
+function getBalance(c){
+  const inv=(c.invoices||[]).reduce((s,i)=>s+i.amount,0);
+  const pay=(c.payments||[]).reduce((s,p)=>s+p.amount,0);
+  return Math.max(0,inv-pay);
+}
+
+function getInvStatus(inv,terms){
+  const t=terms==='cod'||terms==='btb'?0:parseInt(terms)||30;
+  const due=new Date(inv.date);due.setDate(due.getDate()+t);
+  const days=daysDiff(due.toISOString().split('T')[0]);
+  if(days>60) return{status:'critical',days,label:days+'d overdue',color:'#dc2626',bg:'#fee2e2',dot:'#dc2626'};
+  if(days>30) return{status:'danger',days,label:days+'d overdue',color:'#ea580c',bg:'#ffedd5',dot:'#ea580c'};
+  if(days>0)  return{status:'warning',days,label:days+'d overdue',color:'#d97706',bg:'#fef9c3',dot:'#d97706'};
+  return{status:'current',days:0,label:'Current',color:'#16a34a',bg:'#dcfce7',dot:'#16a34a'};
+}
+
+function getCustStatus(c){
+  if(c.stopped) return 'stopped';
+  const bal=getBalance(c);
+  if(bal<=0) return 'cleared';
+  const invs=c.invoices||[];
+  if(!invs.length) return 'current';
+  let worst='current';
+  const order=['current','warning','danger','critical'];
+  invs.forEach(inv=>{const s=getInvStatus(inv,c.terms).status;if(order.indexOf(s)>order.indexOf(worst))worst=s;});
+  return worst;
+}
+
+function getStatusLabel(s){return{current:'Current',warning:'Due Soon',danger:'Overdue',critical:'Critical',stopped:'Stop Delivery',cleared:'Cleared'}[s]||s}
+function getBalColor(s){return{current:'#16a34a',warning:'#d97706',danger:'#ea580c',critical:'#dc2626',stopped:'#6b7280',cleared:'#16a34a'}[s]||'#111'}
+
+function load(){
+  const s=localStorage.getItem('gwira_coll_v3');
+  if(s) D=JSON.parse(s);
+  if(!D.customers||!D.customers.length) initData();
+}
+function save(){localStorage.setItem('gwira_coll_v3',JSON.stringify(D))}
+
+function initData(){
+  const raw=[
+    {id:1,name:'Al Deens Food Sdn Bhd',terms:'30',stopped:false,note:'Due tomorrow - chase today',invs:[{ref:'INV',date:'2026-05-08',amount:4285.80}]},
+    {id:2,name:'Andika Rizwana Enterprise',terms:'30',stopped:false,note:'13 days overdue',invs:[{ref:'INV',date:'2026-04-22',amount:1074.65}]},
+    {id:3,name:"Anita's Karupatti Coffee",terms:'30',stopped:false,note:'5 months overdue - escalate',invs:[{ref:'INV',date:'2026-01-15',amount:400.00}]},
+    {id:4,name:'Annachi Wholesale C&C',terms:'14',stopped:false,note:'7-12 months overdue - visit in person',invs:[{ref:'INV-1',date:'2025-05-22',amount:1502.00},{ref:'INV-2',date:'2025-10-13',amount:527.00}]},
+    {id:5,name:'Bamboo Biryani',terms:'30',stopped:true,note:'14 months overdue - escalate',invs:[{ref:'INV-1',date:'2025-03-08',amount:470.80},{ref:'INV-2',date:'2025-03-13',amount:182.00},{ref:'INV-3',date:'2025-04-15',amount:535.90}]},
+    {id:6,name:'Cozy Escape Venture',terms:'cod',stopped:false,note:'Paying weekly - chase oldest invoices',invs:[{ref:'IV00526',date:'2025-11-24',amount:649.80},{ref:'IV00544',date:'2025-12-01',amount:323.00},{ref:'IV00579',date:'2025-12-08',amount:665.10},{ref:'IV00620',date:'2025-12-29',amount:1017.50},{ref:'IV00685',date:'2026-01-26',amount:650.00},{ref:'IV00779',date:'2026-02-23',amount:973.00},{ref:'IV00857',date:'2026-03-16',amount:444.00},{ref:'IV00903',date:'2026-03-30',amount:716.80},{ref:'IV00958',date:'2026-04-13',amount:533.00},{ref:'IV01104',date:'2026-05-25',amount:600.00}],pays:[{amount:2400,date:'2026-05-29',method:'DuitNow',notes:'Weekly payments'}]},
+    {id:7,name:'DSP KL Masjid India',terms:'30',stopped:false,note:'4 days overdue',invs:[{ref:'INV',date:'2026-05-01',amount:1106.70}]},
+    {id:8,name:'Frenz Grocer',terms:'14',stopped:false,note:'Oldest 135 days overdue',invs:[{ref:'INV-1',date:'2026-04-10',amount:385.30},{ref:'INV-2',date:'2026-01-07',amount:413.90}]},
+    {id:9,name:'Gunam Agro Resources Sdn Bhd',terms:'30',stopped:false,note:'Due tomorrow - chase today',invs:[{ref:'INV-1',date:'2026-05-08',amount:1501.00},{ref:'INV-2',date:'2026-06-02',amount:460.00},{ref:'INV-3',date:'2026-06-02',amount:1145.00}]},
+    {id:10,name:'Heng Seng Hardware Sdn Bhd',terms:'30',stopped:false,note:'Multiple overdue - visit in person',invs:[{ref:'I-006551',date:'2026-02-03',amount:932.00},{ref:'I-006587',date:'2026-02-14',amount:1623.80},{ref:'I-006622',date:'2026-03-02',amount:462.00},{ref:'I-006698',date:'2026-04-07',amount:2118.00},{ref:'I-006729',date:'2026-04-21',amount:150.00},{ref:'I-006758',date:'2026-05-05',amount:58.30},{ref:'I-006822',date:'2026-05-29',amount:359.00},{ref:'I-006823',date:'2026-05-29',amount:400.40}]},
+    {id:11,name:'JM Florist',terms:'7',stopped:false,note:'15 days - normally cash',invs:[{ref:'INV',date:'2026-05-21',amount:395.00}]},
+    {id:12,name:'Mayuravally Fresh Flowers',terms:'30',stopped:false,note:'Was RM7k - paying down. Monitor.',invs:[{ref:'I-006755',date:'2026-04-24',amount:2636.80},{ref:'I-006754',date:'2026-05-01',amount:538.80},{ref:'I-006768',date:'2026-05-08',amount:1260.00},{ref:'I-006791',date:'2026-05-15',amount:894.00}],pays:[{amount:1017.60,date:'2026-06-03',method:'DuitNow',notes:'Partial'}]},
+    {id:13,name:'Mini Market Sri Dinar',terms:'30',stopped:true,note:'BOUNCED CHEQUE - cash only',invs:[{ref:'INV-1',date:'2026-02-05',amount:1065.50},{ref:'BOUNCE',date:'2026-04-22',amount:1302.50}]},
+    {id:14,name:'Nila Family Restaurant BT',terms:'7',stopped:false,note:'Deliver items first then collect',invs:[{ref:'INV',date:'2026-06-02',amount:1769.00}]},
+    {id:15,name:'Nila Fresh Market Botanic',terms:'7',stopped:false,note:'11 days - chase today',invs:[{ref:'INV',date:'2026-05-25',amount:727.50}]},
+    {id:16,name:'Nila Fresh Market',terms:'30',stopped:false,note:'Cheque being prepared',invs:[{ref:'INV-1',date:'2026-05-05',amount:4103.00},{ref:'INV-2',date:'2026-05-18',amount:2370.00},{ref:'INV-3',date:'2026-05-28',amount:1214.00}]},
+    {id:17,name:'Perry Mart',terms:'30',stopped:false,note:'Forgot to pay - send reminder',invs:[{ref:'INV',date:'2026-05-08',amount:177.50}]},
+    {id:18,name:'Regal Park',terms:'7',stopped:false,note:'All 3 invoices overdue',invs:[{ref:'INV-1',date:'2026-02-13',amount:1024.00},{ref:'INV-2',date:'2026-04-03',amount:1530.00},{ref:'INV-3',date:'2026-05-21',amount:385.00}]},
+    {id:19,name:'Restoran Ah Signature',terms:'btb',stopped:false,note:'Boss owes RM2286, manager on bill-to-bill',invs:[{ref:'OLD-BOSS',date:'2026-01-26',amount:1596.00},{ref:'NEW-BOSS',date:'2026-05-01',amount:690.00},{ref:'MGR-BTB',date:'2026-06-03',amount:395.00}]},
+    {id:20,name:'Restoran Anwar Maju PH',terms:'btb',stopped:false,note:'Collect next week',invs:[{ref:'INV',date:'2026-06-03',amount:965.30}]},
+    {id:21,name:'Restoran Anwar Maju Sunway',terms:'btb',stopped:false,note:'Promised bank in today',invs:[{ref:'INV-1',date:'2026-05-20',amount:503.30},{ref:'INV-2',date:'2026-05-26',amount:554.80},{ref:'INV-3',date:'2026-05-26',amount:554.80},{ref:'INV-4',date:'2026-06-03',amount:402.70},{ref:'INV-5',date:'2026-06-03',amount:501.70}]},
+    {id:22,name:'Restoran Anwar Maju USJ',terms:'30',stopped:false,note:'Monthly - send statement this week',invs:[{ref:'INV-1',date:'2026-04-30',amount:205.00},{ref:'INV-2',date:'2026-05-06',amount:639.60},{ref:'INV-3',date:'2026-05-13',amount:667.20},{ref:'INV-4',date:'2026-05-14',amount:390.00},{ref:'INV-5',date:'2026-05-20',amount:587.40},{ref:'INV-6',date:'2026-05-28',amount:682.20}]},
+    {id:23,name:'Restoran G Bestari',terms:'btb',stopped:true,note:'STOP DELIVERY - all overdue',invs:[{ref:'INV-1',date:'2026-03-04',amount:546.60},{ref:'INV-2',date:'2026-04-17',amount:372.30},{ref:'INV-3',date:'2026-04-17',amount:598.00},{ref:'INV-4',date:'2026-05-18',amount:410.40}]},
+    {id:24,name:'Restoran Maju Maju',terms:'btb',stopped:false,note:'Collect before next delivery',invs:[{ref:'INV',date:'2026-06-03',amount:1502.10}]},
+    {id:25,name:'Restoran Muneer',terms:'btb',stopped:false,note:'Settled 2 this week - 3 remaining',invs:[{ref:'INV-1',date:'2026-05-11',amount:135.50},{ref:'INV-2',date:'2026-05-19',amount:138.50},{ref:'INV-3',date:'2026-05-25',amount:109.80}]},
+    {id:26,name:'Restoran VMJ',terms:'cod',stopped:false,note:'Paid RM1475 yesterday - chase balance',invs:[{ref:'INV',date:'2026-05-19',amount:2479.90}],pays:[{amount:1475,date:'2026-06-04',method:'DuitNow',notes:'Payment received'}]},
+    {id:27,name:'Riad Trading Sdn Bhd',terms:'30',stopped:false,note:'Confirm exact amount from Autocount',invs:[{ref:'INV',date:'2026-05-01',amount:2000.00}]},
+    {id:28,name:'SJ Fresh Flowers',terms:'7',stopped:false,note:'6 days - chase today',invs:[{ref:'INV',date:'2026-05-30',amount:877.50}]},
+    {id:29,name:'Splendora Sdn Bhd',terms:'30',stopped:false,note:'Email invoices first then collect',invs:[{ref:'INV',date:'2026-05-01',amount:1500.00}]},
+    {id:30,name:'Step N Shop Sdn Bhd',terms:'cod',stopped:true,note:'BIGGEST - visit Brickfields - demand RM5k minimum',invs:[{ref:'I-006542',date:'2026-01-30',amount:1119.50},{ref:'IV00742',date:'2026-02-12',amount:1236.10},{ref:'IV00766',date:'2026-02-19',amount:623.20},{ref:'I-006645',date:'2026-03-13',amount:475.00},{ref:'IV00887',date:'2026-03-26',amount:1844.30},{ref:'IV00918',date:'2026-04-02',amount:490.00},{ref:'IV00945',date:'2026-04-09',amount:604.00},{ref:'IV00973',date:'2026-04-16',amount:1403.60},{ref:'I-006753',date:'2026-05-01',amount:719.60},{ref:'I-006774',date:'2026-05-08',amount:668.20},{ref:'I-006783',date:'2026-05-15',amount:1129.80},{ref:'I-006803',date:'2026-05-22',amount:806.20},{ref:'I-006818',date:'2026-05-29',amount:1335.00}],pays:[{amount:309.50,date:'2025-07-04',method:'Credit Note',notes:'Credit note'}]},
+    {id:31,name:'Tea Stall KL',terms:'30',stopped:false,note:'2 invoices due tomorrow - chase today',invs:[{ref:'INV-1',date:'2026-04-03',amount:309.00},{ref:'INV-2',date:'2026-05-29',amount:673.50},{ref:'INV-3',date:'2026-05-29',amount:344.30}]},
+    {id:32,name:'Tharas Cash & Carry',terms:'30',stopped:false,note:'2 overdue - chase this week',invs:[{ref:'INV-1',date:'2026-03-25',amount:348.60},{ref:'INV-2',date:'2026-04-08',amount:212.90},{ref:'INV-3',date:'2026-06-03',amount:279.50}]},
+    {id:33,name:'Vege Chat',terms:'30',stopped:false,note:'280 days oldest - ESCALATE - sent statement no answer',invs:[{ref:'IV00080',date:'2025-07-01',amount:47.00},{ref:'IV00116',date:'2025-07-08',amount:112.00},{ref:'IV00157',date:'2025-07-15',amount:186.40},{ref:'IV00202',date:'2025-07-22',amount:182.60},{ref:'IV00239',date:'2025-08-05',amount:189.40},{ref:'I-006102',date:'2025-08-27',amount:90.50},{ref:'I-006231',date:'2025-10-01',amount:516.10},{ref:'I-006253',date:'2025-10-08',amount:339.00},{ref:'IV00491',date:'2025-10-14',amount:454.60},{ref:'IV00510',date:'2025-10-21',amount:103.00},{ref:'IV00564',date:'2025-11-04',amount:397.00},{ref:'IV00589',date:'2025-11-11',amount:161.00},{ref:'IV00656',date:'2025-12-09',amount:504.40},{ref:'IV00697',date:'2025-12-30',amount:166.90},{ref:'I-006585',date:'2026-01-14',amount:451.20},{ref:'IV00824',date:'2026-02-03',amount:251.40},{ref:'IV00890',date:'2026-02-24',amount:214.30},{ref:'IV00917',date:'2026-03-03',amount:118.40},{ref:'IV00947',date:'2026-03-10',amount:139.80},{ref:'IV00971',date:'2026-03-17',amount:224.40}],pays:[{amount:1000,date:'2026-05-25',method:'DuitNow',notes:'Bank transfer'}]},
+  ];
+  D.customers=raw.map(r=>({id:r.id,name:r.name,terms:r.terms,stopped:r.stopped,note:r.note||'',invoices:(r.invs||[]).map((inv,i)=>({id:Date.now()+r.id*100+i,...inv})),payments:(r.pays||[]).map((p,i)=>({id:Date.now()+r.id*100+1000+i,...p}))}));
+  save();
+}
+
+function renderStats(){
+  const total=D.customers.reduce((s,c)=>s+getBalance(c),0);
+  const overdue=D.customers.filter(c=>['danger','critical'].includes(getCustStatus(c))).reduce((s,c)=>s+getBalance(c),0);
+  const stopped=D.customers.filter(c=>c.stopped).length;
+  const cleared=D.customers.filter(c=>getCustStatus(c)==='cleared').length;
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-pill"><div class="stat-pill-value" style="color:#f59e0b">RM${(total/1000).toFixed(0)}k</div><div class="stat-pill-label">Total</div></div>
+    <div class="stat-pill"><div class="stat-pill-value" style="color:#dc2626">RM${(overdue/1000).toFixed(0)}k</div><div class="stat-pill-label">Overdue</div></div>
+    <div class="stat-pill"><div class="stat-pill-value" style="color:#374151">${stopped}</div><div class="stat-pill-label">Stopped</div></div>
+    <div class="stat-pill"><div class="stat-pill-value" style="color:#16a34a">${cleared}</div><div class="stat-pill-label">Cleared</div></div>`;
+}
+
+function getFiltered(){
+  let list=[...D.customers];
+  if(currentFilter!=='all') list=list.filter(c=>getCustStatus(c)===currentFilter);
+  if(currentSearch){const q=currentSearch.toLowerCase();list=list.filter(c=>c.name.toLowerCase().includes(q));}
+  list.sort((a,b)=>getBalance(b)-getBalance(a));
+  return list;
+}
+
+function renderCustomers(){
+  renderStats();
+  const list=getFiltered();
+  const el=document.getElementById('customer-list');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div>No customers found</div></div>`;return;}
+  el.innerHTML=list.map(c=>{
+    const bal=getBalance(c);
+    const status=getCustStatus(c);
+    const balColor=getBalColor(status);
+    const isOpen=expandedCards.has(c.id);
+    const invRows=(c.invoices||[]).map(inv=>{
+      const s=getInvStatus(inv,c.terms);
+      return `<tr class="invoice-row">
+        <td><div class="inv-status-wrap"><div class="inv-dot" style="background:${s.dot}"></div><div><div class="inv-ref">${inv.ref}</div><div class="inv-date-text">${inv.date}</div></div></div></td>
+        <td><div class="inv-amount-text" style="color:${s.color}">RM ${inv.amount.toFixed(2)}</div><div class="inv-days-badge" style="background:${s.bg};color:${s.color}">${s.label}</div></td>
+      </tr>`;
+    }).join('');
+    const payRows=(c.payments||[]).map(p=>`<tr><td colspan="2" style="padding:8px 12px;font-size:11px;color:#16a34a;background:#f0fdf4">✓ Paid RM ${p.amount.toFixed(2)} — ${p.date} (${p.method})${p.notes?' · '+p.notes:''}</td></tr>`).join('');
+    let flags='';
+    if(c.stopped) flags+=`<span class="flag flag-stop">⛔ STOPPED</span>`;
+    else if(status==='critical') flags+=`<span class="flag flag-urgent">🔴 URGENT</span>`;
+    else if(['danger','warning'].includes(status)) flags+=`<span class="flag flag-chase">⚠️ CHASE</span>`;
+    return `
+    <div class="customer-card" style="position:relative" id="card-${c.id}">
+      <div class="card-left-bar bar-${status}"></div>
+      <div class="card-header" onclick="toggleCard(${c.id})">
+        <div class="card-info">
+          <div class="card-name">${c.name}</div>
+          <div class="card-meta"><span class="status-badge s-${status}">${getStatusLabel(status)}</span><span class="card-terms">${TERMS[c.terms]||c.terms}</span>${flags}</div>
+        </div>
+        <div class="card-right">
+          <div class="card-balance" style="color:${balColor}">${bal>0?'RM '+bal.toFixed(2):'✓ CLEAR'}</div>
+          <div class="card-balance-label">${(c.invoices||[]).length} invoice${(c.invoices||[]).length!==1?'s':''}</div>
+        </div>
+        <span class="chevron ${isOpen?'open':''}">▼</span>
+      </div>
+      <div class="card-expanded ${isOpen?'open':''}">
+        ${c.note?`<div class="note-bar">📌 <span>${c.note}</span></div>`:''}
+        <table class="invoice-table">
+          <thead><tr><th>Invoice</th><th style="text-align:right">Amount / Status</th></tr></thead>
+          <tbody>${invRows}${payRows}</tbody>
+        </table>
+        <div class="card-actions">
+          <button class="action-btn btn-pay" onclick="showPayModal(${c.id})">💰 Payment</button>
+          <button class="action-btn btn-invoice" onclick="showInvModal(${c.id})">+ Invoice</button>
+          <button class="action-btn btn-statement" onclick="showStmt(${c.id})">📄 Statement</button>
+        </div>
+        <div class="card-actions-row2">
+          <button class="action-btn btn-note" onclick="showNoteModal(${c.id})">📝 Note</button>
+          <button class="action-btn btn-edit" onclick="showEditCustomer(${c.id})">✏️ Edit</button>
+          <button class="action-btn ${c.stopped?'btn-resume':'btn-stop'}" onclick="toggleStop(${c.id})">${c.stopped?'✅ Resume':'⛔ Stop'}</button>
+          <button class="action-btn btn-delete" onclick="showDeleteModal(${c.id})">🗑️ Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(id){
+  if(expandedCards.has(id)) expandedCards.delete(id);
+  else expandedCards.add(id);
+  renderCustomers();
+  setTimeout(()=>{const el=document.getElementById('card-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});},100);
+}
+
+function filterCustomers(f,btn){currentFilter=f;document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderCustomers();}
+function searchCustomers(q){currentSearch=q;renderCustomers()}
+
+// PAYMENT
+function showPayModal(id){
+  activeId=id;
+  const c=D.customers.find(x=>x.id===id);
+  document.getElementById('pay-cust-name').textContent=c.name+' — Balance: RM '+getBalance(c).toFixed(2);
+  document.getElementById('pay-amount').value='';
+  document.getElementById('pay-date').value=today();
+  document.getElementById('pay-notes').value='';
+  openModal('pay-modal');
+}
+
+function confirmPayment(){
+  const amount=parseFloat(document.getElementById('pay-amount').value)||0;
+  const date=document.getElementById('pay-date').value;
+  const method=document.getElementById('pay-method').value;
+  const notes=document.getElementById('pay-notes').value;
+  if(!amount||!date){toast('Enter amount and date','error');return;}
+  const c=D.customers.find(x=>x.id===activeId);
+  const rno=genReceiptNo();
+  if(!c.payments) c.payments=[];
+  const payment={id:Date.now(),amount,date,method,notes,receiptNo:rno};
+  c.payments.push(payment);
+  lastPayment={customer:c.name,amount,date,method,notes,receiptNo:rno,balAfter:getBalance(c)};
+  save();
+  closeModal('pay-modal');
+  renderCustomers();
+  showReceipt(lastPayment);
+}
+
+function showReceipt(p){
+  const d=new Date(p.date).toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('receipt-content').innerHTML=`
+    <div class="receipt-header">
+      <div class="receipt-co">G WIRA TRADING (M) SDN BHD</div>
+      <div class="receipt-co-sub">No. 1361206-M  |  Tel: 012-233 0854</div>
+      <div class="receipt-title">OFFICIAL RECEIPT</div>
+    </div>
+    <div class="receipt-row"><span class="receipt-label">Receipt No.</span><span class="receipt-value">${p.receiptNo}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Date</span><span class="receipt-value">${d}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Customer</span><span class="receipt-value">${p.customer}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Method</span><span class="receipt-value">${p.method}</span></div>
+    ${p.notes?`<div class="receipt-row"><span class="receipt-label">Notes</span><span class="receipt-value">${p.notes}</span></div>`:''}
+    <div class="receipt-total"><span class="receipt-total-label">AMOUNT PAID</span><span class="receipt-total-value">RM ${p.amount.toFixed(2)}</span></div>
+    <div class="receipt-footer">Thank you for your payment!<br>G Wira Trading (M) Sdn Bhd</div>
+    <div class="receipt-no">${p.receiptNo}</div>`;
+  openModal('receipt-modal');
+}
+
+function copyReceipt(){
+  if(!lastPayment) return;
+  const p=lastPayment;
+  const d=new Date(p.date).toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'});
+  const text=`🧾 OFFICIAL RECEIPT\nG WIRA TRADING (M) SDN BHD\nNo. 1361206-M\n\nReceipt No: ${p.receiptNo}\nDate: ${d}\nCustomer: ${p.customer}\nMethod: ${p.method}${p.notes?'\nNotes: '+p.notes:''}\n\nAMOUNT PAID: RM ${p.amount.toFixed(2)}\n\nThank you for your payment!\nG Wira Trading (M) Sdn Bhd`;
+  navigator.clipboard.writeText(text).then(()=>toast('Receipt copied for WhatsApp ✓','success')).catch(()=>toast('Select and copy manually','error'));
+}
+
+// INVOICE
+function showInvModal(id){
+  activeId=id;
+  const c=D.customers.find(x=>x.id===id);
+  document.getElementById('inv-cust-name').textContent=c.name;
+  document.getElementById('inv-ref').value='';
+  document.getElementById('inv-amount').value='';
+  document.getElementById('inv-date').value=today();
+  openModal('invoice-modal');
+}
+function confirmInvoice(){
+  const ref=document.getElementById('inv-ref').value.trim()||'INV';
+  const amount=parseFloat(document.getElementById('inv-amount').value)||0;
+  const date=document.getElementById('inv-date').value;
+  if(!amount||!date){toast('Enter amount and date','error');return;}
+  const c=D.customers.find(x=>x.id===activeId);
+  if(!c.invoices) c.invoices=[];
+  c.invoices.push({id:Date.now(),ref,amount,date});
+  expandedCards.add(activeId);
+  save();closeModal('invoice-modal');renderCustomers();
+  toast('Invoice added ✓','success');
+}
+
+// NOTE
+function showNoteModal(id){
+  activeId=id;
+  const c=D.customers.find(x=>x.id===id);
+  document.getElementById('note-cust-name').textContent=c.name;
+  document.getElementById('note-text').value=c.note||'';
+  openModal('note-modal');
+}
+function confirmNote(){
+  D.customers.find(x=>x.id===activeId).note=document.getElementById('note-text').value.trim();
+  save();closeModal('note-modal');renderCustomers();toast('Note saved ✓','success');
+}
+
+// EDIT CUSTOMER
+function showEditCustomer(id){
+  activeId=id;
+  const c=D.customers.find(x=>x.id===id);
+  document.getElementById('ec-name').value=c.name;
+  document.getElementById('ec-terms').value=c.terms;
+  openModal('edit-cust-modal');
+}
+function confirmEditCustomer(){
+  const name=document.getElementById('ec-name').value.trim();
+  const terms=document.getElementById('ec-terms').value;
+  if(!name){toast('Enter name','error');return;}
+  const c=D.customers.find(x=>x.id===activeId);
+  c.name=name;c.terms=terms;
+  save();closeModal('edit-cust-modal');renderCustomers();toast('Customer updated ✓','success');
+}
+
+// DELETE
+function showDeleteModal(id){
+  activeId=id;
+  const c=D.customers.find(x=>x.id===id);
+  document.getElementById('delete-cust-name').textContent=c.name;
+  openModal('delete-modal');
+}
+function confirmDelete(){
+  D.customers=D.customers.filter(x=>x.id!==activeId);
+  expandedCards.delete(activeId);
+  save();closeModal('delete-modal');renderCustomers();toast('Customer deleted','error');
+}
+
+// STOP
+function toggleStop(id){
+  const c=D.customers.find(x=>x.id===id);
+  c.stopped=!c.stopped;
+  save();renderCustomers();
+  toast(c.stopped?'⛔ Delivery stopped':'✅ Delivery resumed',c.stopped?'error':'success');
+}
+
+// STATEMENT
+function showStmt(id){
+  const c=D.customers.find(x=>x.id===id);
+  const bal=getBalance(c);
+  const terms=c.terms==='cod'||c.terms==='btb'?0:parseInt(c.terms)||30;
+  const d=new Date().toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'});
+  let lines=['G WIRA TRADING (M) SDN BHD','No. 1361206-M  |  Tel: 012-233 0854','─────────────────────────────────','STATEMENT OF ACCOUNT','Date: '+d,'Customer: '+c.name,'Terms: '+(TERMS[c.terms]||c.terms),'─────────────────────────────────','OUTSTANDING INVOICES:',''];
+  (c.invoices||[]).forEach(inv=>{
+    const due=new Date(inv.date);due.setDate(due.getDate()+terms);
+    const days=daysDiff(due.toISOString().split('T')[0]);
+    lines.push(inv.ref+' | '+inv.date+' | RM '+inv.amount.toFixed(2));
+    lines.push(days>0?'  ⚠️ '+days+' days overdue':'  ✓ Current');lines.push('');
+  });
+  if((c.payments||[]).length){lines.push('PAYMENTS RECEIVED:');c.payments.forEach(p=>lines.push(p.date+' — RM '+p.amount.toFixed(2)+' ('+p.method+')'));lines.push('');}
+  lines.push('─────────────────────────────────');
+  lines.push('TOTAL OUTSTANDING: RM '+bal.toFixed(2));
+  lines.push('─────────────────────────────────');
+  lines.push('Kindly arrange payment at your');lines.push('earliest convenience. Thank you.');
+  document.getElementById('stmt-content').textContent=lines.join('\n');
+  openModal('statement-modal');
+}
+function copyStatement(){navigator.clipboard.writeText(document.getElementById('stmt-content').textContent).then(()=>toast('Copied ✓','success')).catch(()=>toast('Select and copy manually','error'));}
+
+// ADD CUSTOMER
+function showAddCustomer(){document.getElementById('nc-name').value='';document.getElementById('nc-balance').value='0';openModal('add-cust-modal');}
+function confirmAddCustomer(){
+  const name=document.getElementById('nc-name').value.trim();
+  const terms=document.getElementById('nc-terms').value;
+  const balance=parseFloat(document.getElementById('nc-balance').value)||0;
+  if(!name){toast('Enter name','error');return;}
+  const newId=Math.max(0,...D.customers.map(c=>c.id))+1;
+  D.customers.push({id:newId,name,terms,stopped:false,note:'',invoices:balance>0?[{id:Date.now(),ref:'Opening Balance',date:today(),amount:balance}]:[],payments:[]});
+  save();closeModal('add-cust-modal');renderCustomers();toast(name+' added ✓','success');
+}
+
+// SUMMARY
+function showSummary(){
+  const total=D.customers.reduce((s,c)=>s+getBalance(c),0);
+  const top5=[...D.customers].sort((a,b)=>getBalance(b)-getBalance(a)).slice(0,5);
+  const byStatus={};
+  D.customers.forEach(c=>{const s=getCustStatus(c);if(!byStatus[s]){byStatus[s]={count:0,amount:0}}byStatus[s].count++;byStatus[s].amount+=getBalance(c);});
+  const sc={critical:'#dc2626',danger:'#ea580c',warning:'#d97706',current:'#16a34a',stopped:'#6b7280',cleared:'#16a34a'};
+  let html=`<div style="margin-bottom:16px"><div style="font-size:11px;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Total Outstanding</div><div style="font-size:28px;font-weight:800;color:#f59e0b;font-family:'DM Mono'">RM ${total.toLocaleString('en-MY',{minimumFractionDigits:2})}</div></div>`;
+  html+=`<div style="margin-bottom:16px"><div style="font-size:11px;color:var(--text2);text-transform:uppercase;margin-bottom:8px">By Status</div>`;
+  ['critical','danger','warning','current','stopped','cleared'].forEach(s=>{if(byStatus[s])html+=`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:${sc[s]};font-weight:600">${getStatusLabel(s)} (${byStatus[s].count})</span><span style="font-family:'DM Mono';font-weight:700">RM ${byStatus[s].amount.toFixed(2)}</span></div>`;});
+  html+=`</div><div><div style="font-size:11px;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Top 5</div>`;
+  top5.forEach((c,i)=>html+=`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span>${i+1}. ${c.name.split(' ').slice(0,3).join(' ')}</span><span style="font-family:'DM Mono';font-weight:700;color:#f59e0b">RM ${getBalance(c).toFixed(2)}</span></div>`);
+  html+=`</div>`;
+  document.getElementById('summary-content').innerHTML=html;
+  openModal('summary-modal');
+}
+function copySummary(){
+  const total=D.customers.reduce((s,c)=>s+getBalance(c),0);
+  const top5=[...D.customers].sort((a,b)=>getBalance(b)-getBalance(a)).slice(0,5);
+  let t=`G WIRA COLLECTIONS\n${new Date().toLocaleDateString('en-MY')}\nTOTAL: RM ${total.toFixed(2)}\n\nTOP 5:\n`;
+  top5.forEach((c,i)=>t+=`${i+1}. ${c.name} — RM ${getBalance(c).toFixed(2)}\n`);
+  navigator.clipboard.writeText(t).then(()=>toast('Copied ✓','success')).catch(()=>{});
+}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+load();renderCustomers();
+</script>
+</body>
+</html>
