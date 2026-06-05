@@ -764,39 +764,38 @@ function toast(msg,type='success'){
 function exportBackup_collections(){
   const data = localStorage.getItem('gwira_coll_v3');
   if(!data){toast('No data to backup','error');return;}
-  const backup = '---GWIRA-BACKUP-COLLECTIONS---\n' + data + '\n---END-BACKUP---';
-  navigator.clipboard.writeText(backup)
-    .then(()=>toast('Backup copied! Paste in Notes or WhatsApp ✓','success'))
-    .catch(()=>{
-      // Fallback - show in textarea
-      document.getElementById('restore-text-collections').value=backup;
-      toast('Copied to text box - select all and copy manually','success');
-    });
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = 'gwira_collections_backup_' + date + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded ✓','success');
 }
 
 function restoreBackup_collections(){
-  const text = document.getElementById('restore-text-collections').value.trim();
-  if(!text){toast('Paste your backup text first','error');return;}
-  
-  // Extract JSON from backup
-  let json = text;
-  if(text.includes('---GWIRA-BACKUP-')){
-    const match = text.match(/---GWIRA-BACKUP-[A-Z]+---\n([\s\S]+?)\n---END-BACKUP---/);
-    if(match) json = match[1];
-  }
-  
-  try{
-    const parsed = JSON.parse(json);
-    if(!parsed){toast('Invalid backup data','error');return;}
-    if(!confirm('This will overwrite ALL current data. Are you sure?')) return;
-    localStorage.setItem('gwira_coll_v3', JSON.stringify(parsed));
-    D = parsed;
-    closeModal('backup-modal');
-    renderCustomers();
-    toast('Data restored successfully ✓','success');
-  } catch(e){
-    toast('Invalid backup — check the text and try again','error');
-  }
+  const file = document.getElementById('restore-file-collections').files[0];
+  if(!file){toast('Select a backup file first','error');return;}
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed){toast('Invalid backup file','error');return;}
+      if(!confirm('This will overwrite ALL current data. Are you sure?')) return;
+      localStorage.setItem('gwira_coll_v3', JSON.stringify(parsed));
+      D = parsed;
+      closeModal('backup-modal');
+      renderCustomers();
+      toast('Data restored successfully ✓','success');
+    } catch(err){
+      toast('Invalid file — make sure it is a .json backup','error');
+    }
+  };
+  reader.readAsText(file);
 }
 
 load();renderCustomers();
@@ -813,7 +812,7 @@ load();renderCustomers();
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
         <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">📤 Export Backup</div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Copies all your data. Paste it somewhere safe.</div>
-        <button class="modal-btn modal-confirm" style="margin:0" onclick="exportBackup_collections()">Copy Backup to Clipboard 📋</button>
+        <button class="modal-btn modal-confirm" style="margin:0" onclick="exportBackup_collections()">Download Backup (.json) 📥</button>
       </div>
 
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px">
