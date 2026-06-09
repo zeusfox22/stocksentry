@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>G Wira Daily Collections</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Daily Cash">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f4f5f7;--white:#ffffff;--surface:#f9fafb;--border:#e5e7eb;
+  --text:#111827;--text2:#6b7280;--text3:#9ca3af;
+  --yellow:#f59e0b;--yellow-light:#fef3c7;
+  --green:#16a34a;--green-light:#dcfce7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --orange:#ea580c;--orange-light:#ffedd5;
+  --blue:#2563eb;--blue-light:#dbeafe;
+  --purple:#7c3aed;--purple-light:#ede9fe;
+  --black:#1f2937;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+.header{background:var(--black);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.2)}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-badge{background:var(--yellow);color:var(--black);font-weight:800;font-size:11px;padding:5px 10px;border-radius:8px;letter-spacing:2px}
+.logo-title{font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.5px}
+.header-actions{display:flex;gap:8px}
+.icon-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer}
+
+/* CHEQUE ALERT */
+.cheque-alert{display:none;background:#dc2626;padding:10px 16px;animation:flash 1s infinite}
+@keyframes flash{0%,100%{opacity:1}50%{opacity:0.6}}
+.cheque-alert-text{color:white;font-size:12px;font-weight:700;text-align:center;cursor:pointer}
+
+/* POUCH SUMMARY */
+.pouch-section{background:var(--black);padding:0 16px 14px}
+.pouch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.pouch-card{background:rgba(255,255,255,0.08);border-radius:12px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,0.1)}
+.pouch-value{font-size:14px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;margin-bottom:3px}
+.pouch-label{font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px}
+.bank-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bank-card{background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;border:1px solid rgba(255,255,255,0.08)}
+.bank-name{font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.bank-value{font-size:13px;font-weight:800;font-family:'DM Mono',monospace;color:var(--yellow)}
+
+/* DATE NAV */
+.date-nav{background:var(--white);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.date-nav-btn{width:32px;height:32px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px}
+.date-nav-center{text-align:center}
+.date-nav-day{font-size:14px;font-weight:800}
+.date-nav-date{font-size:11px;color:var(--text2)}
+.today-btn{font-size:10px;font-weight:700;color:var(--yellow);cursor:pointer;padding:2px 8px;border:1px solid var(--yellow);border-radius:10px;margin-top:2px;display:inline-block}
+
+/* TABS */
+.tabs{display:flex;padding:10px 16px 6px;gap:6px;background:var(--white);border-bottom:1px solid var(--border)}
+.tab-btn{flex:1;padding:8px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);text-align:center;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.tab-btn.active{background:var(--black);color:var(--yellow);border-color:var(--black)}
+
+/* MAIN */
+.main{padding:12px 16px 100px}
+
+/* DAY SUMMARY */
+.day-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.day-sum-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+.day-sum-icon{font-size:20px;margin-bottom:4px}
+.day-sum-value{font-size:18px;font-weight:800;font-family:'DM Mono',monospace}
+.day-sum-label{font-size:10px;color:var(--text2);margin-top:2px;font-weight:600}
+
+/* SECTION HEADERS */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:14px}
+.section-title{font-size:12px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px}
+.section-add{width:28px;height:28px;border-radius:8px;background:var(--yellow);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--black);font-weight:800}
+
+/* ENTRY CARDS */
+.entry-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
+.entry-left-bar{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:12px 0 0 12px}
+.entry-info{flex:1;padding-left:6px;min-width:0}
+.entry-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.entry-meta{font-size:10px;color:var(--text2)}
+.entry-right{text-align:right;flex-shrink:0;margin-left:10px}
+.entry-amount{font-size:15px;font-weight:800;font-family:'DM Mono',monospace}
+.entry-type-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;margin-top:2px;display:inline-block}
+.entry-delete{width:28px;height:28px;border-radius:6px;background:var(--red-light);border:none;color:var(--red);font-size:12px;cursor:pointer;margin-left:8px;flex-shrink:0}
+
+/* CHEQUE CARD */
+.cheque-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;position:relative;overflow:hidden}
+.cheque-card.due-today{border-color:var(--red);background:#fff5f5;animation:pulse-border 2s infinite}
+@keyframes pulse-border{0%,100%{border-color:#dc2626}50%{border-color:#fca5a5}}
+.cheque-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.cheque-customer{font-size:13px;font-weight:700}
+.cheque-amount{font-size:15px;font-weight:800;font-family:'DM Mono',monospace;color:var(--blue)}
+.cheque-meta{font-size:10px;color:var(--text2);margin-bottom:6px}
+.cheque-actions{display:flex;gap:6px}
+.cheque-bankin-btn{flex:1;padding:8px;border-radius:8px;background:var(--green);color:white;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+.cheque-delete-btn{width:34px;height:34px;border-radius:8px;background:var(--red-light);border:1px solid #fca5a5;color:var(--red);font-size:13px;cursor:pointer}
+.cheque-banked{opacity:0.5}
+
+/* BANK IN SECTION */
+.bankin-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px}
+.bankin-title{font-size:12px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.bankin-row{display:flex;gap:8px;margin-bottom:10px;align-items:center}
+.bankin-input{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);outline:none}
+.bankin-input:focus{border-color:var(--yellow)}
+.bankin-select{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--text);outline:none;-webkit-appearance:none}
+.bankin-btn{padding:11px 16px;border-radius:10px;background:var(--green);color:white;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px;max-height:85vh;overflow-y:auto;box-shadow:0 -8px 32px rgba(0,0,0,0.15)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:16px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
+.form-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.form-input:focus{border-color:var(--yellow)}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-btn{flex:1;padding:14px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif}
+.modal-confirm{background:var(--yellow);color:var(--white)}
+.modal-cancel{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+
+/* TYPE BUTTONS */
+.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.type-btn{padding:12px 8px;border-radius:12px;border:2px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.type-btn.selected{border-color:var(--yellow);background:var(--yellow-light)}
+.type-btn-icon{font-size:20px;margin-bottom:4px}
+.type-btn-label{font-size:11px;font-weight:700;color:var(--text)}
+
+/* FAB */
+.fab{position:fixed;bottom:24px;right:16px;width:56px;height:56px;background:var(--yellow);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;box-shadow:0 8px 24px rgba(245,158,11,0.4);border:none;color:var(--black);font-weight:800;z-index:50}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:#86efac;color:var(--green)}
+.toast.error{border-color:#fca5a5;color:var(--red)}
+
+.empty{text-align:center;padding:30px 20px;color:var(--text2);font-size:13px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-badge">G WIRA</div>
+      <div class="logo-title">DAILY COLLECTIONS</div>
+    </div>
+    <div class="header-actions">
+      <div class="icon-btn" onclick="showReports()">📊</div>
+      <div class="icon-btn" onclick="openModal('backup-modal')">💾</div>
+    </div>
+  </div>
+  <!-- POUCH SUMMARY -->
+  <div class="pouch-section">
+    <div class="pouch-grid">
+      <div class="pouch-card">
+        <div class="pouch-value" style="color:#fbbf24" id="pouch-cash">RM0</div>
+        <div class="pouch-label">Cash in Hand</div>
+      </div>
+      <div class="pouch-card">
+        <div class="pouch-value" style="color:#86efac" id="pouch-cheques">RM0</div>
+        <div class="pouch-label">Cheques Pending</div>
+      </div>
+      <div class="pouch-card">
+        <div class="pouch-value" style="color:#c4b5fd" id="pouch-today">RM0</div>
+        <div class="pouch-label">Today Total</div>
+      </div>
+    </div>
+    <div class="bank-row">
+      <div class="bank-card">
+        <div class="bank-name">🏦 OCBC Balance</div>
+        <div class="bank-value" id="ocbc-balance">RM0</div>
+      </div>
+      <div class="bank-card">
+        <div class="bank-name">🏦 CIMB Balance</div>
+        <div class="bank-value" id="cimb-balance">RM0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHEQUE ALERT -->
+<div class="cheque-alert" id="cheque-alert" onclick="scrollToTab('cheques')">
+  <div class="cheque-alert-text" id="cheque-alert-text">⚠️ CHEQUES DUE TODAY — TAP TO VIEW</div>
+</div>
+
+<!-- DATE NAV -->
+<div class="date-nav">
+  <div class="date-nav-btn" onclick="changeDate(-1)">◀</div>
+  <div class="date-nav-center">
+    <div class="date-nav-day" id="nav-day"></div>
+    <div class="date-nav-date" id="nav-date"></div>
+    <span class="today-btn" onclick="goToday()">TODAY</span>
+  </div>
+  <div class="date-nav-btn" onclick="changeDate(1)">▶</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" id="tab-daily" onclick="switchTab('daily',this)">📋 Daily</button>
+  <button class="tab-btn" id="tab-cheques" onclick="switchTab('cheques',this)">🧾 Cheques</button>
+  <button class="tab-btn" id="tab-bankin" onclick="switchTab('bankin',this)">🏦 Bank In</button>
+</div>
+
+<div class="main" id="main-content"></div>
+
+<button class="fab" onclick="showAddEntry()">+</button>
+<div class="toast" id="toast"></div>
+
+<!-- ADD ENTRY MODAL -->
+<div class="modal-overlay" id="entry-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="entry-modal-title">Add Collection</div>
+    <div class="type-grid" id="type-grid"></div>
+    <div id="entry-fields"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('entry-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmEntry()">Add ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CHEQUE MODAL -->
+<div class="modal-overlay" id="cheque-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🧾 Add Cheque</div>
+    <div class="form-group"><label class="form-label">Customer Name</label><input class="form-input" type="text" id="chq-customer" placeholder="e.g. Nila Fresh Market"></div>
+    <div class="form-group"><label class="form-label">Cheque Number</label><input class="form-input" type="text" id="chq-number" placeholder="e.g. 123456"></div>
+    <div class="form-group"><label class="form-label">Amount (RM)</label><input class="form-input" type="number" id="chq-amount" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Cheque Date</label><input class="form-input" type="date" id="chq-date"></div>
+    <div class="form-group"><label class="form-label">Type</label>
+      <select class="form-input" id="chq-type">
+        <option value="current">Current Date</option>
+        <option value="postdated">Post Dated</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('cheque-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmCheque()">Add ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- BANK IN CHEQUE MODAL -->
+<div class="modal-overlay" id="bankin-cheque-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🏦 Bank In Cheque</div>
+    <div id="bankin-cheque-info" style="font-size:13px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Bank Account</label>
+      <select class="form-input" id="bankin-cheque-account">
+        <option value="ocbc">OCBC</option>
+        <option value="cimb">CIMB</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Date Banked In</label><input class="form-input" type="date" id="bankin-cheque-date"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('bankin-cheque-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmBankinCheque()">Confirm ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- SET BANK BALANCE MODAL -->
+<div class="modal-overlay" id="set-balance-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🏦 Set Bank Balance</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px">Update your current bank balance manually</div>
+    <div class="form-group"><label class="form-label">OCBC Balance (RM)</label><input class="form-input" type="number" id="sb-ocbc" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">CIMB Balance (RM)</label><input class="form-input" type="number" id="sb-cimb" placeholder="0.00"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('set-balance-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmSetBalance()">Update ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORTS MODAL -->
+<div class="modal-overlay" id="reports-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📊 Reports</div>
+    <div class="form-group">
+      <label class="form-label">Period</label>
+      <select class="form-input" id="report-period" onchange="renderReport()">
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+        <option value="lastmonth">Last Month</option>
+      </select>
+    </div>
+    <div id="report-content"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('reports-modal')">Close</button>
+      <button class="modal-btn modal-confirm" onclick="copyReport()">Copy 📋</button>
+    </div>
+  </div>
+</div>
+
+<!-- BACKUP MODAL -->
+<div class="modal-overlay" id="backup-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💾 Backup & Restore</div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px">📤 Export</div>
+      <button class="modal-btn modal-confirm" style="margin:0" onclick="exportBackup()">Download Backup (.json) 📥</button>
+    </div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px">📥 Restore</div>
+      <input type="file" accept=".json" id="restore-file" class="form-input" style="margin-bottom:10px;padding:10px">
+      <button class="modal-btn" style="background:var(--red-light);color:var(--red);border:1.5px solid #fca5a5;margin:0;padding:12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;width:100%;font-family:'Plus Jakarta Sans',sans-serif" onclick="restoreBackup()">⚠️ Restore (Overwrites Current)</button>
+    </div>
+    <div class="modal-actions"><button class="modal-btn modal-cancel" onclick="closeModal('backup-modal')">Close</button></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'gwira_daily_v1';
+let D = {
+  entries: [],      // cash collections and cash outs
+  cheques: [],      // all cheques
+  bankings: [],     // bank in records
+  ocbc: 2536.37,    // current OCBC balance
+  cimb: 2082.70,    // current CIMB balance
+};
+
+let currentDate = today();
+let currentTab = 'daily';
+let activeChequeId = null;
+let entryType = 'shop';
+
+const ENTRY_TYPES = {
+  shop:     {label:'Shop',      icon:'🏪', color:'#16a34a', bg:'#dcfce7'},
+  delivery: {label:'Delivery',  icon:'🚚', color:'#2563eb', bg:'#dbeafe'},
+  cashout:  {label:'Cash Out',  icon:'💸', color:'#dc2626', bg:'#fee2e2'},
+  drawing:  {label:'Drawing',   icon:'👤', color:'#7c3aed', bg:'#ede9fe'},
+};
+
+function today(){ return new Date().toISOString().split('T')[0] }
+function fmt(n){ return 'RM ' + Math.abs(n).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2}) }
+function fmtDate(d){ return new Date(d).toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'}) }
+
+function load(){
+  const s = localStorage.getItem(STORAGE_KEY);
+  if(s) D = JSON.parse(s);
+}
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(D)) }
+
+// CASH IN HAND = all shop+delivery entries - all cashouts - all drawings - all banked in cash
+function getCashInHand(){
+  const income = D.entries.filter(e=>e.type==='shop'||e.type==='delivery').reduce((s,e)=>s+e.amount,0);
+  const out = D.entries.filter(e=>e.type==='cashout'||e.type==='drawing').reduce((s,e)=>s+e.amount,0);
+  const bankedCash = D.bankings.filter(b=>b.source==='cash').reduce((s,b)=>s+b.amount,0);
+  return Math.max(0, income - out - bankedCash);
+}
+
+function getPendingCheques(){
+  return D.cheques.filter(c=>!c.bankedIn).reduce((s,c)=>s+c.amount,0);
+}
+
+function getTodayTotal(){
+  const cash = D.entries.filter(e=>(e.type==='shop'||e.type==='delivery')&&e.date===currentDate).reduce((s,e)=>s+e.amount,0);
+  const cheques = D.cheques.filter(c=>c.collectedDate===currentDate).reduce((s,c)=>s+c.amount,0);
+  return cash + cheques;
+}
+
+function getDueTodayCheques(){
+  const t = today();
+  return D.cheques.filter(c=>!c.bankedIn && c.chequeDate <= t);
+}
+
+function updateHeader(){
+  document.getElementById('pouch-cash').textContent = fmt(getCashInHand());
+  document.getElementById('pouch-cheques').textContent = fmt(getPendingCheques());
+  document.getElementById('pouch-today').textContent = fmt(getTodayTotal());
+  document.getElementById('ocbc-balance').textContent = fmt(D.ocbc);
+  document.getElementById('cimb-balance').textContent = fmt(D.cimb);
+
+  // Cheque alert
+  const due = getDueTodayCheques();
+  const alert = document.getElementById('cheque-alert');
+  if(due.length > 0){
+    alert.style.display = 'block';
+    document.getElementById('cheque-alert-text').textContent = `⚠️ ${due.length} CHEQUE${due.length>1?'S':''} DUE TODAY — BANK IN NOW`;
+  } else {
+    alert.style.display = 'none';
+  }
+}
+
+// DATE NAV
+function updateDateNav(){
+  const d = new Date(currentDate);
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('nav-day').textContent = days[d.getDay()];
+  document.getElementById('nav-date').textContent = fmtDate(currentDate);
+}
+
+function changeDate(dir){
+  const d = new Date(currentDate);
+  d.setDate(d.getDate() + dir);
+  currentDate = d.toISOString().split('T')[0];
+  updateDateNav();
+  renderTab();
+}
+
+function goToday(){
+  currentDate = today();
+  updateDateNav();
+  renderTab();
+}
+
+// TABS
+function switchTab(tab, btn){
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTab();
+}
+
+function scrollToTab(tab){
+  const btn = document.getElementById('tab-'+tab);
+  if(btn) btn.click();
+}
+
+function renderTab(){
+  updateHeader();
+  if(currentTab==='daily') renderDaily();
+  else if(currentTab==='cheques') renderCheques();
+  else if(currentTab==='bankin') renderBankIn();
+}
+
+// DAILY TAB
+function renderDaily(){
+  const dayEntries = D.entries.filter(e=>e.date===currentDate);
+  const shopEntries = dayEntries.filter(e=>e.type==='shop');
+  const deliveryEntries = dayEntries.filter(e=>e.type==='delivery');
+  const outEntries = dayEntries.filter(e=>e.type==='cashout'||e.type==='drawing');
+  const dayCheques = D.cheques.filter(c=>c.collectedDate===currentDate);
+
+  const shopTotal = shopEntries.reduce((s,e)=>s+e.amount,0);
+  const deliveryTotal = deliveryEntries.reduce((s,e)=>s+e.amount,0);
+  const outTotal = outEntries.reduce((s,e)=>s+e.amount,0);
+  const chequeTotal = dayCheques.reduce((s,c)=>s+c.amount,0);
+
+  let html = `
+    <div class="day-summary">
+      <div class="day-sum-card" style="border-color:#86efac">
+        <div class="day-sum-icon">🏪</div>
+        <div class="day-sum-value" style="color:#16a34a">${fmt(shopTotal)}</div>
+        <div class="day-sum-label">Shop</div>
+      </div>
+      <div class="day-sum-card" style="border-color:#93c5fd">
+        <div class="day-sum-icon">🚚</div>
+        <div class="day-sum-value" style="color:#2563eb">${fmt(deliveryTotal)}</div>
+        <div class="day-sum-label">Delivery</div>
+      </div>
+    </div>`;
+
+  // Shop entries
+  html += `<div class="section-header">
+    <span class="section-title">🏪 Shop Collections</span>
+    <button class="section-add" onclick="showAddEntry('shop')">+</button>
+  </div>`;
+  if(shopEntries.length){
+    html += shopEntries.map(e=>entryCard(e)).join('');
+  } else {
+    html += `<div class="empty">No shop collections today</div>`;
+  }
+
+  // Delivery entries
+  html += `<div class="section-header">
+    <span class="section-title">🚚 Delivery Collections</span>
+    <button class="section-add" onclick="showAddEntry('delivery')">+</button>
+  </div>`;
+  if(deliveryEntries.length){
+    html += deliveryEntries.map(e=>entryCard(e)).join('');
+  } else {
+    html += `<div class="empty">No delivery collections today</div>`;
+  }
+
+  // Cheques collected today
+  if(dayCheques.length){
+    html += `<div class="section-header"><span class="section-title">🧾 Cheques Collected</span></div>`;
+    html += dayCheques.map(c=>`
+      <div class="entry-card">
+        <div class="entry-left-bar" style="background:#2563eb"></div>
+        <div class="entry-info">
+          <div class="entry-name">${c.customer}</div>
+          <div class="entry-meta">Chq: ${c.chequeNo} · ${c.type==='postdated'?'Post Dated: '+fmtDate(c.chequeDate):'Current Date'}</div>
+        </div>
+        <div class="entry-right">
+          <div class="entry-amount" style="color:#2563eb">${fmt(c.amount)}</div>
+          <div class="entry-type-badge" style="background:#dbeafe;color:#2563eb">${c.bankedIn?'✅ Banked':'⏳ Pending'}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Cash outs
+  html += `<div class="section-header">
+    <span class="section-title">💸 Cash Out</span>
+    <button class="section-add" onclick="showAddEntry('cashout')">+</button>
+  </div>`;
+  if(outEntries.length){
+    html += outEntries.map(e=>entryCard(e)).join('');
+  } else {
+    html += `<div class="empty">No cash out today</div>`;
+  }
+
+  document.getElementById('main-content').innerHTML = html;
+}
+
+function entryCard(e){
+  const t = ENTRY_TYPES[e.type];
+  const isOut = e.type==='cashout'||e.type==='drawing';
+  return `<div class="entry-card">
+    <div class="entry-left-bar" style="background:${t.color}"></div>
+    <div class="entry-info">
+      <div class="entry-name">${e.description||t.label}</div>
+      <div class="entry-meta">${e.type==='drawing'?'Drawing':'Cash'} · ${e.date}</div>
+    </div>
+    <div class="entry-right">
+      <div class="entry-amount" style="color:${t.color}">${isOut?'-':''}${fmt(e.amount)}</div>
+      <div class="entry-type-badge" style="background:${t.bg};color:${t.color}">${t.icon} ${t.label}</div>
+    </div>
+    <button class="entry-delete" onclick="deleteEntry(${e.id})">✕</button>
+  </div>`;
+}
+
+// CHEQUES TAB
+function renderCheques(){
+  const pending = D.cheques.filter(c=>!c.bankedIn).sort((a,b)=>a.chequeDate.localeCompare(b.chequeDate));
+  const banked = D.cheques.filter(c=>c.bankedIn).sort((a,b)=>b.chequeDate.localeCompare(a.chequeDate));
+  const t = today();
+
+  let html = `<div class="section-header">
+    <span class="section-title">🧾 Add Cheque</span>
+    <button class="section-add" onclick="openModal('cheque-modal')">+</button>
+  </div>`;
+
+  if(pending.length){
+    html += `<div class="section-header"><span class="section-title">⏳ Pending (${pending.length})</span></div>`;
+    html += pending.map(c=>{
+      const isDue = c.chequeDate <= t;
+      return `<div class="cheque-card ${isDue?'due-today':''}">
+        <div class="cheque-header">
+          <div>
+            <div class="cheque-customer">${c.customer}</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:1px">Chq: ${c.chequeNo}</div>
+          </div>
+          <div class="cheque-amount">${fmt(c.amount)}</div>
+        </div>
+        <div class="cheque-meta">
+          ${c.type==='postdated'?'📅 Post Dated':'📋 Current Date'} · Cheque Date: ${fmtDate(c.chequeDate)}
+          ${isDue?'<span style="color:var(--red);font-weight:700"> · ⚠️ DUE NOW</span>':''}
+        </div>
+        <div class="cheque-actions">
+          <button class="cheque-bankin-btn" onclick="showBankinCheque(${c.id})">🏦 Bank In</button>
+          <button class="cheque-delete-btn" onclick="deleteCheque(${c.id})">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    html += `<div class="empty">No pending cheques</div>`;
+  }
+
+  if(banked.length){
+    html += `<div class="section-header" style="margin-top:16px"><span class="section-title">✅ Banked In (${banked.length})</span></div>`;
+    html += banked.slice(0,5).map(c=>`
+      <div class="cheque-card cheque-banked">
+        <div class="cheque-header">
+          <div><div class="cheque-customer">${c.customer}</div><div style="font-size:10px;color:var(--text2)">Chq: ${c.chequeNo} · Banked: ${fmtDate(c.bankedDate)} → ${c.bankedAccount?.toUpperCase()}</div></div>
+          <div class="cheque-amount" style="color:#16a34a">${fmt(c.amount)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('main-content').innerHTML = html;
+}
+
+// BANK IN TAB
+function renderBankIn(){
+  const recentBankings = [...D.bankings].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,20);
+  
+  let html = `
+    <div class="bankin-card">
+      <div class="bankin-title">💵 Bank In Cash from Pouch</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Cash in hand: <strong>${fmt(getCashInHand())}</strong></div>
+      <div class="bankin-row">
+        <input class="bankin-input" type="number" id="bankin-amount" placeholder="Amount (RM)">
+        <select class="bankin-select" id="bankin-account">
+          <option value="ocbc">OCBC</option>
+          <option value="cimb">CIMB</option>
+        </select>
+        <button class="bankin-btn" onclick="confirmBankInCash()">Bank In ✓</button>
+      </div>
+      <div class="bankin-row">
+        <input class="bankin-input" type="date" id="bankin-date" value="${today()}">
+        <input class="bankin-input" type="text" id="bankin-notes" placeholder="Notes (optional)">
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span class="section-title">📋 Banking History</span>
+      <button onclick="openModal('set-balance-modal')" style="font-size:11px;font-weight:700;color:var(--blue);cursor:pointer;background:var(--blue-light);border:1px solid #93c5fd;padding:4px 10px;border-radius:8px">Set Balance</button>
+    </div>`;
+
+  if(recentBankings.length){
+    html += recentBankings.map(b=>`
+      <div class="entry-card">
+        <div class="entry-left-bar" style="background:${b.account==='ocbc'?'#f59e0b':'#2563eb'}"></div>
+        <div class="entry-info">
+          <div class="entry-name">${b.account?.toUpperCase()} — ${b.source==='cheque'?'Cheque':'Cash'}</div>
+          <div class="entry-meta">${fmtDate(b.date)}${b.notes?' · '+b.notes:''}</div>
+        </div>
+        <div class="entry-right">
+          <div class="entry-amount" style="color:#16a34a">${fmt(b.amount)}</div>
+        </div>
+        <button class="entry-delete" onclick="deleteBanking(${b.id})">✕</button>
+      </div>`).join('');
+  } else {
+    html += `<div class="empty">No banking records yet</div>`;
+  }
+
+  document.getElementById('main-content').innerHTML = html;
+}
+
+// ADD ENTRY
+function showAddEntry(type){
+  entryType = type || 'shop';
+  const typeGrid = document.getElementById('type-grid');
+  typeGrid.innerHTML = Object.entries(ENTRY_TYPES).map(([k,v])=>`
+    <div class="type-btn ${entryType===k?'selected':''}" onclick="selectType('${k}')">
+      <div class="type-btn-icon">${v.icon}</div>
+      <div class="type-btn-label">${v.label}</div>
+    </div>`).join('');
+  
+  renderEntryFields();
+  openModal('entry-modal');
+}
+
+function selectType(t){
+  entryType = t;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  renderEntryFields();
+}
+
+function renderEntryFields(){
+  const isOut = entryType==='cashout'||entryType==='drawing';
+  document.getElementById('entry-fields').innerHTML = `
+    <div class="form-group"><label class="form-label">${isOut?'Description':'Description / Customer'}</label><input class="form-input" type="text" id="entry-desc" placeholder="${isOut?'e.g. Paid Neo Pac, Drawings':'e.g. Customer name'}"></div>
+    <div class="form-group"><label class="form-label">Amount (RM)</label><input class="form-input" type="number" id="entry-amount" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="entry-date" value="${currentDate}"></div>`;
+}
+
+function confirmEntry(){
+  const desc = document.getElementById('entry-desc').value.trim();
+  const amount = parseFloat(document.getElementById('entry-amount').value)||0;
+  const date = document.getElementById('entry-date').value;
+  if(!amount||!date){toast('Enter amount and date','error');return;}
+  D.entries.push({id:Date.now(),type:entryType,description:desc,amount,date});
+  save();closeModal('entry-modal');renderTab();
+  toast('Added ✓','success');
+}
+
+function deleteEntry(id){
+  if(!confirm('Delete this entry?')) return;
+  D.entries = D.entries.filter(e=>e.id!==id);
+  save();renderTab();toast('Deleted','error');
+}
+
+// CHEQUES
+function confirmCheque(){
+  const customer = document.getElementById('chq-customer').value.trim();
+  const chequeNo = document.getElementById('chq-number').value.trim();
+  const amount = parseFloat(document.getElementById('chq-amount').value)||0;
+  const chequeDate = document.getElementById('chq-date').value;
+  const type = document.getElementById('chq-type').value;
+  if(!customer||!amount||!chequeDate){toast('Fill in all fields','error');return;}
+  D.cheques.push({id:Date.now(),customer,chequeNo,amount,chequeDate,type,collectedDate:currentDate,bankedIn:false});
+  save();closeModal('cheque-modal');renderTab();
+  toast('Cheque added ✓','success');
+}
+
+function showBankinCheque(id){
+  activeChequeId = id;
+  const c = D.cheques.find(x=>x.id===id);
+  document.getElementById('bankin-cheque-info').textContent = c.customer+' — '+fmt(c.amount);
+  document.getElementById('bankin-cheque-date').value = today();
+  openModal('bankin-cheque-modal');
+}
+
+function confirmBankinCheque(){
+  const account = document.getElementById('bankin-cheque-account').value;
+  const date = document.getElementById('bankin-cheque-date').value;
+  const c = D.cheques.find(x=>x.id===activeChequeId);
+  c.bankedIn = true;
+  c.bankedAccount = account;
+  c.bankedDate = date;
+  // Add to bankings
+  D.bankings.push({id:Date.now(),amount:c.amount,account,date,source:'cheque',notes:c.customer+' Chq:'+c.chequeNo});
+  // Update bank balance
+  if(account==='ocbc') D.ocbc += c.amount;
+  else D.cimb += c.amount;
+  save();closeModal('bankin-cheque-modal');renderTab();
+  toast('Cheque banked in ✓','success');
+}
+
+function deleteCheque(id){
+  if(!confirm('Delete this cheque?')) return;
+  D.cheques = D.cheques.filter(c=>c.id!==id);
+  save();renderTab();toast('Deleted','error');
+}
+
+// BANK IN CASH
+function confirmBankInCash(){
+  const amount = parseFloat(document.getElementById('bankin-amount').value)||0;
+  const account = document.getElementById('bankin-account').value;
+  const date = document.getElementById('bankin-date').value;
+  const notes = document.getElementById('bankin-notes').value;
+  if(!amount){toast('Enter amount','error');return;}
+  if(amount > getCashInHand()+0.01){toast('Amount exceeds cash in hand','error');return;}
+  D.bankings.push({id:Date.now(),amount,account,date,source:'cash',notes});
+  if(account==='ocbc') D.ocbc += amount;
+  else D.cimb += amount;
+  save();renderTab();
+  toast(fmt(amount)+' banked to '+account.toUpperCase()+' ✓','success');
+}
+
+function deleteBanking(id){
+  if(!confirm('Delete this banking record?')) return;
+  const b = D.bankings.find(x=>x.id===id);
+  if(b){
+    if(b.account==='ocbc') D.ocbc -= b.amount;
+    else D.cimb -= b.amount;
+    // If cheque banking, un-bank the cheque
+    if(b.source==='cheque'){
+      const chq = D.cheques.find(c=>c.chequeNo && b.notes && b.notes.includes(c.chequeNo));
+      if(chq){chq.bankedIn=false;chq.bankedAccount=null;chq.bankedDate=null;}
+    }
+  }
+  D.bankings = D.bankings.filter(x=>x.id!==id);
+  save();renderTab();toast('Deleted','error');
+}
+
+// SET BALANCE
+function confirmSetBalance(){
+  const ocbc = parseFloat(document.getElementById('sb-ocbc').value)||D.ocbc;
+  const cimb = parseFloat(document.getElementById('sb-cimb').value)||D.cimb;
+  D.ocbc = ocbc; D.cimb = cimb;
+  save();closeModal('set-balance-modal');renderTab();
+  toast('Balance updated ✓','success');
+}
+
+// REPORTS
+function showReports(){renderReport();openModal('reports-modal');}
+function renderReport(){
+  const period = document.getElementById('report-period').value;
+  const now = new Date();
+  let startDate, endDate;
+  if(period==='week'){
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day===0?-6:1);
+    startDate = new Date(now.setDate(diff)).toISOString().split('T')[0];
+    endDate = today();
+  } else if(period==='month'){
+    startDate = new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+    endDate = today();
+  } else {
+    const lastMonth = new Date(now.getFullYear(),now.getMonth()-1,1);
+    startDate = lastMonth.toISOString().split('T')[0];
+    endDate = new Date(now.getFullYear(),now.getMonth(),0).toISOString().split('T')[0];
+  }
+
+  const entries = D.entries.filter(e=>e.date>=startDate&&e.date<=endDate);
+  const shopTotal = entries.filter(e=>e.type==='shop').reduce((s,e)=>s+e.amount,0);
+  const deliveryTotal = entries.filter(e=>e.type==='delivery').reduce((s,e)=>s+e.amount,0);
+  const cashoutTotal = entries.filter(e=>e.type==='cashout').reduce((s,e)=>s+e.amount,0);
+  const drawingTotal = entries.filter(e=>e.type==='drawing').reduce((s,e)=>s+e.amount,0);
+  const chequesTotal = D.cheques.filter(c=>c.collectedDate>=startDate&&c.collectedDate<=endDate).reduce((s,c)=>s+c.amount,0);
+  const bankedTotal = D.bankings.filter(b=>b.date>=startDate&&b.date<=endDate).reduce((s,b)=>s+b.amount,0);
+  const totalIn = shopTotal+deliveryTotal+chequesTotal;
+  const totalOut = cashoutTotal+drawingTotal;
+
+  document.getElementById('report-content').innerHTML = `
+    <div style="background:var(--surface);border-radius:12px;padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;font-weight:700;margin-bottom:10px">${fmtDate(startDate)} — ${fmtDate(endDate)}</div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:#16a34a;font-weight:600">🏪 Shop</span><span style="font-family:'DM Mono';font-weight:700">${fmt(shopTotal)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:#2563eb;font-weight:600">🚚 Delivery</span><span style="font-family:'DM Mono';font-weight:700">${fmt(deliveryTotal)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:#7c3aed;font-weight:600">🧾 Cheques</span><span style="font-family:'DM Mono';font-weight:700">${fmt(chequesTotal)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:2px solid var(--black);font-size:12px"><span style="font-weight:800">Total In</span><span style="font-family:'DM Mono';font-weight:800;color:#16a34a">${fmt(totalIn)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:#dc2626;font-weight:600">💸 Cash Out</span><span style="font-family:'DM Mono';font-weight:700;color:#dc2626">-${fmt(cashoutTotal)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:#7c3aed;font-weight:600">👤 Drawings</span><span style="font-family:'DM Mono';font-weight:700;color:#7c3aed">-${fmt(drawingTotal)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="font-weight:600">🏦 Banked In</span><span style="font-family:'DM Mono';font-weight:700">-${fmt(bankedTotal)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:14px;font-weight:800"><span>Cash in Hand</span><span style="font-family:'DM Mono';color:#f59e0b">${fmt(getCashInHand())}</span></div>
+    </div>`;
+}
+
+function copyReport(){
+  const period = document.getElementById('report-period').value;
+  const content = document.getElementById('report-content').innerText;
+  navigator.clipboard.writeText('G WIRA DAILY COLLECTIONS REPORT\n\n'+content)
+    .then(()=>toast('Copied ✓','success')).catch(()=>{});
+}
+
+// BACKUP
+function exportBackup(){
+  const data = localStorage.getItem(STORAGE_KEY);
+  if(!data){toast('No data to backup','error');return;}
+  const blob = new Blob([data],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url;a.download='gwira_daily_backup_'+today()+'.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('Backup downloaded ✓','success');
+}
+
+function restoreBackup(){
+  const file = document.getElementById('restore-file').files[0];
+  if(!file){toast('Select a file first','error');return;}
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!confirm('Overwrite all current data?')) return;
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(parsed));
+      D=parsed;closeModal('backup-modal');renderTab();
+      toast('Restored ✓','success');
+    }catch{toast('Invalid file','error');}
+  };
+  reader.readAsText(file);
+}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// INIT
+load();
+updateDateNav();
+renderTab();
+</script>
+</body>
+</html>
