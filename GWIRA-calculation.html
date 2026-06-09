@@ -142,6 +142,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 
 .empty{text-align:center;padding:30px 20px;color:var(--text2);font-size:13px}
 .divider{height:1px;background:var(--border);margin:16px 0}
+.cash-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cash-denom{font-size:12px;font-weight:700;color:var(--text);width:50px}
+.cash-input{width:60px;background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:var(--text);outline:none;text-align:center;-webkit-appearance:none}
+.cash-input:focus{border-color:var(--yellow)}
 </style>
 </head>
 <body>
@@ -211,8 +215,50 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 
 <div class="main" id="main-content"></div>
 
-<button class="fab" onclick="showAddEntry()">+</button>
 <div class="toast" id="toast"></div>
+
+<!-- CASH COUNTER MODAL -->
+<div class="modal-overlay" id="cash-counter-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💵 Count Cash</div>
+    <div id="cash-counter-type-label" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:10px;color:var(--text2);font-weight:700;text-transform:uppercase;margin-bottom:6px">Notes</div>
+          <div class="cash-row"><span class="cash-denom">RM 100</span><input class="cash-input" type="number" id="c100" min="0" value="0" oninput="calcCash()"></div>
+          <div class="cash-row"><span class="cash-denom">RM 50</span><input class="cash-input" type="number" id="c50" min="0" value="0" oninput="calcCash()"></div>
+          <div class="cash-row"><span class="cash-denom">RM 20</span><input class="cash-input" type="number" id="c20" min="0" value="0" oninput="calcCash()"></div>
+          <div class="cash-row"><span class="cash-denom">RM 10</span><input class="cash-input" type="number" id="c10" min="0" value="0" oninput="calcCash()"></div>
+          <div class="cash-row"><span class="cash-denom">RM 5</span><input class="cash-input" type="number" id="c5" min="0" value="0" oninput="calcCash()"></div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text2);font-weight:700;text-transform:uppercase;margin-bottom:6px">Coins</div>
+          <div class="cash-row"><span class="cash-denom">RM 1</span><input class="cash-input" type="number" id="c1" min="0" value="0" oninput="calcCash()"></div>
+          <div class="cash-row"><span class="cash-denom">50 sen</span><input class="cash-input" type="number" id="c050" min="0" value="0" oninput="calcCash()"></div>
+          <div class="cash-row"><span class="cash-denom">20 sen</span><input class="cash-input" type="number" id="c020" min="0" value="0" oninput="calcCash()"></div>
+          <div class="cash-row"><span class="cash-denom">10 sen</span><input class="cash-input" type="number" id="c010" min="0" value="0" oninput="calcCash()"></div>
+          <div class="cash-row"><span class="cash-denom">5 sen</span><input class="cash-input" type="number" id="c005" min="0" value="0" oninput="calcCash()"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--yellow-light);border:2px solid var(--yellow);border-radius:12px;padding:14px;text-align:center;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;margin-bottom:4px">Total Counted</div>
+      <div style="font-size:28px;font-weight:800;color:var(--black);font-family:'DM Mono'" id="cash-total">RM 0.00</div>
+    </div>
+
+    <div class="form-group"><label class="form-label">Description (optional)</label><input class="form-input" type="text" id="cash-desc" placeholder="e.g. Morning collection"></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="cash-date"></div>
+    
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('cash-counter-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmCashCount()">Add ✓</button>
+    </div>
+  </div>
+</div>
 
 <!-- ADD ENTRY MODAL -->
 <div class="modal-overlay" id="entry-modal">
@@ -469,7 +515,7 @@ function renderDaily(){
   // Shop entries
   html += `<div class="section-header">
     <span class="section-title">🏪 Shop Collections</span>
-    <button class="section-add" onclick="showAddEntry('shop')">+</button>
+    <button class="section-add" onclick="showCashCounter('shop')">+</button>
   </div>`;
   if(shopEntries.length){
     html += shopEntries.map(e=>entryCard(e)).join('');
@@ -480,7 +526,7 @@ function renderDaily(){
   // Delivery entries
   html += `<div class="section-header">
     <span class="section-title">🚚 Delivery Collections</span>
-    <button class="section-add" onclick="showAddEntry('delivery')">+</button>
+    <button class="section-add" onclick="showCashCounter('delivery')">+</button>
   </div>`;
   if(deliveryEntries.length){
     html += deliveryEntries.map(e=>entryCard(e)).join('');
@@ -632,6 +678,55 @@ function renderBankIn(){
   }
 
   document.getElementById('main-content').innerHTML = html;
+}
+
+
+// CASH COUNTER
+let cashCounterType = 'shop';
+
+function showCashCounter(type){
+  cashCounterType = type;
+  const label = type === 'shop' ? '🏪 Shop Collection' : '🚚 Delivery Collection';
+  document.getElementById('cash-counter-type-label').textContent = label;
+  // Reset all fields
+  ['c100','c50','c20','c10','c5','c1','c050','c020','c010','c005'].forEach(id=>{
+    document.getElementById(id).value=0;
+  });
+  document.getElementById('cash-desc').value='';
+  document.getElementById('cash-date').value=today();
+  document.getElementById('cash-total').textContent='RM 0.00';
+  openModal('cash-counter-modal');
+}
+
+function calcCash(){
+  const vals = {
+    c100:100, c50:50, c20:20, c10:10, c5:5,
+    c1:1, c050:0.50, c020:0.20, c010:0.10, c005:0.05
+  };
+  let total = 0;
+  Object.entries(vals).forEach(([id,val])=>{
+    const qty = parseInt(document.getElementById(id).value)||0;
+    total += qty * val;
+  });
+  document.getElementById('cash-total').textContent = 'RM ' + total.toFixed(2);
+}
+
+function confirmCashCount(){
+  const vals = {
+    c100:100, c50:50, c20:20, c10:10, c5:5,
+    c1:1, c050:0.50, c020:0.20, c010:0.10, c005:0.05
+  };
+  let total = 0;
+  Object.entries(vals).forEach(([id,val])=>{
+    const qty = parseInt(document.getElementById(id).value)||0;
+    total += qty * val;
+  });
+  if(total <= 0){toast('Count must be more than 0','error');return;}
+  const desc = document.getElementById('cash-desc').value.trim() || (cashCounterType==='shop'?'Shop collection':'Delivery collection');
+  const date = document.getElementById('cash-date').value;
+  D.entries.push({id:Date.now(),type:cashCounterType,description:desc,amount:total,date});
+  save();closeModal('cash-counter-modal');renderTab();
+  toast('RM '+total.toFixed(2)+' added ✓','success');
 }
 
 // ADD ENTRY
