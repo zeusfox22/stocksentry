@@ -334,6 +334,23 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
     <div id="inv-detail-content"></div>
     <div class="modal-actions">
       <button class="modal-btn modal-cancel" onclick="closeModal('inv-detail-modal')">Close</button>
+      <button class="modal-btn modal-confirm" onclick="showEditInvoice()" id="edit-inv-btn">✏️ Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT INVOICE MODAL -->
+<div class="modal-overlay" id="edit-inv-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Edit Invoice</div>
+    <div id="edit-inv-sup-name" style="font-size:12px;color:var(--text2);margin-bottom:16px;font-weight:600"></div>
+    <div class="form-group"><label class="form-label">Invoice No.</label><input class="form-input" type="text" id="edit-inv-ref" placeholder="e.g. INV-001"></div>
+    <div class="form-group"><label class="form-label">Amount (RM)</label><input class="form-input" type="number" id="edit-inv-amount" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="edit-inv-date"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('edit-inv-modal')">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmEditInvoice()">Save ✓</button>
     </div>
   </div>
 </div>
@@ -860,7 +877,12 @@ function copySummary(){
 
 
 
+let activeSupId = null;
+let activeInvId = null;
+
 function showInvDetail(supId, invId){
+  activeSupId = supId;
+  activeInvId = invId;
   const s=D.suppliers.find(x=>x.id===supId);
   const inv=s.invoices.find(x=>x.id===invId);
   const paidAmt=getInvPaidAmt(s,invId);
@@ -915,6 +937,32 @@ function showInvDetail(supId, invId){
 
   document.getElementById('inv-detail-content').innerHTML=html;
   openModal('inv-detail-modal');
+}
+
+
+function showEditInvoice(){
+  const s=D.suppliers.find(x=>x.id===activeSupId);
+  const inv=s.invoices.find(x=>x.id===activeInvId);
+  document.getElementById('edit-inv-sup-name').textContent=s.name;
+  document.getElementById('edit-inv-ref').value=inv.ref;
+  document.getElementById('edit-inv-amount').value=inv.amount;
+  document.getElementById('edit-inv-date').value=inv.date;
+  closeModal('inv-detail-modal');
+  openModal('edit-inv-modal');
+}
+
+function confirmEditInvoice(){
+  const ref=document.getElementById('edit-inv-ref').value.trim();
+  const amount=parseFloat(document.getElementById('edit-inv-amount').value)||0;
+  const date=document.getElementById('edit-inv-date').value;
+  if(!amount||!date){toast('Enter amount and date','error');return;}
+  const s=D.suppliers.find(x=>x.id===activeSupId);
+  const inv=s.invoices.find(x=>x.id===activeInvId);
+  inv.ref=ref||inv.ref;
+  inv.amount=amount;
+  inv.date=date;
+  save();closeModal('edit-inv-modal');render();
+  toast('Invoice updated ✓','success');
 }
 
 function showPayHistory(id){
