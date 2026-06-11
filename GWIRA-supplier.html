@@ -326,6 +326,18 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   </div>
 </div>
 
+<!-- INVOICE DETAIL MODAL -->
+<div class="modal-overlay" id="inv-detail-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Invoice Detail</div>
+    <div id="inv-detail-content"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('inv-detail-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- PAYMENT HISTORY MODAL -->
 <div class="modal-overlay" id="pay-history-modal">
   <div class="modal">
@@ -531,14 +543,22 @@ function render(){
     if(isCleared) badges+=`<span class="badge badge-good">🎉 CLEARED</span>`;
 
     // Invoice rows
-    const invRows=(s.invoices||[]).map(inv=>`
-      <tr class="inv-row">
-        <td>
-          <div class="inv-ref-text">${inv.ref}</div>
-          <div class="inv-date-small">${inv.date}</div>
-        </td>
-        <td><div class="inv-amt" style="color:${inv.amount<0?'#16a34a':'#dc2626'}">${inv.amount<0?'-':''} RM ${Math.abs(inv.amount).toFixed(2)}</div></td>
-      </tr>`).join('');
+    const invRows=(s.invoices||[]).map(inv=>{
+      const paidAmt=getInvPaidAmt(s,inv.id);
+      const remaining=Math.max(0,inv.amount-paidAmt);
+      const isFullyPaid=remaining<=0;
+      const isPartial=paidAmt>0&&!isFullyPaid;
+      let dotColor,amtColor,badgeHtml;
+      if(isFullyPaid){dotColor='#16a34a';amtColor='#16a34a';badgeHtml='<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:#dcfce7;color:#16a34a">✅ Paid</span>';}
+      else if(isPartial){dotColor='#f59e0b';amtColor='#d97706';badgeHtml='<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:#fef9c3;color:#d97706">Partial</span>';}
+      else{dotColor='#dc2626';amtColor='#dc2626';badgeHtml='<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:#fee2e2;color:#dc2626">Unpaid</span>';}
+      const displayAmt=isFullyPaid?inv.amount:remaining;
+      return '<tr class="inv-row" style="'+(isFullyPaid?'opacity:0.5':'')+'" onclick="showInvDetail('+s.id+','+inv.id+')">'+
+        '<td><div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:'+dotColor+';flex-shrink:0"></div>'+
+        '<div><div class="inv-ref-text">'+inv.ref+'</div><div class="inv-date-small">'+inv.date+'</div></div></div></td>'+
+        '<td><div class="inv-amt" style="color:'+amtColor+'">RM '+displayAmt.toFixed(2)+'</div>'+badgeHtml+
+        '<div style="font-size:9px;color:var(--text3);margin-top:2px">tap for detail</div></td></tr>';
+    }).join('');
 
     const payRows=(s.payments||[]).map(p=>`
       <tr class="pay-row">
@@ -838,6 +858,64 @@ function copySummary(){
 }
 
 
+
+
+function showInvDetail(supId, invId){
+  const s=D.suppliers.find(x=>x.id===supId);
+  const inv=s.invoices.find(x=>x.id===invId);
+  const paidAmt=getInvPaidAmt(s,invId);
+  const remaining=Math.max(0,inv.amount-paidAmt);
+  const isFullyPaid=remaining<=0;
+  const isPartial=paidAmt>0&&!isFullyPaid;
+
+  // Get payments linked to this invoice
+  const linkedPays=(s.payments||[]).filter(p=>p.invId===invId);
+
+  let statusColor=isFullyPaid?'#16a34a':isPartial?'#d97706':'#dc2626';
+  let statusLabel=isFullyPaid?'✅ Fully Paid':isPartial?'🟡 Partially Paid':'🔴 Unpaid';
+
+  let html=`
+    <div style="background:var(--surface);border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text2);font-weight:600">Supplier</span>
+        <span style="font-weight:700">${s.name}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text2);font-weight:600">Invoice</span>
+        <span style="font-weight:700;font-family:'DM Mono'">${inv.ref}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text2);font-weight:600">Date</span>
+        <span style="font-weight:700">${inv.date}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text2);font-weight:600">Original Amount</span>
+        <span style="font-weight:700;font-family:'DM Mono'">RM ${inv.amount.toFixed(2)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text2);font-weight:600">Total Paid</span>
+        <span style="font-weight:700;font-family:'DM Mono';color:#16a34a">RM ${paidAmt.toFixed(2)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0 4px;font-size:15px">
+        <span style="font-weight:800">Balance Remaining</span>
+        <span style="font-weight:800;font-family:'DM Mono';color:${statusColor}">RM ${remaining.toFixed(2)}</span>
+      </div>
+      <div style="text-align:right"><span style="font-size:11px;font-weight:700;color:${statusColor}">${statusLabel}</span></div>
+    </div>`;
+
+  if(linkedPays.length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Payment History</div>`;
+    linkedPays.forEach(p=>{
+      html+=`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <div><div style="font-weight:600">${p.date} · ${p.method}</div>${p.notes?`<div style="font-size:10px;color:var(--text2)">${p.notes}</div>`:''}</div>
+        <div style="font-family:'DM Mono';font-weight:700;color:#16a34a">RM ${p.amount.toFixed(2)}</div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('inv-detail-content').innerHTML=html;
+  openModal('inv-detail-modal');
+}
 
 function showPayHistory(id){
   activeId=id;
