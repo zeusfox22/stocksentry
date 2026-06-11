@@ -1155,8 +1155,8 @@ load();render();
 
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px">
         <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">📥 Restore from Backup</div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Paste your previously exported backup text here.</div>
-        <textarea class="form-input" id="restore-text-suppliers" rows="4" placeholder="Paste your backup text here..." style="margin-bottom:10px;font-family:monospace;font-size:11px"></textarea>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Select your previously downloaded .json backup file.</div>
+        <input type="file" accept=".json" id="restore-file-suppliers" class="form-input" style="margin-bottom:10px;padding:10px">
         <button class="modal-btn" style="background:var(--red-light);color:var(--red);border:1.5px solid #fca5a5;margin:0;padding:12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;width:100%;font-family:'Plus Jakarta Sans',sans-serif" onclick="restoreBackup_suppliers()">⚠️ Restore Data (Overwrites Current)</button>
       </div>
     </div>
